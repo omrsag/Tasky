@@ -4,13 +4,14 @@
 
 Tasky will use a separated frontend and backend architecture:
 
-**React Frontend → Axios → Express REST API → MySQL**
+**React + TypeScript Frontend → Axios → Express + TypeScript REST API → MySQL**
 
 The stack is intentionally simple and focused on the MVP.
 
 ## 2. Frontend
 
 - **React** — Frontend library.
+- **TypeScript** — Frontend programming language.
 - **Create React App** — React project setup.
 - **react-router-dom** — Client-side routing.
 - **Axios** — HTTP requests to the backend REST API.
@@ -22,8 +23,9 @@ The stack is intentionally simple and focused on the MVP.
 ## 3. Backend
 
 - **Node.js** — Backend runtime.
+- **TypeScript** — Backend programming language.
 - **Express** — REST API server.
-- **CommonJS** — Backend module system using `require()`.
+- **CommonJS** — Backend compiled module format.
 - **CORS** — Allows communication between the separately hosted frontend and backend.
 - **Multer** — Handles profile image and task attachment uploads.
 - **bcrypt** — Password hashing and password verification.
@@ -31,7 +33,7 @@ The stack is intentionally simple and focused on the MVP.
 - **Node.js `path`** — File path handling.
 - **Node.js `fs`** — Local file management.
 
-For the MVP, the backend application logic will remain in a single **`server.js`** file.
+For the MVP, the backend application logic will remain in a single `server.ts` file.
 
 ## 4. Database
 
@@ -68,7 +70,7 @@ backend/
 ├── uploads/
 │   ├── attachments/
 │   └── profile-images/
-└── server.js
+└── server.ts
 ```
 
 ## 7. Notifications
@@ -84,11 +86,13 @@ The frontend will periodically request notification updates from the backend.
 - **Postman** — REST API testing.
 - **Git** — Version control.
 - **GitHub** — Source-code repository hosting.
+- **TypeScript Compiler (`tsc`)** — Compiles TypeScript source code to JavaScript.
 
 The backend will be started with:
 
 ```bash
-node server.js
+npx tsc
+node dist/server.js
 ```
 
 No `nodemon` will be used.
@@ -106,7 +110,6 @@ Deployment secrets and database credentials will be provided through hosting env
 
 The MVP will not use:
 
-- TypeScript
 - Vite
 - Vue
 - JWT

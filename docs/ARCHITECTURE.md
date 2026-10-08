@@ -4,7 +4,7 @@
 
 Tasky uses a separated frontend and backend architecture.
 
-The React frontend is hosted on Vercel and communicates with an Express REST API hosted on an Oracle Cloud VM. The backend is the only layer that communicates with MySQL and local uploaded files.
+The React + TypeScript frontend is hosted on Vercel and communicates with an Express REST API hosted on an Oracle Cloud VM. The backend is the only layer that communicates with MySQL and local uploaded files.
 
 The architecture is intentionally simple and focused on the MVP.
 
@@ -14,7 +14,7 @@ The architecture is intentionally simple and focused on the MVP.
 flowchart LR
     User[User / Browser]
 
-    subgraph Frontend["Frontend — React / Vercel"]
+    subgraph Frontend["Frontend — React + TypeScript / Vercel"]
         Pages[Pages]
         Components[Reusable Components]
         Router[React Router]
@@ -22,7 +22,7 @@ flowchart LR
         Axios[Axios]
     end
 
-    subgraph Backend["Backend — Express / Oracle Cloud VM"]
+    subgraph Backend["Backend — Express + TypeScript / Oracle Cloud VM"]
         API[REST Endpoints]
         AuthMW[Authentication]
         Permissions[Authorization & Permissions]
@@ -88,19 +88,19 @@ frontend/src/
 ├── components/
 ├── pages/
 ├── context/
-├── App.jsx
-└── index.js
+├── App.tsx
+└── index.tsx
 ```
 
 - `pages/` contains complete screens and normally handles Axios requests.
 - `components/` contains reusable UI components and remains flat for the MVP.
 - `context/` contains `AuthContext`.
-- Files containing JSX use `.jsx`; files without JSX use `.js`.
+- Files containing JSX use `.tsx`; TypeScript files without JSX use `.ts`.
 - Projects, Tasks, Users, and Notifications use local page state with `useState` and `useEffect`.
 - `AuthContext` is the only global Context required for the MVP.
 - No separate API service layer is used.
 
-Protected pages share `Layout.jsx`, while Login and Registration remain public routes. `ProtectedRoute.jsx` controls access to protected pages.
+Protected pages share `Layout.tsx`, while Login and Registration remain public routes. `ProtectedRoute.tsx` controls access to protected pages.
 
 ## 5. Frontend Data Flow
 
@@ -126,7 +126,8 @@ Each page handles its own loading and error states. Authentication failures inva
 
 ```text
 backend/
-├── server.js
+├── server.ts
+├── tsconfig.json
 ├── uploads/
 │   ├── attachments/
 │   └── profile-images/
@@ -134,7 +135,7 @@ backend/
 └── package-lock.json
 ```
 
-The backend remains in one `server.js` file for the MVP.
+The backend remains in one `server.ts` file for the MVP.
 
 The file is organized internally into configuration, database connection, middleware, authentication helpers, authorization helpers, route groups, file handling, error handling, and server startup.
 
@@ -144,7 +145,7 @@ No separate routes, controllers, models, or services directories are used.
 
 The backend uses `mysql2`, a MySQL connection pool, and callback-based `db.query()` calls.
 
-SQL is written directly inside `server.js`. No ORM or MySQL Transactions are used in the MVP.
+SQL is written directly inside `server.ts`. No ORM or MySQL Transactions are used in the MVP.
 
 The frontend never connects directly to MySQL.
 
@@ -156,7 +157,7 @@ The token is stored in `localStorage`. When the app starts, `AuthContext` valida
 
 The frontend may hide or show controls based on user role, but the backend is always the final authority for authentication, authorization, and object permissions.
 
-Authorization helper functions inside `server.js` reduce repeated permission logic.
+Authorization helper functions inside `server.ts` reduce repeated permission logic.
 
 ## 9. Workspace Isolation & Validation
 
@@ -178,7 +179,7 @@ Uploaded files are not exposed as public static files. They are delivered throug
 
 Notifications use Axios polling instead of WebSockets.
 
-`Navbar.jsx` periodically requests the unread notification count. `NotificationsPage.jsx` loads the full notification list when opened.
+`Navbar.tsx` periodically requests the unread notification count. `NotificationsPage.tsx` loads the full notification list when opened.
 
 ## 12. Configuration & CORS
 
