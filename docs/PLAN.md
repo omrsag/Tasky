@@ -98,8 +98,8 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Create the `frontend/` and `backend/` directories in the existing Tasky project.
-- [ ] Initialize `frontend/` using Create React App with the TypeScript template.
+- [x] Create the `frontend/` and `backend/` directories in the existing Tasky project.
+- [x] Initialize `frontend/` using Create React App with the TypeScript template.
 - [ ] Install `react-router-dom`, Axios, and Bootstrap for the frontend.
 - [ ] Initialize `backend/` with npm and TypeScript.
 - [ ] Install Express, `mysql2`, CORS, Multer, bcrypt, and only the necessary TypeScript type packages.
