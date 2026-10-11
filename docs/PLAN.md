@@ -107,7 +107,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Create a minimal `backend/tsconfig.json` that compiles the CommonJS backend into `dist/`. Do not add `rootDir`, `extends`, or other options unless needed.
 - [x] Create the `backend/uploads/attachments/` and `backend/uploads/profile-images/` directories.
 - [x] Prepare the frontend folders `src/pages/`, `src/components/`, and `src/context/` as described in `ARCHITECTURE.md`.
-- [ ] Verify that the frontend starts and that a minimal backend compiles with `npx tsc` and starts with `node dist/server.js`.
+- [x] Verify that the frontend starts and that a minimal backend compiles with `npx tsc` and starts with `node dist/server.js`.
 
 ### Completion Criteria
 
