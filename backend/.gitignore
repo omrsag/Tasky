@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Compiled TypeScript
+dist/
+
+# Environment variables
+.env
+
+# Uploaded files
+uploads/attachments/*
+uploads/profile-images/*
+
+# Keep upload directories in Git
+!uploads/attachments/.gitkeep
+!uploads/profile-images/.gitkeep
