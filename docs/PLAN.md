@@ -102,7 +102,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Initialize `frontend/` using Create React App with the TypeScript template.
 - [x] Install `react-router-dom`, Axios, and Bootstrap for the frontend.
 - [x] Initialize `backend/` with npm and TypeScript.
-- [ ] Install Express, `mysql2`, CORS, Multer, bcrypt, and only the necessary TypeScript type packages.
+- [x] Install Express, `mysql2`, CORS, Multer, bcrypt, and only the necessary TypeScript type packages.
 - [ ] Create `backend/server.ts` as the backend entry point; do not create `backend/src/`.
 - [ ] Create a minimal `backend/tsconfig.json` that compiles the CommonJS backend into `dist/`. Do not add `rootDir`, `extends`, or other options unless needed.
 - [ ] Create the `backend/uploads/attachments/` and `backend/uploads/profile-images/` directories.
