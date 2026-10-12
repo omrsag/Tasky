@@ -160,9 +160,9 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Use direct, parameterized SQL with callback-based `db.query()`; do not add an ORM or transaction layer.
 - [x] Organize `server.ts` internally into configuration, database, helpers, middleware, route groups, file handling, errors, and startup.
 - [x] Use `camelCase` in API JSON and `snake_case` for MySQL column names.
-- [ ] Follow the response and HTTP status conventions in `API.md`, without an `/api` route prefix.
-- [ ] Handle expected request errors with clear `{ "message": "..." }` responses and unexpected failures without exposing sensitive details.
-- [ ] Compile and start the backend, then verify the database connection and basic error handling manually.
+- [x] Follow the response and HTTP status conventions in `API.md`, without an `/api` route prefix.
+- [x] Handle expected request errors with clear `{ "message": "..." }` responses and unexpected failures without exposing sensitive details.
+- [x] Compile and start the backend, then verify the database connection and basic error handling manually.
 
 ### Completion Criteria
 

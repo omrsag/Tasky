@@ -9,6 +9,7 @@ const DB_HOST: string | undefined = process.env.DB_HOST;
 const DB_USER: string | undefined = process.env.DB_USER;
 const DB_PASSWORD: string | undefined = process.env.DB_PASSWORD;
 const DB_NAME: string | undefined = process.env.DB_NAME;
+const DB_PORT: number = Number(process.env.DB_PORT) | 3306;
 
 const FRONTEND_URL: string | undefined = process.env.FRONTEND_URL;
 
@@ -18,20 +19,8 @@ const db: mysql.Pool = mysql.createPool({
   user: DB_USER,
   password: DB_PASSWORD,
   database: DB_NAME,
+  port: DB_PORT,
 });
-
-db.query<mysql.RowDataPacket[]>(
-  "SELECT id FROM workspaces WHERE name = ? LIMIT 1",
-  ["Tasky"],
-  (error, results) => {
-    if (error) {
-      console.error("Database query failed:", error.message);
-      return;
-    }
-
-    console.log("Database query executed successfully");
-  }
-);
 
 // Helpers
 
@@ -50,6 +39,24 @@ app.use(express.json());
 // File Handling
 
 // Error Handling
+app.use((_req: express.Request, res: express.Response) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+app.use((
+  error: Error & { status?: number },
+  _req: express.Request,
+  res: express.Response,
+  _next: express.NextFunction
+) => {
+  if (error.status === 400) {
+    res.status(400).json({ message: "Invalid request body" });
+    return;
+  }
+
+  console.error("Unexpected server error:", error);
+  res.status(500).json({ message: "Something went wrong" });
+});
 
 // Server Startup
 app.listen(PORT, () => {
