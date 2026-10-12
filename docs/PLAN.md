@@ -125,17 +125,17 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Prepare a local MySQL database and access it through phpMyAdmin.
-- [ ] Create `database/schema.sql` for repeatable database setup.
-- [ ] Define the `workspaces` and `users` tables.
-- [ ] Define the `projects` and `project_members` tables.
-- [ ] Define the `tasks`, `comments`, and `attachments` tables.
-- [ ] Define the `notifications` and `sessions` tables.
-- [ ] Match the ERD's column names, required/optional fields, types, and enum values.
-- [ ] Add the primary keys and foreign keys defined in `ERD.md`.
-- [ ] Add unique constraints for user emails, session tokens, and `(project_id, user_id)` memberships.
-- [ ] Keep application-level deletion coordination in the backend rather than using broad database cascades.
-- [ ] Import `schema.sql` with phpMyAdmin and verify that all nine tables and relationships are created.
+- [x] Prepare a local MySQL database and access it through phpMyAdmin.
+- [x] Create `database/schema.sql` for repeatable database setup.
+- [x] Define the `workspaces` and `users` tables.
+- [x] Define the `projects` and `project_members` tables.
+- [x] Define the `tasks`, `comments`, and `attachments` tables.
+- [x] Define the `notifications` and `sessions` tables.
+- [x] Match the ERD's column names, required/optional fields, types, and enum values.
+- [x] Add the primary keys and foreign keys defined in `ERD.md`.
+- [x] Add unique constraints for user emails, session tokens, and `(project_id, user_id)` memberships.
+- [x] Keep application-level deletion coordination in the backend rather than using broad database cascades.
+- [x] Import `schema.sql` with phpMyAdmin and verify that all nine tables and relationships are created.
 
 ### Completion Criteria
 
