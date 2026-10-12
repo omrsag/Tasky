@@ -153,9 +153,9 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Set up Express and JSON request handling inside `backend/server.ts`.
-- [ ] Read the required port, database settings, and frontend origin from `process.env`.
-- [ ] Configure CORS to allow the configured `FRONTEND_URL`.
+- [x] Set up Express and JSON request handling inside `backend/server.ts`.
+- [x] Read the required port, database settings, and frontend origin from `process.env`.
+- [x] Configure CORS to allow the configured `FRONTEND_URL`.
 - [ ] Create a MySQL connection pool using `mysql2`.
 - [ ] Use direct, parameterized SQL with callback-based `db.query()`; do not add an ORM or transaction layer.
 - [ ] Organize `server.ts` internally into configuration, database, helpers, middleware, route groups, file handling, errors, and startup.
