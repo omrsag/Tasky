@@ -208,7 +208,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Add reusable authentication and authorization helpers inside `server.ts`.
+- [x] Add reusable authentication and authorization helpers inside `server.ts`.
 - [ ] Derive the current Workspace from the authenticated user rather than trusting a frontend `workspaceId`.
 - [ ] Enforce Admin-only operations where required.
 - [ ] Restrict a Manager's project access to Projects they manage.

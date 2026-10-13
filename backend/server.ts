@@ -44,7 +44,7 @@ function requireAuth(
   }
 
   db.query<mysql.RowDataPacket[]>(
-    `SELECT s.user_id, u.status
+    `SELECT s.user_id, u.status, u.role
     FROM sessions s
     JOIN users u ON u.id = s.user_id
     WHERE s.token = ?
@@ -68,10 +68,27 @@ function requireAuth(
       }
 
       res.locals.userId = results[0].user_id;
+      res.locals.role = results[0].role;
       res.locals.token = token;
       next();
     }
   );
+}
+
+function requireRole(...allowedRoles: string[]): express.RequestHandler {
+  return (_req, res, next) => {
+    if (!res.locals.userId) {
+      res.status(401).json({ message: "Authentication required" });
+      return;
+    }
+
+    if (allowedRoles.indexOf(res.locals.role) === -1) {
+      res.status(403).json({ message: "Access denied" });
+      return;
+    }
+
+    next();
+  };
 }
 
 const app = express();
