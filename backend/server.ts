@@ -186,6 +186,87 @@ app.post("/auth/register", (req: express.Request, res: express.Response) => {
   );
 });
 
+app.post("/auth/login", (req: express.Request, res: express.Response) => {
+  const { email, password } = req.body ?? {};
+
+  if (
+    typeof email !== "string" ||
+    !email.trim() ||
+    typeof password !== "string" ||
+    !password
+  ) {
+    res.status(400).json({ message: "Invalid login information" });
+    return;
+  }
+
+  const normalizedEmail: string = email.trim().toLowerCase();
+
+  db.query<mysql.RowDataPacket[]>(
+    `SELECT id, full_name, email, password_hash, role, status, profile_image_path
+    FROM users
+    WHERE email = ?
+    LIMIT 1`,
+    [normalizedEmail],
+    (error, results) => {
+      if (error) {
+        console.error("Login query failed:", error);
+        res.status(500).json({ message: "Something went wrong" });
+        return;
+      }
+
+      if (results.length === 0) {
+        res.status(401).json({ message: "Invalid email or password" });
+        return;
+      }
+
+      const user = results[0];
+
+      bcrypt.compare(password, user.password_hash, (compareError, isMatch) => {
+        if (compareError) {
+          console.error("Password verification failed:", compareError);
+          res.status(500).json({ message: "Something went wrong" });
+          return;
+        }
+
+        if (!isMatch) {
+          res.status(401).json({ message: "Invalid email or password" });
+          return;
+        }
+
+        if (user.status !== "Active") {
+          res.status(403).json({ message: "Account is disabled" });
+          return;
+        }
+
+        const token: string = crypto.randomBytes(32).toString("hex");
+
+        db.query<mysql.ResultSetHeader>(
+          "INSERT INTO sessions (user_id, token) VALUES (?, ?)",
+          [user.id, token],
+          (sessionError) => {
+            if (sessionError) {
+              console.error("Login session creation failed:", sessionError);
+              res.status(500).json({ message: "Something went wrong" });
+              return;
+            }
+
+            res.status(200).json({
+              token,
+              user: {
+                id: user.id,
+                fullName: user.full_name,
+                email: user.email,
+                role: user.role,
+                hasProfileImage: user.profile_image_path !== null,
+              },
+            });
+          }
+        );
+      });
+    }
+  );
+});
+
 // File Handling
 
 // Error Handling

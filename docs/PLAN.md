@@ -182,7 +182,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Implement `POST /auth/register` to create one Workspace, its Admin, and a new session.
 - [x] Validate registration fields and reject duplicate emails.
 - [x] Hash passwords with bcrypt and enforce the minimum eight-character password rule.
-- [ ] Implement `POST /auth/login` with email/password verification and an Active-account check.
+- [x] Implement `POST /auth/login` with email/password verification and an Active-account check.
 - [x] Generate secure random session tokens using Node.js `crypto` and store them in `sessions`.
 - [ ] Implement session authentication using `Authorization: Bearer <token>`.
 - [ ] Implement `GET /auth/me` to validate a session and return the current user, including `hasProfileImage`.
