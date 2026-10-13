@@ -186,7 +186,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Generate secure random session tokens using Node.js `crypto` and store them in `sessions`.
 - [x] Implement session authentication using `Authorization: Bearer <token>`.
 - [x] Implement `GET /auth/me` to validate a session and return the current user, including `hasProfileImage`.
-- [ ] Implement `POST /auth/logout` to invalidate the current session.
+- [x] Implement `POST /auth/logout` to invalidate the current session.
 - [ ] Implement `PATCH /auth/password` for changing the signed-in user's password.
 - [ ] Allow multiple active sessions for a user; sessions remain valid until logout or invalidation.
 - [ ] Reject disabled users on their next protected request, even when their session token still exists.

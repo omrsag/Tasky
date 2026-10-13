@@ -59,6 +59,7 @@ function requireAuth(
       }
 
       res.locals.userId = results[0].user_id;
+      res.locals.token = token;
       next();
     }
   );
@@ -336,6 +337,24 @@ app.get("/auth/me", requireAuth, (_req: express.Request, res: express.Response) 
           hasProfileImage: user.profile_image_path !== null,
         },
       });
+    }
+  );
+});
+
+app.post("/auth/logout", requireAuth, (_req: express.Request, res: express.Response) => {
+  const token: string = res.locals.token;
+
+  db.query<mysql.ResultSetHeader>(
+    "DELETE FROM sessions WHERE token = ?",
+    [token],
+    (error) => {
+      if (error) {
+        console.error("Logout failed:", error);
+        res.status(500).json({ message: "Something went wrong" });
+        return;
+      }
+
+      res.status(200).json({ message: "Logged out successfully" });
     }
   );
 });
