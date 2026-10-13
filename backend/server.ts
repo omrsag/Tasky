@@ -304,6 +304,42 @@ app.post("/auth/login", (req: express.Request, res: express.Response) => {
   );
 });
 
+app.get("/auth/me", requireAuth, (_req: express.Request, res: express.Response) => {
+  const userId: number = res.locals.userId;
+
+  db.query<mysql.RowDataPacket[]>(
+    `SELECT id, full_name, email, role, profile_image_path
+    FROM users
+    WHERE id = ?
+    LIMIT 1`,
+    [userId],
+    (error, results) => {
+      if (error) {
+        console.error("Fetch current user failed:", error);
+        res.status(500).json({ message: "Something went wrong" });
+        return;
+      }
+
+      if (results.length === 0) {
+        res.status(401).json({ message: "Invalid session" });
+        return;
+      }
+
+      const user = results[0];
+
+      res.status(200).json({
+        user: {
+          id: user.id,
+          fullName: user.full_name,
+          email: user.email,
+          role: user.role,
+          hasProfileImage: user.profile_image_path !== null,
+        },
+      });
+    }
+  );
+});
+
 // File Handling
 
 // Error Handling
