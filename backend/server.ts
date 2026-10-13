@@ -40,11 +40,17 @@ app.use(express.json());
 app.post("/auth/register", (req: express.Request, res: express.Response) => {
   const { fullName, email, password, workspaceName } = req.body ?? {};
 
+  const emailParts = typeof email === "string" ? email.trim().split("@") : [];
+
   if (
     typeof fullName !== "string" ||
     !fullName.trim() ||
     typeof email !== "string" ||
     !email.trim() ||
+    emailParts.length !== 2 ||
+    !emailParts[0] ||
+    !emailParts[1].includes(".") ||
+    email.trim().includes(" ") ||
     typeof password !== "string" ||
     password.length < 8 ||
     typeof workspaceName !== "string" ||
@@ -54,131 +60,130 @@ app.post("/auth/register", (req: express.Request, res: express.Response) => {
     return;
   }
 
+  const normalizedEmail: string = email.trim().toLowerCase();
 
-const normalizedEmail: string = email.trim().toLowerCase();
-
-db.query<mysql.RowDataPacket[]>(
-  "SELECT id FROM users WHERE email = ? LIMIT 1",
-  [normalizedEmail],
-  (error, results) => {
-    if (error) {
-      console.error("Registration query failed:", error);
-      res.status(500).json({ message: "Something went wrong" });
-      return;
-    }
-
-    if (results.length > 0) {
-      res.status(409).json({ message: "Email already exists" });
-      return;
-    }
-
-
-    bcrypt.hash(password, 10, (hashError, passwordHash) => {
-      if (hashError) {
-        console.error("Password hashing failed:", hashError);
+  db.query<mysql.RowDataPacket[]>(
+    "SELECT id FROM users WHERE email = ? LIMIT 1",
+    [normalizedEmail],
+    (error, results) => {
+      if (error) {
+        console.error("Registration query failed:", error);
         res.status(500).json({ message: "Something went wrong" });
         return;
       }
 
-
-      db.query<mysql.ResultSetHeader>(
-        "INSERT INTO workspaces (name) VALUES (?)",
-        [workspaceName.trim()],
-        (workspaceError, workspaceResult) => {
-          if (workspaceError) {
-            console.error("Workspace creation failed:", workspaceError);
-            res.status(500).json({ message: "Something went wrong" });
-            return;
-          }
-
-          const workspaceId: number = workspaceResult.insertId;
+      if (results.length > 0) {
+        res.status(409).json({ message: "Email already exists" });
+        return;
+      }
 
 
-          db.query<mysql.ResultSetHeader>(
-            `INSERT INTO users (workspace_id, full_name, email, password_hash, role, status)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-            [workspaceId, fullName.trim(), normalizedEmail, passwordHash, "Admin", "Active"],
-            (adminError, adminResult) => {
-              if (adminError) {
-                console.error("Admin creation failed:", adminError);
+      bcrypt.hash(password, 10, (hashError, passwordHash) => {
+        if (hashError) {
+          console.error("Password hashing failed:", hashError);
+          res.status(500).json({ message: "Something went wrong" });
+          return;
+        }
 
-                db.query(
-                  "DELETE FROM workspaces WHERE id = ?",
-                  [workspaceId],
-                  (cleanupError) => {
-                    if (cleanupError) {
-                      console.error("Workspace cleanup failed:", cleanupError);
+
+        db.query<mysql.ResultSetHeader>(
+          "INSERT INTO workspaces (name) VALUES (?)",
+          [workspaceName.trim()],
+          (workspaceError, workspaceResult) => {
+            if (workspaceError) {
+              console.error("Workspace creation failed:", workspaceError);
+              res.status(500).json({ message: "Something went wrong" });
+              return;
+            }
+
+            const workspaceId: number = workspaceResult.insertId;
+
+
+            db.query<mysql.ResultSetHeader>(
+              `INSERT INTO users (workspace_id, full_name, email, password_hash, role, status)
+              VALUES (?, ?, ?, ?, ?, ?)`,
+              [workspaceId, fullName.trim(), normalizedEmail, passwordHash, "Admin", "Active"],
+              (adminError, adminResult) => {
+                if (adminError) {
+                  console.error("Admin creation failed:", adminError);
+
+                  db.query(
+                    "DELETE FROM workspaces WHERE id = ?",
+                    [workspaceId],
+                    (cleanupError) => {
+                      if (cleanupError) {
+                        console.error("Workspace cleanup failed:", cleanupError);
+                      }
+
+                      const duplicateEmail = adminError.code === "ER_DUP_ENTRY";
+
+                      res.status(duplicateEmail ? 409 : 500).json({
+                        message: duplicateEmail
+                          ? "Email already exists"
+                          : "Something went wrong",
+                      });
+                    }
+                  );
+                  return;
+                }
+
+                const adminId: number = adminResult.insertId;
+
+
+                const token: string = crypto.randomBytes(32).toString("hex");
+
+                db.query<mysql.ResultSetHeader>(
+                  "INSERT INTO sessions (user_id, token) VALUES (?, ?)",
+                  [adminId, token],
+                  (sessionError) => {
+                    if (sessionError) {
+                      console.error("Session creation failed:", sessionError);
+
+                      db.query(
+                        "DELETE FROM users WHERE id = ?",
+                        [adminId],
+                        (adminCleanupError) => {
+                          if (adminCleanupError) {
+                            console.error("Admin cleanup failed:", adminCleanupError);
+                            res.status(500).json({ message: "Something went wrong" });
+                            return;
+                          }
+
+                          db.query(
+                            "DELETE FROM workspaces WHERE id = ?",
+                            [workspaceId],
+                            (workspaceCleanupError) => {
+                              if (workspaceCleanupError) {
+                                console.error("Workspace cleanup failed:", workspaceCleanupError);
+                              }
+
+                              res.status(500).json({ message: "Something went wrong" });
+                            }
+                          );
+                        }
+                      );
+                      return;
                     }
 
-                    const duplicateEmail = adminError.code === "ER_DUP_ENTRY";
-
-                    res.status(duplicateEmail ? 409 : 500).json({
-                      message: duplicateEmail
-                        ? "Email already exists"
-                        : "Something went wrong",
+                    res.status(201).json({
+                      token,
+                      user: {
+                        id: adminId,
+                        fullName: fullName.trim(),
+                        email: normalizedEmail,
+                        role: "Admin",
+                        hasProfileImage: false,
+                      },
                     });
                   }
                 );
-                return;
               }
-
-              const adminId: number = adminResult.insertId;
-
-
-              const token: string = crypto.randomBytes(32).toString("hex");
-
-              db.query<mysql.ResultSetHeader>(
-                "INSERT INTO sessions (user_id, token) VALUES (?, ?)",
-                [adminId, token],
-                (sessionError) => {
-                  if (sessionError) {
-                    console.error("Session creation failed:", sessionError);
-
-                    db.query(
-                      "DELETE FROM users WHERE id = ?",
-                      [adminId],
-                      (adminCleanupError) => {
-                        if (adminCleanupError) {
-                          console.error("Admin cleanup failed:", adminCleanupError);
-                          res.status(500).json({ message: "Something went wrong" });
-                          return;
-                        }
-
-                        db.query(
-                          "DELETE FROM workspaces WHERE id = ?",
-                          [workspaceId],
-                          (workspaceCleanupError) => {
-                            if (workspaceCleanupError) {
-                              console.error("Workspace cleanup failed:", workspaceCleanupError);
-                            }
-
-                            res.status(500).json({ message: "Something went wrong" });
-                          }
-                        );
-                      }
-                    );
-                    return;
-                  }
-
-                  res.status(201).json({
-                    token,
-                    user: {
-                      id: adminId,
-                      fullName: fullName.trim(),
-                      email: normalizedEmail,
-                      role: "Admin",
-                      hasProfileImage: false,
-                    },
-                  });
-                }
-              );
-            }
-          );
-        }
-      );
-    });
-  }
-);
+            );
+          }
+        );
+      });
+    }
+  );
 });
 
 // File Handling
