@@ -179,18 +179,18 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Implement `POST /auth/register` to create one Workspace, its Admin, and a new session.
-- [ ] Validate registration fields and reject duplicate emails.
-- [ ] Hash passwords with bcrypt and enforce the minimum eight-character password rule.
-- [ ] Implement `POST /auth/login` with email/password verification and an Active-account check.
-- [ ] Generate secure random session tokens using Node.js `crypto` and store them in `sessions`.
-- [ ] Implement session authentication using `Authorization: Bearer <token>`.
-- [ ] Implement `GET /auth/me` to validate a session and return the current user, including `hasProfileImage`.
-- [ ] Implement `POST /auth/logout` to invalidate the current session.
-- [ ] Implement `PATCH /auth/password` for changing the signed-in user's password.
-- [ ] Allow multiple active sessions for a user; sessions remain valid until logout or invalidation.
-- [ ] Reject disabled users on their next protected request, even when their session token still exists.
-- [ ] Manually test successful and rejected registration, login, logout, password change, and session reuse with Postman.
+- [x] Implement `POST /auth/register` to create one Workspace, its Admin, and a new session.
+- [x] Validate registration fields and reject duplicate emails.
+- [x] Hash passwords with bcrypt and enforce the minimum eight-character password rule.
+- [x] Implement `POST /auth/login` with email/password verification and an Active-account check.
+- [x] Generate secure random session tokens using Node.js `crypto` and store them in `sessions`.
+- [x] Implement session authentication using `Authorization: Bearer <token>`.
+- [x] Implement `GET /auth/me` to validate a session and return the current user, including `hasProfileImage`.
+- [x] Implement `POST /auth/logout` to invalidate the current session.
+- [x] Implement `PATCH /auth/password` for changing the signed-in user's password.
+- [x] Allow multiple active sessions for a user; sessions remain valid until logout or invalidation.
+- [x] Reject disabled users on their next protected request, even when their session token still exists.
+- [x] Manually test successful and rejected registration, login, logout, password change, and session reuse with Postman.
 
 ### Completion Criteria
 
