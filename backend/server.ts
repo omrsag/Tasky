@@ -27,6 +27,43 @@ const db: mysql.Pool = mysql.createPool({
 // Helpers
 
 // Middleware
+function requireAuth(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+): void {
+  const authHeader = req.headers.authorization;
+
+  const token = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice(7).trim()
+    : "";
+
+  if (!token) {
+    res.status(401).json({ message: "Authentication required" });
+    return;
+  }
+
+  db.query<mysql.RowDataPacket[]>(
+    "SELECT user_id FROM sessions WHERE token = ? LIMIT 1",
+    [token],
+    (error, results) => {
+      if (error) {
+        console.error("Session validation failed:", error);
+        res.status(500).json({ message: "Something went wrong" });
+        return;
+      }
+
+      if (results.length === 0) {
+        res.status(401).json({ message: "Invalid session" });
+        return;
+      }
+
+      res.locals.userId = results[0].user_id;
+      next();
+    }
+  );
+}
+
 const app = express();
 
 if (!FRONTEND_URL) {
