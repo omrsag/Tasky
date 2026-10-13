@@ -44,7 +44,11 @@ function requireAuth(
   }
 
   db.query<mysql.RowDataPacket[]>(
-    "SELECT user_id FROM sessions WHERE token = ? LIMIT 1",
+    `SELECT s.user_id, u.status
+    FROM sessions s
+    JOIN users u ON u.id = s.user_id
+    WHERE s.token = ?
+    LIMIT 1`,
     [token],
     (error, results) => {
       if (error) {
@@ -55,6 +59,11 @@ function requireAuth(
 
       if (results.length === 0) {
         res.status(401).json({ message: "Invalid session" });
+        return;
+      }
+
+      if (results[0].status !== "Active") {
+        res.status(403).json({ message: "Account is disabled" });
         return;
       }
 
