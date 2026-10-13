@@ -44,7 +44,7 @@ function requireAuth(
   }
 
   db.query<mysql.RowDataPacket[]>(
-    `SELECT s.user_id, u.status, u.role
+    `SELECT s.user_id, u.status, u.role, u.workspace_id
     FROM sessions s
     JOIN users u ON u.id = s.user_id
     WHERE s.token = ?
@@ -69,6 +69,7 @@ function requireAuth(
 
       res.locals.userId = results[0].user_id;
       res.locals.role = results[0].role;
+      res.locals.workspaceId = results[0].workspace_id;
       res.locals.token = token;
       next();
     }
