@@ -359,6 +359,76 @@ app.post("/auth/logout", requireAuth, (_req: express.Request, res: express.Respo
   );
 });
 
+app.patch("/auth/password", requireAuth, (req: express.Request, res: express.Response) => {
+  const { currentPassword, newPassword } = req.body ?? {};
+
+  if (
+    typeof currentPassword !== "string" ||
+    !currentPassword ||
+    typeof newPassword !== "string" ||
+    newPassword.length < 8
+  ) {
+    res.status(400).json({ message: "Invalid password information" });
+    return;
+  }
+
+  const userId: number = res.locals.userId;
+
+  db.query<mysql.RowDataPacket[]>(
+    "SELECT password_hash FROM users WHERE id = ? LIMIT 1",
+    [userId],
+    (error, results) => {
+      if (error) {
+        console.error("Password query failed:", error);
+        res.status(500).json({ message: "Something went wrong" });
+        return;
+      }
+
+      if (results.length === 0) {
+        res.status(401).json({ message: "Invalid session" });
+        return;
+      }
+
+      const passwordHash: string = results[0].password_hash;
+
+
+      bcrypt.compare(currentPassword, passwordHash, (compareError, isMatch) => {
+        if (compareError) {
+          console.error("Current password verification failed:", compareError);
+          res.status(500).json({ message: "Something went wrong" });
+          return;
+        }
+
+        if (!isMatch) {
+          res.status(400).json({ message: "Current password is incorrect" });
+          return;
+        }
+        bcrypt.hash(newPassword, 10, (hashError, newPasswordHash) => {
+          if (hashError) {
+            console.error("New password hashing failed:", hashError);
+            res.status(500).json({ message: "Something went wrong" });
+            return;
+          }
+
+          db.query<mysql.ResultSetHeader>(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            [newPasswordHash, userId],
+            (updateError) => {
+              if (updateError) {
+                console.error("Password update failed:", updateError);
+                res.status(500).json({ message: "Something went wrong" });
+                return;
+              }
+
+              res.status(200).json({ message: "Password changed successfully" });
+            }
+          );
+        });
+      });
+    }
+  );
+});
+
 // File Handling
 
 // Error Handling
