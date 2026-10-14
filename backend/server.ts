@@ -92,6 +92,80 @@ function requireRole(...allowedRoles: string[]): express.RequestHandler {
   };
 }
 
+const requireAdmin: express.RequestHandler = requireRole("Admin");
+
+function requireManagedProject(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+): void {
+  const projectId = Number(req.params.id);
+
+  if (!Number.isSafeInteger(projectId) || projectId <= 0) {
+    res.status(400).json({ message: "Invalid project ID" });
+    return;
+  }
+
+  db.query<mysql.RowDataPacket[]>(
+    `SELECT id FROM projects
+    WHERE id = ? AND manager_id = ? AND workspace_id = ?
+    LIMIT 1`,
+    [projectId, res.locals.userId, res.locals.workspaceId],
+    (error, results) => {
+      if (error) {
+        console.error("Project access verification failed:", error);
+        res.status(500).json({ message: "Something went wrong" });
+        return;
+      }
+
+      if (results.length === 0) {
+        res.status(404).json({ message: "Project not found" });
+        return;
+      }
+
+      next();
+    }
+  );
+}
+
+function requireMemberProject(
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+): void {
+  const projectId = Number(req.params.id);
+
+  if (!Number.isSafeInteger(projectId) || projectId <= 0) {
+    res.status(400).json({ message: "Invalid project ID" });
+    return;
+  }
+
+  db.query<mysql.RowDataPacket[]>(
+    `SELECT pm.id
+    FROM project_members pm
+    JOIN projects p ON p.id = pm.project_id
+    WHERE pm.project_id = ?
+      AND pm.user_id = ?
+      AND p.workspace_id = ?
+    LIMIT 1`,
+    [projectId, res.locals.userId, res.locals.workspaceId],
+    (error, results) => {
+      if (error) {
+        console.error("Project membership verification failed:", error);
+        res.status(500).json({ message: "Something went wrong" });
+        return;
+      }
+
+      if (results.length === 0) {
+        res.status(404).json({ message: "Project not found" });
+        return;
+      }
+
+      next();
+    }
+  );
+}
+
 const app = express();
 
 if (!FRONTEND_URL) {
