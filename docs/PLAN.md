@@ -213,7 +213,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Enforce Admin-only operations where required.
 - [x] Restrict a Manager's project access to Projects they manage.
 - [x] Restrict a Member's project access to Projects they belong to.
-- [ ] Check object-level permissions for viewing, editing, uploading, and deleting, not just user roles.
+- [x] Check object-level permissions for viewing, editing, uploading, and deleting, not just user roles.
 - [ ] Distinguish unauthenticated, forbidden, nonexistent, and inaccessible requests using the agreed API status conventions.
 - [ ] Use these helpers in each upcoming protected route group.
 - [ ] Manually verify with Postman that users cannot access another Workspace or an unauthorized Project.
