@@ -430,6 +430,20 @@ if (!FRONTEND_URL) {
 app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.json());
 
+app.use(
+  [
+    "/workspace",
+    "/users",
+    "/projects",
+    "/tasks",
+    "/comments",
+    "/attachments",
+    "/notifications",
+    "/auth/profile-image",
+  ],
+  requireAuth
+);
+
 // Routes
 app.post("/auth/register", (req: express.Request, res: express.Response) => {
   const { fullName, email, password, workspaceName } = req.body ?? {};
