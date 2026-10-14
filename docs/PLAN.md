@@ -208,15 +208,15 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Add reusable authentication and authorization helpers inside `server.ts`.
-- [ ] Derive the current Workspace from the authenticated user rather than trusting a frontend `workspaceId`.
-- [ ] Enforce Admin-only operations where required.
-- [ ] Restrict a Manager's project access to Projects they manage.
-- [ ] Restrict a Member's project access to Projects they belong to.
-- [ ] Check object-level permissions for viewing, editing, uploading, and deleting, not just user roles.
-- [ ] Distinguish unauthenticated, forbidden, nonexistent, and inaccessible requests using the agreed API status conventions.
-- [ ] Use these helpers in each upcoming protected route group.
-- [ ] Manually verify with Postman that users cannot access another Workspace or an unauthorized Project.
+- [x] Add reusable authentication and authorization helpers inside `server.ts`.
+- [x] Derive the current Workspace from the authenticated user rather than trusting a frontend `workspaceId`.
+- [x] Enforce Admin-only operations where required.
+- [x] Restrict a Manager's project access to Projects they manage.
+- [x] Restrict a Member's project access to Projects they belong to.
+- [x] Check object-level permissions for viewing, editing, uploading, and deleting, not just user roles.
+- [x] Distinguish unauthenticated, forbidden, nonexistent, and inaccessible requests using the agreed API status conventions.
+- [x] Use these helpers in each upcoming protected route group.
+- [x] Manually verify with Postman that users cannot access another Workspace or an unauthorized Project.
 
 ### Completion Criteria
 
