@@ -12,12 +12,12 @@
 |---|---:|---|
 | Setup | 1 | █ |
 | Database | 1 | █ |
-| Backend | 9 | █████████ |
+| Backend | 10 | ██████████ |
 | Frontend | 10 | ██████████ |
 | Integration & Testing | 1 | █ |
 | Deployment | 1 | █ |
 | README | 1 | █ |
-| **Total** | **24** | |
+| **Total** | **25** | |
 
 ### Setup
 - [Milestone 01 — Project Setup](#milestone-01--project-setup)
@@ -29,6 +29,7 @@
 - [Milestone 03 — Backend Foundation & Database Connection](#milestone-03--backend-foundation--database-connection)
 - [Milestone 04 — Backend Authentication & Sessions](#milestone-04--backend-authentication--sessions)
 - [Milestone 05 — Backend Authorization & Workspace Isolation](#milestone-05--backend-authorization--workspace-isolation)
+- [Milestone 05A — Backend Modularization & Refactoring](#milestone-05a--backend-modularization--refactoring)
 - [Milestone 06 — Backend Workspace & Users](#milestone-06--backend-workspace--users)
 - [Milestone 07 — Backend Projects & Project Members](#milestone-07--backend-projects--project-members)
 - [Milestone 08 — Backend Tasks & Workflow](#milestone-08--backend-tasks--workflow)
@@ -73,7 +74,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - A milestone is complete only when its completion criteria are met.
 - Follow the confirmed MVP scope; do not introduce features or libraries that are not needed.
 - Keep configuration minimal. Add settings only when required for the chosen stack to work.
-- Keep the Express backend in `backend/server.ts`, without a backend `src/` directory or extra architectural layers.
+- Keep the Express backend modular, with separate application setup, database connection, middleware, and feature-based route files. Do not introduce a backend `src/` directory or unnecessary architectural layers.
 - Test backend endpoint groups manually with Postman as they are built. Test frontend pages when they are connected to the backend.
 - Use manual testing only; automated tests are outside the MVP scope.
 - Do not assign dates, durations, or delivery estimates to milestones.
@@ -82,7 +83,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 1. **Setup:** Milestone 01.
 2. **Database:** Milestone 02.
-3. **Backend:** Milestones 03–11.
+3. **Backend:** Milestones 03–05, 05A, and 06–11.
 4. **Frontend:** Milestones 12–21.
 5. **Integration & Manual Testing:** Milestone 22.
 6. **Deployment:** Milestone 23.
@@ -225,11 +226,37 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ---
 
+## Milestone 05A — Backend Modularization & Refactoring
+
+**Goal:** Improve backend maintainability by separating the existing Express application into small, responsibility-based modules without changing API behavior.
+
+**Dependencies:** Milestone 05.
+
+### Tasks
+
+- [x] Update `ARCHITECTURE.md`, `TECH_STACK.md`, and `PLAN.md` to document the modular backend structure.
+- [x] Extract the MySQL connection pool into `backend/db.ts`.
+- [x] Extract authentication and role-based authorization middleware into `backend/middleware/auth.ts`.
+- [x] Extract Project, Task, Comment, and Attachment permission helpers into `backend/middleware/permissions.ts`.
+- [x] Move existing authentication endpoints into `backend/routes/auth.ts`.
+- [x] Separate Express application configuration into `backend/app.ts` and keep server startup in `backend/server.ts`.
+- [x] Compile the refactored backend and verify existing authentication and authorization behavior with Postman.
+
+### Completion Criteria
+
+- The backend follows the modular structure defined in `ARCHITECTURE.md`.
+- Existing API endpoints, HTTP status codes, authentication, and authorization behavior remain unchanged.
+- The backend compiles successfully using `npx tsc` and starts using `node dist/server.js`.
+- Existing authentication and authorization functionality passes manual verification.
+- No additional architectural layers or dependencies are introduced.
+
+---
+
 ## Milestone 06 — Backend Workspace & Users
 
 **Goal:** Implement Workspace administration and user account management.
 
-**Dependencies:** Milestone 05.
+**Dependencies:** Milestone 05A.
 
 ### Tasks
 

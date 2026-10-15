@@ -33,7 +33,9 @@ The stack is intentionally simple and focused on the MVP.
 - **Node.js `path`** — File path handling.
 - **Node.js `fs`** — Local file management.
 
-For the MVP, the backend application logic will remain in a single `server.ts` file.
+The backend uses a simple modular Express architecture. Code is separated by responsibility into server startup (`server.ts`), application configuration (`app.ts`), database connection (`db.ts`), shared middleware (`middleware/`), and feature-based API routes (`routes/`).
+
+No additional framework, ORM, or separate controllers, services, repositories, or models layers are required for the MVP.
 
 ## 4. Database
 
@@ -67,10 +69,9 @@ Example structure:
 
 ```text
 backend/
-├── uploads/
-│   ├── attachments/
-│   └── profile-images/
-└── server.ts
+└── uploads/
+    ├── attachments/
+    └── profile-images/
 ```
 
 ## 7. Notifications
