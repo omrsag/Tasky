@@ -240,8 +240,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Extract Project, Task, Comment, and Attachment permission helpers into `backend/middleware/permissions.ts`.
 - [x] Move existing authentication endpoints into `backend/routes/auth.ts`.
 - [x] Separate Express application configuration into `backend/app.ts` and keep server startup in `backend/server.ts`.
-- [ ] Compile the refactored backend and verify existing authentication and authorization behavior with Postman.
-- [ ] Commit the refactoring changes, create a Pull Request, and merge the completed milestone into `master`.
+- [x] Compile the refactored backend and verify existing authentication and authorization behavior with Postman.
 
 ### Completion Criteria
 
