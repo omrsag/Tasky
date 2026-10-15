@@ -235,7 +235,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 ### Tasks
 
 - [x] Update `ARCHITECTURE.md`, `TECH_STACK.md`, and `PLAN.md` to document the modular backend structure.
-- [ ] Extract the MySQL connection pool into `backend/db.ts`.
+- [x] Extract the MySQL connection pool into `backend/db.ts`.
 - [ ] Extract authentication and role-based authorization middleware into `backend/middleware/auth.ts`.
 - [ ] Extract Project, Task, Comment, and Attachment permission helpers into `backend/middleware/permissions.ts`.
 - [ ] Move existing authentication endpoints into `backend/routes/auth.ts`.
