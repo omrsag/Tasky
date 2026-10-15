@@ -127,25 +127,41 @@ Each page handles its own loading and error states. Authentication failures inva
 ```text
 backend/
 ├── server.ts
-├── tsconfig.json
+├── app.ts
+├── db.ts
+├── middleware/
+│   ├── auth.ts
+│   └── permissions.ts
+├── routes/
+│   └── auth.ts
 ├── uploads/
 │   ├── attachments/
 │   └── profile-images/
+├── tsconfig.json
 ├── package.json
 └── package-lock.json
 ```
 
-The backend remains in one `server.ts` file for the MVP.
+The backend uses a simple modular Express architecture.
 
-The file is organized internally into configuration, database connection, middleware, authentication helpers, authorization helpers, route groups, file handling, error handling, and server startup.
+- `server.ts` starts the HTTP server.
+- `app.ts` configures Express, CORS, JSON parsing, route registration, and error handling.
+- `db.ts` creates and exports the MySQL connection pool.
+- `middleware/auth.ts` contains authentication and role-based authorization middleware.
+- `middleware/permissions.ts` contains reusable object-level permission checks for Projects, Tasks, Comments, and Attachments.
+- `routes/` contains REST API endpoints grouped by feature.
 
-No separate routes, controllers, models, or services directories are used.
+Additional route files, such as `workspace.ts`, `users.ts`, `projects.ts`, and `tasks.ts`, are added as their features are implemented.
+
+Route handlers contain request validation, business rules, and direct database queries where needed.
+
+No separate controllers, services, repositories, or models layers are required for the MVP.
 
 ## 7. Database Access
 
 The backend uses `mysql2`, a MySQL connection pool, and callback-based `db.query()` calls.
 
-SQL is written directly inside `server.ts`. No ORM or MySQL Transactions are used in the MVP.
+SQL queries are written directly inside the relevant route modules. No ORM or MySQL Transactions are used in the MVP.
 
 The frontend never connects directly to MySQL.
 
@@ -157,7 +173,7 @@ The token is stored in `localStorage`. When the app starts, `AuthContext` valida
 
 The frontend may hide or show controls based on user role, but the backend is always the final authority for authentication, authorization, and object permissions.
 
-Authorization helper functions inside `server.ts` reduce repeated permission logic.
+Authentication and authorization helpers are organized inside `middleware/`. Protected routes use these shared helpers to enforce session, role, Workspace, Project, and object-level permissions.
 
 ## 9. Workspace Isolation & Validation
 
