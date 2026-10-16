@@ -262,7 +262,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 - [x] Implement `GET /workspace` for the authenticated Workspace.
 - [x] Implement Admin-only `PATCH /workspace` for renaming the Workspace.
-- [ ] Implement Admin-only `DELETE /workspace` with confirmation handled in the UI later and backend cleanup of Workspace data and uploaded files.
+- [x] Implement Admin-only `DELETE /workspace` with confirmation handled in the UI later and backend cleanup of Workspace data and uploaded files.
 - [ ] Implement `GET /users` and `GET /users/:id` with Workspace-scoped visibility.
 - [ ] Implement Admin-only `POST /users` to create Active Manager and Member accounts with securely hashed passwords.
 - [ ] Implement Admin-only `PATCH /users/:id` for name, email, role, and Active/Disabled status.
