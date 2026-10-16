@@ -2,6 +2,7 @@ import express = require("express");
 import cors = require("cors");
 import { requireAuth } from "./middleware/auth";
 import { registerAuthRoutes } from "./routes/auth";
+import { registerWorkspaceRoutes } from "./routes/workspace";
 
 const FRONTEND_URL: string | undefined = process.env.FRONTEND_URL;
 
@@ -30,6 +31,7 @@ app.use(
 
 // Routes
 registerAuthRoutes(app);
+registerWorkspaceRoutes(app);
 
 // Error Handling
 app.use((_req: express.Request, res: express.Response) => {
