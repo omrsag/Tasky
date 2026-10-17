@@ -288,4 +288,51 @@ export function registerUsersRoutes(app: express.Express): void {
         });
     });
 
+    app.post("/users/:id/reset-password", requireAdmin, (req, res) => {
+        const userId = Number(req.params.id);
+        const password = req.body?.password;
+
+        if (!Number.isSafeInteger(userId) || userId <= 0) {
+            res.status(400).json({ message: "Invalid user ID" });
+            return;
+        }
+
+        if (typeof password !== "string" || password.length < 8) {
+            res.status(400).json({ message: "Invalid password" });
+            return;
+        }
+
+        bcrypt.hash(password, 10, (hashError, passwordHash) => {
+            if (hashError) {
+                console.error("Password hashing failed:", hashError);
+                res.status(500).json({ message: "Something went wrong" });
+                return;
+            }
+
+            db.query<mysql.ResultSetHeader>(
+            `UPDATE users
+            SET password_hash = ?
+            WHERE id = ?
+                AND workspace_id = ?
+                AND role IN ('Manager', 'Member')`,
+            [passwordHash, userId, res.locals.workspaceId],
+            (error, result) => {
+                if (error) {
+                    console.error("Failed to reset password:", error);
+                    res.status(500).json({ message: "Something went wrong" });
+                    return;
+                }
+
+                if (result.affectedRows === 0) {
+                    res.status(404).json({ message: "User not found" });
+                    return;
+                }
+
+                res.status(200).json({
+                    message: "Password reset successfully",
+                });
+            });
+        });
+    });
+
 }
