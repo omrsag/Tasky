@@ -260,18 +260,18 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Implement `GET /workspace` for the authenticated Workspace.
-- [ ] Implement Admin-only `PATCH /workspace` for renaming the Workspace.
-- [ ] Implement Admin-only `DELETE /workspace` with confirmation handled in the UI later and backend cleanup of Workspace data and uploaded files.
-- [ ] Implement `GET /users` and `GET /users/:id` with Workspace-scoped visibility.
-- [ ] Implement Admin-only `POST /users` to create Active Manager and Member accounts with securely hashed passwords.
-- [ ] Implement Admin-only `PATCH /users/:id` for name, email, role, and Active/Disabled status.
-- [ ] Implement Admin-only `POST /users/:id/reset-password`.
-- [ ] Reject duplicate emails and invalid role/status changes.
-- [ ] Block disabling a Manager who is still responsible for Projects until their Projects are reassigned.
-- [ ] Prevent role changes that would violate existing Project management, membership, or Task assignment rules.
-- [ ] Keep user records for historical associations; do not add individual permanent user deletion.
-- [ ] Test Workspace and user operations, permissions, duplicates, and invalid account transitions with Postman.
+- [x] Implement `GET /workspace` for the authenticated Workspace.
+- [x] Implement Admin-only `PATCH /workspace` for renaming the Workspace.
+- [x] Implement Admin-only `DELETE /workspace` with confirmation handled in the UI later and backend cleanup of Workspace data and uploaded files.
+- [x] Implement `GET /users` and `GET /users/:id` with Workspace-scoped visibility.
+- [x] Implement Admin-only `POST /users` to create Active Manager and Member accounts with securely hashed passwords.
+- [x] Implement Admin-only `PATCH /users/:id` for name, email, role, and Active/Disabled status.
+- [x] Implement Admin-only `POST /users/:id/reset-password`.
+- [x] Reject duplicate emails and invalid role/status changes.
+- [x] Block disabling a Manager who is still responsible for Projects until their Projects are reassigned.
+- [x] Prevent role changes that would violate existing Project management, membership, or Task assignment rules.
+- [x] Keep user records for historical associations; do not add individual permanent user deletion.
+- [x] Test Workspace and user operations, permissions, duplicates, and invalid account transitions with Postman.
 
 ### Completion Criteria
 

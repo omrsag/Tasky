@@ -111,13 +111,15 @@ The Workspace is derived from the authenticated user; the frontend does not prov
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| `GET` | `/users` | List users in the current Workspace |
+| `GET` | `/users` | Admin-only: List users in the current Workspace |
 | `POST` | `/users` | Admin creates a Manager or Member |
-| `GET` | `/users/:id` | Return one Workspace user |
+| `GET` | `/users/:id` | Admin-only: Return one user from the current Workspace |
 | `PATCH` | `/users/:id` | Admin updates name, email, role, or status |
 | `POST` | `/users/:id/reset-password` | Admin sets a new password for a Manager or Member |
 
 Individual users are disabled rather than permanently deleted in the MVP.
+`GET /users` and `GET /users/:id` are restricted to Admin. Managers and Members can view Project membership through the relevant Project endpoints, subject to Project-level permissions.
+All user lookups are scoped to the authenticated Workspace. A user from another Workspace is not exposed.
 
 ## 7. Projects
 
