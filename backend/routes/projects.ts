@@ -181,4 +181,81 @@ export function registerProjectRoutes(app: express.Express): void {
         });
     });
 
+    app.get("/projects/:id", (req, res) => {
+        const projectId = Number(req.params.id);
+
+        if (!Number.isSafeInteger(projectId) || projectId <= 0) {
+            res.status(400).json({ message: "Invalid project ID" });
+            return;
+        }
+
+        let sql = `
+            SELECT
+                p.id,
+                p.name,
+                p.description,
+                p.manager_id,
+                DATE_FORMAT(p.start_date, '%Y-%m-%d') AS start_date,
+                DATE_FORMAT(p.end_date, '%Y-%m-%d') AS end_date,
+                p.status,
+                p.created_at
+            FROM projects p
+            WHERE p.id = ? AND p.workspace_id = ?
+        `;
+
+        const params: number[] = [projectId, res.locals.workspaceId];
+
+        if (res.locals.role === "Manager") {
+            sql += " AND p.manager_id = ?";
+            params.push(res.locals.userId);
+        } else if (res.locals.role === "Member") {
+            sql += `
+                AND EXISTS (
+                SELECT 1
+                FROM project_members pm
+                WHERE pm.project_id = p.id
+                    AND pm.user_id = ?
+                )
+            `;
+            params.push(res.locals.userId);
+        } else if (res.locals.role !== "Admin") {
+            res.status(403).json({ message: "Access denied" });
+            return;
+        }
+
+        sql += " LIMIT 1";
+
+        db.query<mysql.RowDataPacket[]>(
+            sql,
+            params,
+            (error, results) => {
+                if (error) {
+                    console.error("Failed to fetch project:", error);
+                    res.status(500).json({ message: "Something went wrong" });
+                    return;
+                }
+
+                if (results.length === 0) {
+                    res.status(404).json({ message: "Project not found" });
+                    return;
+                }
+
+                const project = results[0];
+
+                res.status(200).json({
+                    project: {
+                        id: project.id,
+                        name: project.name,
+                        description: project.description,
+                        managerId: project.manager_id,
+                        startDate: project.start_date,
+                        endDate: project.end_date,
+                        status: project.status,
+                        createdAt: project.created_at,
+                    },
+                });
+            }
+        );
+    });
+
 }
