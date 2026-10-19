@@ -4,6 +4,7 @@ import { requireAuth } from "./middleware/auth";
 import { registerAuthRoutes } from "./routes/auth";
 import { registerWorkspaceRoutes } from "./routes/workspace";
 import { registerUsersRoutes } from "./routes/users";
+import { registerProjectRoutes } from "./routes/projects";
 
 const FRONTEND_URL: string | undefined = process.env.FRONTEND_URL;
 
@@ -34,6 +35,7 @@ app.use(
 registerAuthRoutes(app);
 registerWorkspaceRoutes(app);
 registerUsersRoutes(app);
+registerProjectRoutes(app);
 
 // Error Handling
 app.use((_req: express.Request, res: express.Response) => {
