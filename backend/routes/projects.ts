@@ -74,17 +74,58 @@ export function registerProjectRoutes(app: express.Express): void {
     app.post("/projects", requireAdmin, (req, res) => {
         const name = req.body?.name;
         const managerId = req.body?.managerId;
+        const description = req.body?.description;
+        const startDate = req.body?.startDate;
+        const endDate = req.body?.endDate;
 
         if (
             typeof name !== "string" ||
             !name.trim() ||
             name.trim().length > 255 ||
             !Number.isSafeInteger(managerId) ||
-            managerId <= 0
+            managerId <= 0 || 
+            (description != null && typeof description !== "string")
+
         ) {
             res.status(400).json({ message: "Invalid project data" });
             return;
         }
+
+        if (
+            startDate != null &&
+            (typeof startDate !== "string" ||
+                !/^\d{4}-\d{2}-\d{2}$/.test(startDate) ||
+                Number.isNaN(Date.parse(startDate)) ||
+                new Date(startDate).toISOString().slice(0, 10) !== startDate)
+        ) {
+            res.status(400).json({ message: "Invalid start date" });
+            return;
+        }
+        
+        if (
+            endDate != null &&
+            (typeof endDate !== "string" ||
+                !/^\d{4}-\d{2}-\d{2}$/.test(endDate) ||
+                Number.isNaN(Date.parse(endDate)) ||
+                new Date(endDate).toISOString().slice(0, 10) !== endDate)
+        ) {
+            res.status(400).json({ message: "Invalid end date" });
+            return;
+        }
+
+        if (
+            startDate != null &&
+            endDate != null &&
+            endDate < startDate
+        ) {
+            res.status(400).json({
+                message: "End date cannot be before start date",
+            });
+            return;
+        }
+
+        const projectDescription =
+        typeof description === "string" ? description.trim() : null;
 
         db.query<mysql.RowDataPacket[]>(
             `SELECT id FROM users
@@ -108,9 +149,16 @@ export function registerProjectRoutes(app: express.Express): void {
 
             db.query<mysql.ResultSetHeader>(
                 `INSERT INTO projects
-                (workspace_id, manager_id, name, status)
-                VALUES (?, ?, ?, 'Active')`,
-                [res.locals.workspaceId, managerId, name.trim()],
+                (workspace_id, manager_id, name, description, start_date, end_date, status)
+                VALUES (?, ?, ?, ?, ?, ?, 'Active')`,
+                [
+                    res.locals.workspaceId,
+                    managerId,
+                    name.trim(),
+                    projectDescription,
+                    startDate ?? null,
+                    endDate ?? null,
+                ],
                 (error, result) => {
                 if (error) {
                     console.error("Failed to create project:", error);
@@ -123,7 +171,10 @@ export function registerProjectRoutes(app: express.Express): void {
                     id: result.insertId,
                     name: name.trim(),
                     managerId,
+                    description: projectDescription,
                     status: "Active",
+                    startDate: startDate ?? null,
+                    endDate: endDate ?? null,
                     },
                 });
             });

@@ -291,7 +291,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 - [x] Implement `GET /projects` with role-based Project visibility.
 - [x] Implement Admin-only `POST /projects` with a required name and exactly one Manager from the same Workspace.
-- [ ] Set each new Project's status to `Active`; support optional description, start date, and end date.
+- [x] Set each new Project's status to `Active`; support optional description, start date, and end date.
 - [ ] Implement `GET /projects/:id` with Project-level access checks.
 - [ ] Implement `PATCH /projects/:id` for permitted detail changes, Manager reassignment, dates, and status.
 - [ ] Allow Admin and the responsible Manager to change an Active Project to `Completed` only when all Tasks are `Done`.
