@@ -289,19 +289,19 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Implement `GET /projects` with role-based Project visibility.
-- [ ] Implement Admin-only `POST /projects` with a required name and exactly one Manager from the same Workspace.
-- [ ] Set each new Project's status to `Active`; support optional description, start date, and end date.
-- [ ] Implement `GET /projects/:id` with Project-level access checks.
-- [ ] Implement `PATCH /projects/:id` for permitted detail changes, Manager reassignment, dates, and status.
-- [ ] Allow Admin and the responsible Manager to change an Active Project to `Completed` only when all Tasks are `Done`.
-- [ ] Allow Admin and the responsible Manager to change an Active Project to `Archived`, even if unfinished Tasks remain.
-- [ ] Enforce Read-only behavior for `Completed` and `Archived` Projects, with Admin-only reactivation to `Active`.
-- [ ] Implement `GET /projects/:id/members`, `POST /projects/:id/members`, and `DELETE /projects/:id/members/:userId`.
-- [ ] Allow only valid Members from the Project's Workspace; prevent duplicate memberships.
-- [ ] Block removal of a Member with unfinished assigned Tasks; retain historical ownership of completed Tasks.
-- [ ] Implement Admin-only `DELETE /projects/:id` and removal of related records and uploaded files.
-- [ ] Test roles, Project states, membership constraints, and deletion behavior with Postman.
+- [x] Implement `GET /projects` with role-based Project visibility.
+- [x] Implement Admin-only `POST /projects` with a required name and exactly one Manager from the same Workspace.
+- [x] Set each new Project's status to `Active`; support optional description, start date, and end date.
+- [x] Implement `GET /projects/:id` with Project-level access checks.
+- [x] Implement `PATCH /projects/:id` for permitted detail changes, Manager reassignment, dates, and status.
+- [x] Allow Admin and the responsible Manager to change an Active Project to `Completed` only when all Tasks are `Done`.
+- [x] Allow Admin and the responsible Manager to change an Active Project to `Archived`, even if unfinished Tasks remain.
+- [x] Enforce Read-only behavior for `Completed` and `Archived` Projects, with Admin-only reactivation to `Active`.
+- [x] Implement `GET /projects/:id/members`, `POST /projects/:id/members`, and `DELETE /projects/:id/members/:userId`.
+- [x] Allow only valid Members from the Project's Workspace; prevent duplicate memberships.
+- [x] Block removal of a Member with unfinished assigned Tasks; retain historical ownership of completed Tasks.
+- [x] Implement Admin-only `DELETE /projects/:id` and removal of related records and uploaded files.
+- [x] Test roles, Project states, membership constraints, and deletion behavior with Postman.
 
 ### Completion Criteria
 
