@@ -258,4 +258,285 @@ export function registerProjectRoutes(app: express.Express): void {
         );
     });
 
+    app.patch("/projects/:id", (req, res) => {
+        const projectId = Number(req.params.id);
+
+        if (!Number.isSafeInteger(projectId) || projectId <= 0) {
+            res.status(400).json({ message: "Invalid project ID" });
+            return;
+        }
+
+        const data = req.body;
+        const allowedFields = [
+            "name",
+            "description",
+            "managerId",
+            "startDate",
+            "endDate",
+            "status",
+        ];
+
+        if (
+            !data ||
+            typeof data !== "object" ||
+            Array.isArray(data) ||
+            Object.keys(data).length === 0 ||
+            Object.keys(data).some(
+                (key) => !allowedFields.includes(key)
+            )
+        ) {
+            res.status(400).json({ message: "Invalid project data" });
+            return;
+        }
+
+        const { name, description, managerId, startDate, endDate, status } = data;
+
+        const invalidName =
+            name !== undefined &&
+            (typeof name !== "string" ||
+                !name.trim() ||
+                name.trim().length > 255);
+
+        const invalidDescription =
+            description !== undefined &&
+            description !== null &&
+            typeof description !== "string";
+
+        const invalidManagerId =
+            managerId !== undefined &&
+            (!Number.isSafeInteger(managerId) || managerId <= 0);
+
+        const invalidStartDate =
+            startDate != null &&
+            (typeof startDate !== "string" ||
+                !/^\d{4}-\d{2}-\d{2}$/.test(startDate) ||
+                Number.isNaN(Date.parse(startDate)) ||
+                new Date(startDate).toISOString().slice(0, 10) !== startDate);
+
+        const invalidEndDate =
+            endDate != null &&
+            (typeof endDate !== "string" ||
+                !/^\d{4}-\d{2}-\d{2}$/.test(endDate) ||
+                Number.isNaN(Date.parse(endDate)) ||
+                new Date(endDate).toISOString().slice(0, 10) !== endDate);
+
+
+        const invalidStatus =
+            status !== undefined &&
+            !["Active", "Completed", "Archived"].includes(status);
+
+        if (
+            invalidName ||
+            invalidDescription ||
+            invalidManagerId ||
+            invalidStartDate ||
+            invalidEndDate ||
+            invalidStatus
+        ) {
+            res.status(400).json({ message: "Invalid project data" });
+            return;
+        }
+
+        db.query<mysql.RowDataPacket[]>(
+            `SELECT
+                id,
+                manager_id,
+                status,
+                DATE_FORMAT(start_date, '%Y-%m-%d') AS start_date,
+                DATE_FORMAT(end_date, '%Y-%m-%d') AS end_date,
+                EXISTS (
+                    SELECT 1
+                    FROM users u
+                    WHERE u.id = ?
+                        AND u.workspace_id = projects.workspace_id
+                        AND u.role = 'Manager'
+                        AND u.status = 'Active'
+                ) AS manager_is_valid,
+                EXISTS (
+                    SELECT 1
+                    FROM tasks t
+                    WHERE t.project_id = projects.id
+                        AND t.status <> 'Done'
+                ) AS has_unfinished_tasks
+            FROM projects
+            WHERE id = ? AND workspace_id = ?
+            LIMIT 1`,
+            [managerId ?? null, projectId, res.locals.workspaceId],
+            (error, results) => {
+                if (error) {
+                    console.error("Failed to fetch project:", error);
+                    res.status(500).json({ message: "Something went wrong" });
+                    return;
+                }
+
+                if (results.length === 0) {
+                    res.status(404).json({ message: "Project not found" });
+                    return;
+                }
+
+                const project = results[0];
+
+                if (
+                    res.locals.role !== "Admin" &&
+                    (res.locals.role !== "Manager" ||
+                        project.manager_id !== res.locals.userId)
+                ) {
+                    res.status(404).json({ message: "Project not found" });
+                    return;
+                }
+
+                if (
+                    managerId !== undefined &&
+                    res.locals.role !== "Admin"
+                ) {
+                    res.status(403).json({
+                        message: "Only Admin can change the project manager",
+                    });
+                    return;
+                }
+
+                if (managerId !== undefined && !project.manager_is_valid) {
+                    res.status(400).json({
+                    message: "Invalid project manager",
+                });
+                    return;
+                }
+
+                const updatedStartDate =
+                    startDate !== undefined ? startDate : project.start_date;
+
+                const updatedEndDate =
+                    endDate !== undefined ? endDate : project.end_date;
+
+                if (
+                    updatedStartDate != null &&
+                    updatedEndDate != null &&
+                    updatedEndDate < updatedStartDate
+                ) {
+                    res.status(400).json({
+                        message: "End date cannot be before start date",
+                    });
+                    return;
+                }
+
+                if (project.status !== "Active") {
+                    const isAdminReactivation =
+                        res.locals.role === "Admin" &&
+                        status === "Active" &&
+                        Object.keys(data).length === 1;
+
+                    if (!isAdminReactivation) {
+                        res.status(403).json({
+                            message: "Project is read-only",
+                        });
+                        return;
+                    }
+                }
+
+                if (
+                    project.status === "Active" &&
+                    status === "Completed" &&
+                    project.has_unfinished_tasks
+                ) {
+                    res.status(400).json({
+                        message: "All project tasks must be Done before completion",
+                    });
+                    return;
+                }
+
+                const updates: string[] = [];
+                const values: (string | number | null)[] = [];
+
+                if (name !== undefined) {
+                    updates.push("name = ?");
+                    values.push(name.trim());
+                }
+
+                if (description !== undefined) {
+                    updates.push("description = ?");
+                    values.push(description === null ? null : description.trim());
+                }
+
+                if (managerId !== undefined) {
+                    updates.push("manager_id = ?");
+                    values.push(managerId);
+                }
+
+                if (startDate !== undefined) {
+                    updates.push("start_date = ?");
+                    values.push(startDate);
+                }
+
+                if (endDate !== undefined) {
+                    updates.push("end_date = ?");
+                    values.push(endDate);
+                }
+
+                if (status !== undefined) {
+                    updates.push("status = ?");
+                    values.push(status);
+                }
+
+                // Additional update rules will be added next.
+
+                db.query<mysql.ResultSetHeader>(
+                    `UPDATE projects
+                    SET ${updates.join(", ")}
+                    WHERE id = ? AND workspace_id = ?`,
+                    [...values, projectId, res.locals.workspaceId],
+                    (updateError) => {
+                        if (updateError) {
+                            console.error("Failed to update project:", updateError);
+                            res.status(500).json({ message: "Something went wrong" });
+                            return;
+                        }
+
+                        db.query<mysql.RowDataPacket[]>(
+                            `SELECT
+                                id,
+                                name,
+                                description,
+                                manager_id,
+                                DATE_FORMAT(start_date, '%Y-%m-%d') AS start_date,
+                                DATE_FORMAT(end_date, '%Y-%m-%d') AS end_date,
+                                status,
+                                created_at
+                            FROM projects
+                            WHERE id = ? AND workspace_id = ?
+                            LIMIT 1`,
+                            [projectId, res.locals.workspaceId],
+                            (fetchError, results) => {
+                                if (fetchError) {
+                                    console.error("Failed to fetch updated project:", fetchError);
+                                    res.status(500).json({ message: "Something went wrong" });
+                                    return;
+                                }
+
+                                if (results.length === 0) {
+                                    res.status(404).json({ message: "Project not found" });
+                                    return;
+                                }
+
+                                const updatedProject = results[0];
+
+                                res.status(200).json({
+                                    project: {
+                                        id: updatedProject.id,
+                                        name: updatedProject.name,
+                                        description: updatedProject.description,
+                                        managerId: updatedProject.manager_id,
+                                        startDate: updatedProject.start_date,
+                                        endDate: updatedProject.end_date,
+                                        status: updatedProject.status,
+                                        createdAt: updatedProject.created_at,
+                                    },
+                                });
+                            }
+                        );
+                    }
+                );
+            }
+        );
+    });
+
 }
