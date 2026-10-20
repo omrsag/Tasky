@@ -300,8 +300,8 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Implement `GET /projects/:id/members`, `POST /projects/:id/members`, and `DELETE /projects/:id/members/:userId`.
 - [x] Allow only valid Members from the Project's Workspace; prevent duplicate memberships.
 - [x] Block removal of a Member with unfinished assigned Tasks; retain historical ownership of completed Tasks.
-- [ ] Implement Admin-only `DELETE /projects/:id` and removal of related records and uploaded files.
-- [ ] Test roles, Project states, membership constraints, and deletion behavior with Postman.
+- [x] Implement Admin-only `DELETE /projects/:id` and removal of related records and uploaded files.
+- [x] Test roles, Project states, membership constraints, and deletion behavior with Postman.
 
 ### Completion Criteria
 
