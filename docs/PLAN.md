@@ -320,8 +320,8 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Review `backend/routes/projects.ts` and identify the Project CRUD, Project Members, and Project deletion responsibilities.
-- [ ] Extract Project Member endpoints into `backend/routes/project-members.ts`.
+- [x] Review `backend/routes/projects.ts` and identify the Project CRUD, Project Members, and Project deletion responsibilities.
+- [x] Extract Project Member endpoints into `backend/routes/project-members.ts`.
 - [ ] Extract Project deletion and related data/file cleanup into `backend/routes/project-deletion.ts`.
 - [ ] Keep Project CRUD and lifecycle endpoints in `backend/routes/projects.ts`.
 - [ ] Update `backend/app.ts` to register the separated route groups.
