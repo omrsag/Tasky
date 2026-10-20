@@ -12,12 +12,12 @@
 |---|---:|---|
 | Setup | 1 | █ |
 | Database | 1 | █ |
-| Backend | 10 | ██████████ |
+| Backend | 11 | ███████████ |
 | Frontend | 10 | ██████████ |
 | Integration & Testing | 1 | █ |
 | Deployment | 1 | █ |
 | README | 1 | █ |
-| **Total** | **25** | |
+| **Total** | **26** | |
 
 ### Setup
 - [Milestone 01 — Project Setup](#milestone-01--project-setup)
@@ -32,6 +32,7 @@
 - [Milestone 05A — Backend Modularization & Refactoring](#milestone-05a--backend-modularization--refactoring)
 - [Milestone 06 — Backend Workspace & Users](#milestone-06--backend-workspace--users)
 - [Milestone 07 — Backend Projects & Project Members](#milestone-07--backend-projects--project-members)
+- [Milestone 07A — Backend Project Routes Refactoring](#milestone-07a--backend-project-routes-refactoring)
 - [Milestone 08 — Backend Tasks & Workflow](#milestone-08--backend-tasks--workflow)
 - [Milestone 09 — Backend Comments, Attachments & Profile Images](#milestone-09--backend-comments-attachments--profile-images)
 - [Milestone 10 — Backend Notifications](#milestone-10--backend-notifications)
@@ -83,7 +84,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 1. **Setup:** Milestone 01.
 2. **Database:** Milestone 02.
-3. **Backend:** Milestones 03–05, 05A, and 06–11.
+3. **Backend:** Milestones 03–05, 05A, 06–07, 07A, and 08–11.
 4. **Frontend:** Milestones 12–21.
 5. **Integration & Manual Testing:** Milestone 22.
 6. **Deployment:** Milestone 23.
@@ -311,11 +312,38 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ---
 
+## Milestone 07A — Backend Project Routes Refactoring
+
+**Goal:** Improve maintainability by splitting the large Project routes file into smaller responsibility-based modules without changing existing API behavior.
+
+**Dependencies:** Milestone 07.
+
+### Tasks
+
+- [ ] Review `backend/routes/projects.ts` and identify the Project CRUD, Project Members, and Project deletion responsibilities.
+- [ ] Extract Project Member endpoints into `backend/routes/project-members.ts`.
+- [ ] Extract Project deletion and related data/file cleanup into `backend/routes/project-deletion.ts`.
+- [ ] Keep Project CRUD and lifecycle endpoints in `backend/routes/projects.ts`.
+- [ ] Update `backend/app.ts` to register the separated route groups.
+- [x] Update `ARCHITECTURE.md` to document the new Project route structure.
+- [x] Review `TECH_STACK.md`, `API.md`, and other relevant documentation; update only where necessary.
+- [ ] Preserve existing endpoints, authentication, authorization, validation, business rules, and API responses without introducing additional dependencies or architectural layers.
+- [ ] Compile the backend using `npx tsc` and verify the existing Project and Project Member endpoints with Postman.
+
+### Completion Criteria
+
+- Project routes are separated into focused, responsibility-based files.
+- Existing API endpoints and behavior remain unchanged.
+- The modular Express architecture and callback-based SQL approach are preserved.
+- The backend compiles successfully and existing Project functionality passes manual verification.
+
+---
+
 ## Milestone 08 — Backend Tasks & Workflow
 
 **Goal:** Implement Task operations and the agreed task lifecycle.
 
-**Dependencies:** Milestone 07.
+**Dependencies:** Milestones 07 and 07A.
 
 ### Tasks
 
