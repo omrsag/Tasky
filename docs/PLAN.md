@@ -294,9 +294,9 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Set each new Project's status to `Active`; support optional description, start date, and end date.
 - [x] Implement `GET /projects/:id` with Project-level access checks.
 - [x] Implement `PATCH /projects/:id` for permitted detail changes, Manager reassignment, dates, and status.
-- [ ] Allow Admin and the responsible Manager to change an Active Project to `Completed` only when all Tasks are `Done`.
-- [ ] Allow Admin and the responsible Manager to change an Active Project to `Archived`, even if unfinished Tasks remain.
-- [ ] Enforce Read-only behavior for `Completed` and `Archived` Projects, with Admin-only reactivation to `Active`.
+- [x] Allow Admin and the responsible Manager to change an Active Project to `Completed` only when all Tasks are `Done`.
+- [x] Allow Admin and the responsible Manager to change an Active Project to `Archived`, even if unfinished Tasks remain.
+- [x] Enforce Read-only behavior for `Completed` and `Archived` Projects, with Admin-only reactivation to `Active`.
 - [ ] Implement `GET /projects/:id/members`, `POST /projects/:id/members`, and `DELETE /projects/:id/members/:userId`.
 - [ ] Allow only valid Members from the Project's Workspace; prevent duplicate memberships.
 - [ ] Block removal of a Member with unfinished assigned Tasks; retain historical ownership of completed Tasks.
