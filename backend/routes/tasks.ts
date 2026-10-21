@@ -268,4 +268,91 @@ export function registerTaskRoutes(app: express.Express): void {
         );
     });
 
+    app.get("/tasks/:id", (req, res) => {
+        const taskId = Number(req.params.id);
+
+        if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+            res.status(400).json({ message: "Invalid task ID" });
+            return;
+        }
+
+        let sql = `
+            SELECT
+                t.id,
+                t.project_id,
+                t.assignee_id,
+                t.title,
+                t.description,
+                t.priority,
+                t.status,
+                DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,
+                t.created_at
+            FROM tasks t
+            JOIN projects p ON p.id = t.project_id
+            WHERE t.id = ? AND p.workspace_id = ?
+        `;
+
+        const params: number[] = [
+            taskId,
+            res.locals.workspaceId,
+        ];
+
+        if (res.locals.role === "Manager") {
+            sql += " AND p.manager_id = ?";
+            params.push(res.locals.userId);
+        } else if (res.locals.role === "Member") {
+            sql += `
+                AND EXISTS (
+                    SELECT 1
+                    FROM project_members pm
+                    WHERE pm.project_id = p.id
+                        AND pm.user_id = ?
+                )
+            `;
+            params.push(res.locals.userId);
+        } else if (res.locals.role !== "Admin") {
+            res.status(403).json({ message: "Access denied" });
+            return;
+        }
+
+        sql += " LIMIT 1";
+
+        db.query<mysql.RowDataPacket[]>(
+            sql,
+            params,
+            (error, results) => {
+                if (error) {
+                    console.error("Failed to fetch task:", error);
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
+                    return;
+                }
+
+                if (results.length === 0) {
+                    res.status(404).json({
+                        message: "Task not found",
+                    });
+                    return;
+                }
+
+                const task = results[0];
+
+                res.status(200).json({
+                    task: {
+                        id: task.id,
+                        projectId: task.project_id,
+                        assigneeId: task.assignee_id,
+                        title: task.title,
+                        description: task.description,
+                        priority: task.priority,
+                        status: task.status,
+                        dueDate: task.due_date,
+                        createdAt: task.created_at,
+                    },
+                });
+            }
+        );
+    });
+
 }
