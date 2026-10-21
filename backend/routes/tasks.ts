@@ -355,4 +355,391 @@ export function registerTaskRoutes(app: express.Express): void {
         );
     });
 
+    app.patch("/tasks/:id", (req, res) => {
+        const taskId = Number(req.params.id);
+
+        if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+            res.status(400).json({ message: "Invalid task ID" });
+            return;
+        }
+
+        const data = req.body;
+        const allowedFields = [
+            "title",
+            "description",
+            "priority",
+            "assigneeId",
+            "dueDate",
+            "status",
+        ];
+
+        if (
+            !data ||
+            typeof data !== "object" ||
+            Array.isArray(data) ||
+            Object.keys(data).length === 0 ||
+            Object.keys(data).some(
+                (key) => !allowedFields.includes(key)
+            )
+        ) {
+            res.status(400).json({ message: "Invalid task data" });
+            return;
+        }
+
+        const {
+            title,
+            description,
+            priority,
+            assigneeId,
+            dueDate,
+            status,
+        } = data;
+
+        const invalidTitle =
+            title !== undefined &&
+            (typeof title !== "string" ||
+                !title.trim() ||
+                title.trim().length > 255);
+
+        const invalidDescription =
+            description !== undefined &&
+            description !== null &&
+            typeof description !== "string";
+
+        const invalidPriority =
+            priority !== undefined &&
+            !["Low", "Medium", "High"].includes(priority);
+
+        const invalidAssigneeId =
+            assigneeId !== undefined &&
+            (!Number.isSafeInteger(assigneeId) ||
+                assigneeId <= 0);
+
+        const invalidDueDate =
+            dueDate != null &&
+            (typeof dueDate !== "string" ||
+                !/^\d{4}-\d{2}-\d{2}$/.test(dueDate) ||
+                Number.isNaN(Date.parse(dueDate)) ||
+                new Date(dueDate).toISOString().slice(0, 10) !== dueDate);
+
+        const invalidStatus =
+            status !== undefined &&
+            !["Todo", "In Progress", "Review", "Done"].includes(status);
+
+        if (
+            invalidTitle ||
+            invalidDescription ||
+            invalidPriority ||
+            invalidAssigneeId ||
+            invalidDueDate ||
+            invalidStatus
+        ) {
+            res.status(400).json({ message: "Invalid task data" });
+            return;
+        }
+
+        let sql = `
+            SELECT
+                t.id,
+                t.project_id,
+                t.assignee_id,
+                t.title,
+                t.description,
+                t.priority,
+                t.status,
+                DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,
+                p.manager_id,
+                p.status AS project_status,
+                DATE_FORMAT(p.start_date, '%Y-%m-%d') AS start_date,
+                DATE_FORMAT(p.end_date, '%Y-%m-%d') AS end_date
+            FROM tasks t
+            JOIN projects p ON p.id = t.project_id
+            WHERE t.id = ? AND p.workspace_id = ?
+        `;
+
+        const params: number[] = [
+            taskId,
+            res.locals.workspaceId,
+        ];
+
+        if (res.locals.role === "Manager") {
+            sql += " AND p.manager_id = ?";
+            params.push(res.locals.userId);
+        } else if (res.locals.role === "Member") {
+            sql += `
+                AND t.assignee_id = ?
+                AND EXISTS (
+                    SELECT 1
+                    FROM project_members pm
+                    WHERE pm.project_id = p.id
+                        AND pm.user_id = ?
+                )
+            `;
+            params.push(res.locals.userId, res.locals.userId);
+        } else if (res.locals.role !== "Admin") {
+            res.status(403).json({ message: "Access denied" });
+            return;
+        }
+
+        sql += " LIMIT 1";
+
+        db.query<mysql.RowDataPacket[]>(
+            sql,
+            params,
+            (error, results) => {
+                if (error) {
+                    console.error("Failed to fetch task:", error);
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
+                    return;
+                }
+
+                if (results.length === 0) {
+                    res.status(404).json({
+                        message: "Task not found",
+                    });
+                    return;
+                }
+
+                const task = results[0];
+
+                if (task.project_status !== "Active") {
+                    res.status(403).json({
+                        message: "Project is read-only",
+                    });
+                    return;
+                }
+
+                const assigneeChanged =
+                    assigneeId !== undefined &&
+                    assigneeId !== Number(task.assignee_id);
+
+                if (res.locals.role === "Member") {
+                    if (
+                        Object.keys(data).length !== 1 ||
+                        status === undefined
+                    ) {
+                        res.status(403).json({
+                            message: "Members can only update task status",
+                        });
+                        return;
+                    }
+
+                    if (status === "Done") {
+                        res.status(403).json({
+                            message: "Members cannot mark tasks as Done",
+                        });
+                        return;
+                    }
+
+                    if (task.status === "Review") {
+                        res.status(403).json({
+                            message: "Only Admin or Manager can review tasks",
+                        });
+                        return;
+                    }
+                }
+
+                if (
+                    assigneeChanged &&
+                    status !== undefined &&
+                    status !== "Todo"
+                ) {
+                    res.status(400).json({
+                        message: "Reassigning a task resets its status to Todo",
+                    });
+                    return;
+                }
+
+                const allowedTransitions: Record<string, string[]> = {
+                    Todo: ["In Progress"],
+                    "In Progress": ["Review"],
+                    Review: ["Done", "In Progress"],
+                    Done: [],
+                };
+
+                if (
+                    status !== undefined &&
+                    !assigneeChanged &&
+                    status !== task.status &&
+                    !allowedTransitions[task.status]?.includes(status)
+                ) {
+                    res.status(400).json({
+                        message: "Invalid task status transition",
+                    });
+                    return;
+                }
+
+                if (
+                    dueDate != null &&
+                    ((task.start_date != null &&
+                        dueDate < task.start_date) ||
+                        (task.end_date != null &&
+                            dueDate > task.end_date))
+                ) {
+                    res.status(400).json({
+                        message: "Task due date must be within project dates",
+                    });
+                    return;
+                }
+
+                const updateTask = (): void => {
+                    const updates: string[] = [];
+                    const values: (string | number | null)[] = [];
+
+                    if (title !== undefined) {
+                        updates.push("title = ?");
+                        values.push(title.trim());
+                    }
+
+                    if (description !== undefined) {
+                        updates.push("description = ?");
+                        values.push(
+                            description === null ? null : description.trim()
+                        );
+                    }
+
+                    if (priority !== undefined) {
+                        updates.push("priority = ?");
+                        values.push(priority);
+                    }
+
+                    if (assigneeId !== undefined) {
+                        updates.push("assignee_id = ?");
+                        values.push(assigneeId);
+                    }
+
+                    if (dueDate !== undefined) {
+                        updates.push("due_date = ?");
+                        values.push(dueDate);
+                    }
+
+                    if (assigneeChanged) {
+                        updates.push("status = 'Todo'");
+                    } else if (status !== undefined) {
+                        updates.push("status = ?");
+                        values.push(status);
+                    }
+
+                    db.query<mysql.ResultSetHeader>(
+                        `UPDATE tasks
+                        SET ${updates.join(", ")}
+                        WHERE id = ? AND project_id = ?`,
+                        [...values, taskId, task.project_id],
+                        (updateError) => {
+                            if (updateError) {
+                                console.error(
+                                    "Failed to update task:",
+                                    updateError
+                                );
+                                res.status(500).json({
+                                    message: "Something went wrong",
+                                });
+                                return;
+                            }
+
+                            db.query<mysql.RowDataPacket[]>(
+                                `SELECT
+                                    id,
+                                    project_id,
+                                    assignee_id,
+                                    title,
+                                    description,
+                                    priority,
+                                    status,
+                                    DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date,
+                                    created_at
+                                FROM tasks
+                                WHERE id = ? AND project_id = ?
+                                LIMIT 1`,
+                                [taskId, task.project_id],
+                                (fetchError, results) => {
+                                    if (fetchError) {
+                                        console.error(
+                                            "Failed to fetch updated task:",
+                                            fetchError
+                                        );
+                                        res.status(500).json({
+                                            message: "Something went wrong",
+                                        });
+                                        return;
+                                    }
+
+                                    if (results.length === 0) {
+                                        res.status(404).json({
+                                            message: "Task not found",
+                                        });
+                                        return;
+                                    }
+
+                                    const updatedTask = results[0];
+
+                                    res.status(200).json({
+                                        task: {
+                                            id: updatedTask.id,
+                                            projectId: updatedTask.project_id,
+                                            assigneeId: updatedTask.assignee_id,
+                                            title: updatedTask.title,
+                                            description: updatedTask.description,
+                                            priority: updatedTask.priority,
+                                            status: updatedTask.status,
+                                            dueDate: updatedTask.due_date,
+                                            createdAt: updatedTask.created_at,
+                                        },
+                                    });
+                                }
+                            );
+                        }
+                    );
+                };
+
+                if (assigneeId !== undefined) {
+                    db.query<mysql.RowDataPacket[]>(
+                        `SELECT pm.id
+                        FROM project_members pm
+                        JOIN users u ON u.id = pm.user_id
+                        WHERE pm.project_id = ?
+                            AND pm.user_id = ?
+                            AND u.workspace_id = ?
+                            AND u.role = 'Member'
+                            AND u.status = 'Active'
+                        LIMIT 1`,
+                        [
+                            task.project_id,
+                            assigneeId,
+                            res.locals.workspaceId,
+                        ],
+                        (memberError, memberResults) => {
+                            if (memberError) {
+                                console.error(
+                                    "Failed to validate task assignee:",
+                                    memberError
+                                );
+                                res.status(500).json({
+                                    message: "Something went wrong",
+                                });
+                                return;
+                            }
+
+                            if (memberResults.length === 0) {
+                                res.status(400).json({
+                                    message: "Invalid task assignee",
+                                });
+                                
+                                return;
+                            }
+
+                            updateTask();
+                        }
+                    );
+
+                    return;
+                }
+
+                updateTask();
+            }
+        );
+    });
+
 }
