@@ -347,10 +347,10 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Implement `GET /projects/:id/tasks` so authorized Project users can view its Tasks.
-- [ ] Implement `POST /projects/:id/tasks` for Admin and responsible Manager in an Active Project.
-- [ ] Require Task title, priority (`Low`, `Medium`, `High`), and exactly one assignee who is a Member of the same Project.
-- [ ] Set the initial Task status to `Todo` and support optional description and due date.
+- [x] Implement `GET /projects/:id/tasks` so authorized Project users can view its Tasks.
+- [x] Implement `POST /projects/:id/tasks` for Admin and responsible Manager in an Active Project.
+- [x] Require Task title, priority (`Low`, `Medium`, `High`), and exactly one assignee who is a Member of the same Project.
+- [x] Set the initial Task status to `Todo` and support optional description and due date.
 - [ ] Implement `GET /tasks/:id` with Workspace and Project permission checks.
 - [ ] Implement `PATCH /tasks/:id` for permitted changes to Task details, assignee, and status.
 - [ ] Support `Todo`, `In Progress`, `Review`, and `Done` according to the defined role and workflow rules.
