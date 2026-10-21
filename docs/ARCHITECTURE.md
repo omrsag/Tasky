@@ -133,7 +133,12 @@ backend/
 │   ├── auth.ts
 │   └── permissions.ts
 ├── routes/
-│   └── auth.ts
+│   ├── auth.ts
+│   ├── workspace.ts
+│   ├── users.ts
+│   ├── projects.ts
+│   ├── project-members.ts
+│   └── project-deletion.ts
 ├── uploads/
 │   ├── attachments/
 │   └── profile-images/
@@ -151,7 +156,17 @@ The backend uses a simple modular Express architecture.
 - `middleware/permissions.ts` contains reusable object-level permission checks for Projects, Tasks, Comments, and Attachments.
 - `routes/` contains REST API endpoints grouped by feature.
 
-Additional route files, such as `workspace.ts`, `users.ts`, `projects.ts`, and `tasks.ts`, are added as their features are implemented.
+Route files are organized by feature and responsibility.
+
+Project-related endpoints are divided into three modules:
+
+- `routes/projects.ts` handles Project creation, retrieval, updates, and lifecycle rules.
+- `routes/project-members.ts` handles Project Member listing, addition, and removal.
+- `routes/project-deletion.ts` handles permanent Project deletion and related database and uploaded-file cleanup.
+
+Each module exports a route registration function called from `app.ts`. Routes continue to use Express `app.get()`, `app.post()`, `app.patch()`, and `app.delete()` directly.
+
+Additional route files, such as `tasks.ts`, are added as their features are implemented.
 
 Route handlers contain request validation, business rules, and direct database queries where needed.
 
