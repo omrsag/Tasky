@@ -347,21 +347,21 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Implement `GET /projects/:id/tasks` so authorized Project users can view its Tasks.
-- [ ] Implement `POST /projects/:id/tasks` for Admin and responsible Manager in an Active Project.
-- [ ] Require Task title, priority (`Low`, `Medium`, `High`), and exactly one assignee who is a Member of the same Project.
-- [ ] Set the initial Task status to `Todo` and support optional description and due date.
-- [ ] Implement `GET /tasks/:id` with Workspace and Project permission checks.
-- [ ] Implement `PATCH /tasks/:id` for permitted changes to Task details, assignee, and status.
-- [ ] Support `Todo`, `In Progress`, `Review`, and `Done` according to the defined role and workflow rules.
-- [ ] Let Members update only their own assigned Tasks; do not let Members mark Tasks `Done`.
-- [ ] Allow Admin or the responsible Manager to approve a Task in `Review` as `Done` or return it to `In Progress`.
-- [ ] Reset a Task to `Todo` when its assignee changes.
-- [ ] Validate Task due dates against the Project's optional start and end dates, including relevant Project date edits.
-- [ ] Support identifying overdue Tasks whose due date has passed and whose status is not `Done`.
-- [ ] Block Task modifications when the Project is `Completed` or `Archived`.
-- [ ] Implement `DELETE /tasks/:id` for Admin and responsible Manager, including dependent Comments, Attachments, and stored files.
-- [ ] Test valid and invalid Task assignments, updates, workflow transitions, date rules, and deletion with Postman.
+- [x] Implement `GET /projects/:id/tasks` so authorized Project users can view its Tasks.
+- [x] Implement `POST /projects/:id/tasks` for Admin and responsible Manager in an Active Project.
+- [x] Require Task title, priority (`Low`, `Medium`, `High`), and exactly one assignee who is a Member of the same Project.
+- [x] Set the initial Task status to `Todo` and support optional description and due date.
+- [x] Implement `GET /tasks/:id` with Workspace and Project permission checks.
+- [x] Implement `PATCH /tasks/:id` for permitted changes to Task details, assignee, and status.
+- [x] Support `Todo`, `In Progress`, `Review`, and `Done` according to the defined role and workflow rules.
+- [x] Let Members update only their own assigned Tasks; do not let Members mark Tasks `Done`.
+- [x] Allow Admin or the responsible Manager to approve a Task in `Review` as `Done` or return it to `In Progress`.
+- [x] Reset a Task to `Todo` when its assignee changes.
+- [x] Validate Task due dates against the Project's optional start and end dates, including relevant Project date edits.
+- [x] Support identifying overdue Tasks whose due date has passed and whose status is not `Done`.
+- [x] Block Task modifications when the Project is `Completed` or `Archived`.
+- [x] Implement `DELETE /tasks/:id` for Admin and responsible Manager, including dependent Comments, Attachments, and stored files.
+- [x] Test valid and invalid Task assignments, updates, workflow transitions, date rules, and deletion with Postman.
 
 ### Completion Criteria
 
