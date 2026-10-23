@@ -183,4 +183,123 @@ export function registerCommentRoutes(app: express.Express): void {
         );
     });
 
+    app.patch("/comments/:id", (req, res) => {
+        const commentId = Number(req.params.id);
+        const workspaceId = res.locals.workspaceId;
+        const userId = res.locals.userId;
+        const content = req.body?.content;
+
+        if (!Number.isSafeInteger(commentId) || commentId <= 0) {
+            res.status(400).json({ message: "Invalid comment ID" });
+            return;
+        }
+
+        if (typeof content !== "string" || !content.trim()) {
+            res.status(400).json({ message: "Invalid comment content" });
+            return;
+        }
+
+        db.query<mysql.RowDataPacket[]>(
+            `SELECT
+                c.id,
+                c.task_id AS taskId,
+                c.author_id AS authorId,
+                author.full_name AS authorName,
+                c.created_at AS createdAt,
+                p.status AS projectStatus
+            FROM comments c
+            JOIN tasks t ON t.id = c.task_id
+            JOIN projects p ON p.id = t.project_id
+            JOIN users author ON author.id = c.author_id
+            JOIN users viewer ON viewer.id = ?
+                AND viewer.workspace_id = p.workspace_id
+            WHERE c.id = ?
+            AND p.workspace_id = ?
+            AND (
+                viewer.role = 'Admin'
+                OR (
+                viewer.role = 'Manager'
+                AND p.manager_id = viewer.id
+                )
+                OR (
+                viewer.role = 'Member'
+                AND EXISTS (
+                    SELECT 1
+                    FROM project_members pm
+                    WHERE pm.project_id = p.id
+                    AND pm.user_id = viewer.id
+                )
+                )
+            )
+            LIMIT 1`,
+            [userId, commentId, workspaceId],
+            (error, comments) => {
+                if (error) {
+                    console.error("Failed to check comment access:", error);
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
+                    return;
+                }
+
+                if (comments.length === 0) {
+                    res.status(404).json({ message: "Comment not found" });
+                    return;
+                }
+
+                const comment = comments[0];
+
+                if (comment.authorId !== userId) {
+                    res.status(403).json({
+                        message: "You can only edit your own comments",
+                    });
+                    return;
+                }
+
+                if (comment.projectStatus !== "Active") {
+                    res.status(403).json({
+                        message: "Project is read-only",
+                    });
+                    return;
+                }
+
+                const trimmedContent = content.trim();
+
+                db.query<mysql.ResultSetHeader>(
+                    `UPDATE comments
+                    SET content = ?
+                    WHERE id = ? AND author_id = ?`,
+                    [trimmedContent, commentId, userId],
+                    (error, result) => {
+                        if (error) {
+                            console.error("Failed to update comment:", error);
+                            res.status(500).json({
+                                message: "Something went wrong",
+                            });
+                            return;
+                        }
+
+                        if (result.affectedRows === 0) {
+                            res.status(404).json({
+                                message: "Comment not found",
+                            });
+                            return;
+                        }
+
+                        res.status(200).json({
+                            comment: {
+                                id: comment.id,
+                                taskId: comment.taskId,
+                                authorId: comment.authorId,
+                                authorName: comment.authorName,
+                                content: trimmedContent,
+                                createdAt: comment.createdAt,
+                            },
+                        });
+                    }
+                );
+            }
+        );
+    });
+
 }
