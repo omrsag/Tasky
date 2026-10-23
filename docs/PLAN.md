@@ -379,7 +379,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Implement `GET /tasks/:id/comments` and `POST /tasks/:id/comments` for users permitted to access the Task.
+- [x] Implement `GET /tasks/:id/comments` and `POST /tasks/:id/comments` for users permitted to access the Task.
 - [ ] Implement `PATCH /comments/:id` so a user can edit only their own Comment.
 - [ ] Implement `DELETE /comments/:id` for the author, responsible Manager, or Admin, according to their permissions.
 - [ ] Keep Comment author and Task associations, and show Comments to authorized Project users.
