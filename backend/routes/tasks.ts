@@ -1,6 +1,8 @@
 import express = require("express");
 import mysql = require("mysql2");
 import db = require("../db");
+import fs = require("fs");
+import path = require("path");
 
 export function registerTaskRoutes(app: express.Express): void {
     app.get("/projects/:id/tasks", (req, res) => {
@@ -759,6 +761,233 @@ export function registerTaskRoutes(app: express.Express): void {
                 }
 
                 updateTask();
+            }
+        );
+    });
+
+    app.delete("/tasks/:id", (req, res) => {
+        const taskId = Number(req.params.id);
+
+        if (!Number.isSafeInteger(taskId) || taskId <= 0) {
+            res.status(400).json({
+                message: "Invalid task ID",
+            });
+            return;
+        }
+
+        db.query<mysql.RowDataPacket[]>(
+            `SELECT
+                t.id,
+                t.project_id,
+                p.manager_id,
+                p.status AS project_status
+            FROM tasks t
+            JOIN projects p ON p.id = t.project_id
+            WHERE t.id = ? AND p.workspace_id = ?
+            LIMIT 1`,
+            [taskId, res.locals.workspaceId],
+            (error, results) => {
+                if (error) {
+                    console.error("Failed to fetch task:", error);
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
+                    return;
+                }
+
+                if (results.length === 0) {
+                    res.status(404).json({
+                        message: "Task not found",
+                    });
+                    return;
+                }
+
+                const task = results[0];
+
+                if (
+                    res.locals.role !== "Admin" &&
+                    (res.locals.role !== "Manager" ||
+                        task.manager_id !== res.locals.userId)
+                ) {
+                    res.status(404).json({
+                        message: "Task not found",
+                    });
+                    return;
+                }
+
+                if (task.project_status !== "Active") {
+                    res.status(403).json({
+                        message: "Project is read-only",
+                    });
+                    return;
+                }
+
+                db.query<mysql.RowDataPacket[]>(
+                    `SELECT file_path
+                    FROM attachments
+                    WHERE task_id = ?`,
+                    [taskId],
+                    (filesError, fileResults) => {
+                        if (filesError) {
+                            console.error(
+                                "Failed to fetch attachment paths:",
+                                filesError
+                            );
+                            res.status(500).json({
+                                message: "Something went wrong",
+                            });
+                            return;
+                        }
+
+                        const filePaths: string[] = fileResults.map(
+                            (file) => file.file_path
+                        );
+
+                        db.query<mysql.ResultSetHeader>(
+                            `DELETE FROM notifications
+                            WHERE task_id = ?`,
+                            [taskId],
+                            (notificationsError) => {
+                                if (notificationsError) {
+                                    console.error(
+                                        "Failed to delete task notifications:",
+                                        notificationsError
+                                    );
+                                    res.status(500).json({
+                                        message: "Something went wrong",
+                                    });
+                                    return;
+                                }
+
+                                db.query<mysql.ResultSetHeader>(
+                                    `DELETE FROM comments
+                                    WHERE task_id = ?`,
+                                    [taskId],
+                                    (commentsError) => {
+                                        if (commentsError) {
+                                            console.error(
+                                                "Failed to delete task comments:",
+                                                commentsError
+                                            );
+                                            res.status(500).json({
+                                                message: "Something went wrong",
+                                            });
+                                            return;
+                                        }
+
+                                        db.query<mysql.ResultSetHeader>(
+                                            `DELETE FROM attachments
+                                            WHERE task_id = ?`,
+                                            [taskId],
+                                            (attachmentsError) => {
+                                                if (attachmentsError) {
+                                                    console.error(
+                                                        "Failed to delete task attachments:",
+                                                        attachmentsError
+                                                    );
+                                                    res.status(500).json({
+                                                        message: "Something went wrong",
+                                                    });
+                                                    return;
+                                                }
+
+                                                db.query<mysql.ResultSetHeader>(
+                                                    `DELETE FROM tasks
+                                                    WHERE id = ? AND project_id = ?`,
+                                                    [taskId, task.project_id],
+                                                    (taskError, result) => {
+                                                        if (taskError) {
+                                                            console.error(
+                                                                "Failed to delete task:",
+                                                                taskError
+                                                            );
+                                                            res.status(500).json({
+                                                                message: "Something went wrong",
+                                                            });
+                                                            return;
+                                                        }
+
+                                                        if (result.affectedRows === 0) {
+                                                            res.status(404).json({
+                                                                message: "Task not found",
+                                                            });
+                                                            return;
+                                                        }
+
+                                                        const attachmentsDirectory = path.resolve(
+                                                            process.cwd(),
+                                                            "uploads",
+                                                            "attachments"
+                                                        );
+
+                                                        let remaining = filePaths.length;
+                                                        let failed = false;
+
+                                                        if (remaining === 0) {
+                                                            res.status(200).json({
+                                                                message: "Task deleted successfully",
+                                                            });
+                                                            return;
+                                                        }
+
+                                                        const finish = (error?: Error): void => {
+                                                            if (error) {
+                                                                failed = true;
+                                                                console.error(
+                                                                    "Failed to delete attachment file:",
+                                                                    error
+                                                                );
+                                                            }
+
+                                                            remaining--;
+
+                                                            if (remaining === 0) {
+                                                                res.status(failed ? 500 : 200).json({
+                                                                    message: failed
+                                                                        ? "Task deleted, but some attachment files could not be removed"
+                                                                        : "Task deleted successfully",
+                                                                });
+                                                            }
+                                                        };
+
+                                                        for (const filePath of filePaths) {
+                                                            const absolutePath = path.resolve(
+                                                                process.cwd(),
+                                                                filePath
+                                                            );
+
+                                                            if (
+                                                                !absolutePath.startsWith(
+                                                                    attachmentsDirectory + path.sep
+                                                                )
+                                                            ) {
+                                                                finish(
+                                                                    new Error(
+                                                                        `Invalid attachment path: ${filePath}`
+                                                                    )
+                                                                );
+                                                                continue;
+                                                            }
+
+                                                            fs.unlink(absolutePath, (error) => {
+                                                                if (error && error.code !== "ENOENT") {
+                                                                    finish(error);
+                                                                    return;
+                                                                }
+
+                                                                finish();
+                                                            });
+                                                        }
+                                                    }
+                                                );
+                                            }
+                                        );
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
             }
         );
     });
