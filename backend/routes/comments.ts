@@ -302,4 +302,114 @@ export function registerCommentRoutes(app: express.Express): void {
         );
     });
 
+    app.delete("/comments/:id", (req, res) => {
+        const commentId = Number(req.params.id);
+        const workspaceId = res.locals.workspaceId;
+        const userId = res.locals.userId;
+
+        if (!Number.isSafeInteger(commentId) || commentId <= 0) {
+            res.status(400).json({ message: "Invalid comment ID" });
+            return;
+        }
+
+        db.query<mysql.RowDataPacket[]>(
+            `SELECT
+                c.id,
+                c.author_id AS authorId,
+                p.status AS projectStatus,
+                p.manager_id AS managerId,
+                viewer.role AS viewerRole
+            FROM comments c
+            JOIN tasks t ON t.id = c.task_id
+            JOIN projects p ON p.id = t.project_id
+            JOIN users viewer ON viewer.id = ?
+                AND viewer.workspace_id = p.workspace_id
+            WHERE c.id = ?
+            AND p.workspace_id = ?
+            AND (
+                viewer.role = 'Admin'
+                OR (
+                viewer.role = 'Manager'
+                AND p.manager_id = viewer.id
+                )
+                OR (
+                viewer.role = 'Member'
+                AND EXISTS (
+                    SELECT 1
+                    FROM project_members pm
+                    WHERE pm.project_id = p.id
+                    AND pm.user_id = viewer.id
+                )
+                )
+            )
+            LIMIT 1`,
+            [userId, commentId, workspaceId],
+            (error, comments) => {
+                if (error) {
+                    console.error("Failed to check comment access:", error);
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
+                    return;
+                }
+
+                if (comments.length === 0) {
+                    res.status(404).json({
+                        message: "Comment not found",
+                    });
+                    return;
+                }
+
+                const comment = comments[0];
+
+                const canDelete =
+                    Number(comment.authorId) === userId ||
+                    comment.viewerRole === "Admin" ||
+                    (
+                        comment.viewerRole === "Manager" &&
+                        Number(comment.managerId) === userId
+                    );
+
+                if (!canDelete) {
+                    res.status(403).json({
+                        message: "You do not have permission to delete this comment",
+                    });
+                    return;
+                }
+
+                if (comment.projectStatus !== "Active") {
+                    res.status(403).json({
+                        message: "Project is read-only",
+                    });
+                    return;
+                }
+
+                db.query<mysql.ResultSetHeader>(
+                    "DELETE FROM comments WHERE id = ?",
+                    [commentId],
+                    (error, result) => {
+                        if (error) {
+                            console.error("Failed to delete comment:", error);
+                            res.status(500).json({
+                                message: "Something went wrong",
+                            });
+                            return;
+                        }
+
+                        if (result.affectedRows === 0) {
+                            res.status(404).json({
+                                message: "Comment not found",
+                            });
+                            return;
+                        }
+
+                        res.status(200).json({
+                            message: "Comment deleted successfully",
+                        });
+                    }
+                );
+            }
+        );
+    });
+
 }
