@@ -571,7 +571,7 @@ export function registerTaskRoutes(app: express.Express): void {
 
                 const allowedTransitions: Record<string, string[]> = {
                     Todo: ["In Progress"],
-                    "In Progress": ["Review"],
+                    "In Progress": ["Todo", "Review"],
                     Review: ["Done", "In Progress"],
                     Done: [],
                 };

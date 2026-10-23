@@ -361,7 +361,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Support identifying overdue Tasks whose due date has passed and whose status is not `Done`.
 - [x] Block Task modifications when the Project is `Completed` or `Archived`.
 - [x] Implement `DELETE /tasks/:id` for Admin and responsible Manager, including dependent Comments, Attachments, and stored files.
-- [ ] Test valid and invalid Task assignments, updates, workflow transitions, date rules, and deletion with Postman.
+- [x] Test valid and invalid Task assignments, updates, workflow transitions, date rules, and deletion with Postman.
 
 ### Completion Criteria
 

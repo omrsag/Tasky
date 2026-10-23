@@ -511,6 +511,7 @@ Any functionality listed as out of scope may be considered later, but it is not 
 ### Task rules
 
 - Task workflow is Todo → In Progress → Review → Done.
+- An assigned Member, the responsible Manager, or Admin may move a Task from `In Progress` back to `Todo`.
 - A Member cannot mark a Task Done.
 - The responsible Manager or Admin approves completion.
 - One Task has exactly one assignee.
