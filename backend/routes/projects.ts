@@ -357,8 +357,18 @@ export function registerProjectRoutes(app: express.Express): void {
                     FROM tasks t
                     WHERE t.project_id = projects.id
                         AND t.status <> 'Done'
-                ) AS has_unfinished_tasks
-            FROM projects
+                ) AS has_unfinished_tasks,
+                (
+                    SELECT DATE_FORMAT(MIN(due_date), '%Y-%m-%d')
+                    FROM tasks
+                    WHERE project_id = projects.id
+                ) AS earliest_task_due_date,
+                (
+                    SELECT DATE_FORMAT(MAX(due_date), '%Y-%m-%d')
+                    FROM tasks
+                    WHERE project_id = projects.id
+                ) AS latest_task_due_date
+                FROM projects
             WHERE id = ? AND workspace_id = ?
             LIMIT 1`,
             [managerId ?? null, projectId, res.locals.workspaceId],
@@ -431,6 +441,23 @@ export function registerProjectRoutes(app: express.Express): void {
                         });
                         return;
                     }
+                }
+
+                if (
+                    (startDate !== undefined || endDate !== undefined) &&
+                    (
+                        (updatedStartDate != null &&
+                            project.earliest_task_due_date != null &&
+                            project.earliest_task_due_date < updatedStartDate) ||
+                        (updatedEndDate != null &&
+                            project.latest_task_due_date != null &&
+                            project.latest_task_due_date > updatedEndDate)
+                    )
+                ) {
+                    res.status(400).json({
+                        message: "Project dates conflict with existing task due dates",
+                    });
+                    return;
                 }
 
                 if (
