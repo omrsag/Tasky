@@ -358,7 +358,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Allow Admin or the responsible Manager to approve a Task in `Review` as `Done` or return it to `In Progress`.
 - [x] Reset a Task to `Todo` when its assignee changes.
 - [x] Validate Task due dates against the Project's optional start and end dates, including relevant Project date edits.
-- [ ] Support identifying overdue Tasks whose due date has passed and whose status is not `Done`.
+- [x] Support identifying overdue Tasks whose due date has passed and whose status is not `Done`.
 - [ ] Block Task modifications when the Project is `Completed` or `Archived`.
 - [ ] Implement `DELETE /tasks/:id` for Admin and responsible Manager, including dependent Comments, Attachments, and stored files.
 - [ ] Test valid and invalid Task assignments, updates, workflow transitions, date rules, and deletion with Postman.

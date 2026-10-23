@@ -67,6 +67,11 @@ export function registerTaskRoutes(app: express.Express): void {
                         priority,
                         status,
                         DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date,
+                        (
+                            due_date IS NOT NULL
+                            AND due_date < UTC_DATE()
+                            AND status <> 'Done'
+                        ) AS is_overdue,
                         created_at
                     FROM tasks
                     WHERE project_id = ?
@@ -88,6 +93,7 @@ export function registerTaskRoutes(app: express.Express): void {
                             priority: task.priority,
                             status: task.status,
                             dueDate: task.due_date,
+                            isOverdue: Boolean(task.is_overdue),
                             createdAt: task.created_at,
                         }));
 
@@ -248,6 +254,8 @@ export function registerTaskRoutes(app: express.Express): void {
                                     return;
                                 }
 
+                                const today = new Date().toISOString().slice(0, 10);
+
                                 res.status(201).json({
                                     task: {
                                         id: result.insertId,
@@ -258,6 +266,7 @@ export function registerTaskRoutes(app: express.Express): void {
                                         priority,
                                         status: "Todo",
                                         dueDate: dueDate ?? null,
+                                        isOverdue: dueDate != null && dueDate < today,
                                     },
                                 });
                             }
@@ -286,6 +295,11 @@ export function registerTaskRoutes(app: express.Express): void {
                 t.priority,
                 t.status,
                 DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,
+                (
+                    t.due_date IS NOT NULL
+                    AND t.due_date < UTC_DATE()
+                    AND t.status <> 'Done'
+                ) AS is_overdue,
                 t.created_at
             FROM tasks t
             JOIN projects p ON p.id = t.project_id
@@ -348,6 +362,7 @@ export function registerTaskRoutes(app: express.Express): void {
                         priority: task.priority,
                         status: task.status,
                         dueDate: task.due_date,
+                        isOverdue: Boolean(task.is_overdue),
                         createdAt: task.created_at,
                     },
                 });
@@ -649,6 +664,11 @@ export function registerTaskRoutes(app: express.Express): void {
                                     priority,
                                     status,
                                     DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date,
+                                    (
+                                        due_date IS NOT NULL
+                                        AND due_date < UTC_DATE()
+                                        AND status <> 'Done'
+                                    ) AS is_overdue,
                                     created_at
                                 FROM tasks
                                 WHERE id = ? AND project_id = ?
@@ -685,6 +705,7 @@ export function registerTaskRoutes(app: express.Express): void {
                                             priority: updatedTask.priority,
                                             status: updatedTask.status,
                                             dueDate: updatedTask.due_date,
+                                            isOverdue: Boolean(updatedTask.is_overdue),
                                             createdAt: updatedTask.created_at,
                                         },
                                     });
@@ -726,7 +747,7 @@ export function registerTaskRoutes(app: express.Express): void {
                                 res.status(400).json({
                                     message: "Invalid task assignee",
                                 });
-                                
+
                                 return;
                             }
 
