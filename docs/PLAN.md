@@ -393,7 +393,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Implement `GET /auth/profile-image`, `POST /auth/profile-image`, and `DELETE /auth/profile-image` for the signed-in user's own image.
 - [x] Return `404` when the user has no profile image and keep the `hasProfileImage` flag consistent.
 - [x] Ensure deletion of a Task, Project, or Workspace also handles its stored files and related database records.
-- [ ] Test Comment permissions, file upload limits, protected downloads, profile image operations, and cleanup with Postman.
+- [x] Test Comment permissions, file upload limits, protected downloads, profile image operations, and cleanup with Postman.
 
 ### Completion Criteria
 
