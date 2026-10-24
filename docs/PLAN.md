@@ -418,7 +418,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Create `NewComment` Notifications for the Task assignee and responsible Manager when a Comment is added.
 - [x] Store notification recipient, related Task, type, message, unread state, and creation time.
 - [x] Implement `GET /notifications` for the current user's Notifications only.
-- [ ] Implement `GET /notifications/unread-count`.
+- [x] Implement `GET /notifications/unread-count`.
 - [ ] Implement `PATCH /notifications/:id/read` and `PATCH /notifications/read-all`.
 - [ ] Keep notifications mandatory; do not add preference, email, or opt-out features.
 - [ ] Confirm that related Task or Workspace deletion removes the required dependent Notifications.

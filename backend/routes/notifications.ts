@@ -38,4 +38,31 @@ export function registerNotificationRoutes(app: express.Express): void {
             }
         );
     });
+
+    app.get("/notifications/unread-count", (req, res) => {
+        db.query<mysql.RowDataPacket[]>(
+            `SELECT COUNT(*) AS unreadCount
+            FROM notifications
+            WHERE recipient_id = ?
+                AND is_read = FALSE`,
+            [res.locals.userId],
+            (error, results) => {
+                if (error) {
+                    console.error(
+                        "Failed to fetch unread notification count:",
+                        error
+                    );
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
+                    return;
+                }
+
+                res.status(200).json({
+                    unreadCount: Number(results[0].unreadCount),
+                });
+            }
+        );
+    });
+
 }
