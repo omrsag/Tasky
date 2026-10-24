@@ -420,9 +420,9 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Implement `GET /notifications` for the current user's Notifications only.
 - [x] Implement `GET /notifications/unread-count`.
 - [x] Implement `PATCH /notifications/:id/read` and `PATCH /notifications/read-all`.
-- [ ] Keep notifications mandatory; do not add preference, email, or opt-out features.
-- [ ] Confirm that related Task or Workspace deletion removes the required dependent Notifications.
-- [ ] Test all events, recipient boundaries, unread counts, and read actions with Postman.
+- [x] Keep notifications mandatory; do not add preference, email, or opt-out features.
+- [x] Confirm that related Task or Workspace deletion removes the required dependent Notifications.
+- [x] Test all events, recipient boundaries, unread counts, and read actions with Postman.
 
 ### Completion Criteria
 
