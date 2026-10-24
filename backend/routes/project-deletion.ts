@@ -132,8 +132,10 @@ export function registerProjectDeletionRoutes(app: express.Express): void {
                                                                             return;
                                                                         }
 
-                                                                        const attachmentsDirectory = path.resolve(
-                                                                            process.cwd(),
+                                                                        const backendRoot = path.resolve(__dirname, "../..");
+
+                                                                        const attachmentsDirectory = path.join(
+                                                                            backendRoot,
                                                                             "uploads",
                                                                             "attachments"
                                                                         );
@@ -166,7 +168,7 @@ export function registerProjectDeletionRoutes(app: express.Express): void {
                                                                         };
 
                                                                         for (const filePath of filePaths) {
-                                                                            const absolutePath = path.resolve(process.cwd(), filePath);
+                                                                            const absolutePath = path.resolve(backendRoot, filePath);
 
                                                                             if (!absolutePath.startsWith(attachmentsDirectory + path.sep)) {
                                                                                 finish(new Error(`Invalid attachment path: ${filePath}`));
