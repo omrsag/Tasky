@@ -790,6 +790,34 @@ export function registerTaskRoutes(app: express.Express): void {
                                         return;
                                     }
 
+                                    if (
+                                        task.status === "Review" &&
+                                        status === "In Progress"
+                                    ) {
+                                        db.query<mysql.ResultSetHeader>(
+                                            `INSERT INTO notifications
+                                            (recipient_id, task_id, type, message)
+                                            VALUES (?, ?, 'TaskReturned', ?)`,
+                                            [
+                                                updatedTask.assignee_id,
+                                                taskId,
+                                                `Task "${updatedTask.title}" has been returned for further work.`,
+                                            ],
+                                            (notificationError) => {
+                                                if (notificationError) {
+                                                    console.error(
+                                                        "Failed to create TaskReturned notification:",
+                                                        notificationError
+                                                    );
+                                                }
+
+                                                sendResponse();
+                                            }
+                                        );
+
+                                        return;
+                                    }
+
                                     if (!assigneeChanged) {
                                         sendResponse();
                                         return;
