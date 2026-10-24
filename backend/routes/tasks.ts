@@ -13,6 +13,18 @@ export function registerTaskRoutes(app: express.Express): void {
             return;
         }
 
+        const search = req.query.search;
+
+        if (search !== undefined && typeof search !== "string") {
+            res.status(400).json({ message: "Invalid search parameter" });
+            return;
+        }
+
+        const searchPattern =
+            typeof search === "string" && search.trim()
+                ? `%${search.trim()}%`
+                : null;
+
         let sql = `
             SELECT p.id
             FROM projects p
@@ -75,10 +87,11 @@ export function registerTaskRoutes(app: express.Express): void {
                             AND status <> 'Done'
                         ) AS is_overdue,
                         created_at
-                    FROM tasks
-                    WHERE project_id = ?
-                    ORDER BY created_at DESC, id DESC`,
-                    [projectId],
+                        FROM tasks
+                        WHERE project_id = ?
+                            AND (? IS NULL OR title LIKE ? OR description LIKE ?)
+                        ORDER BY created_at DESC, id DESC`,
+                    [projectId, searchPattern, searchPattern, searchPattern],
                     (tasksError, taskResults) => {
                         if (tasksError) {
                             console.error("Failed to fetch project tasks:", tasksError);
