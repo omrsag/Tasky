@@ -762,6 +762,34 @@ export function registerTaskRoutes(app: express.Express): void {
                                         return;
                                     }
 
+                                    if (
+                                        task.status === "Review" &&
+                                        status === "Done"
+                                    ) {
+                                        db.query<mysql.ResultSetHeader>(
+                                            `INSERT INTO notifications
+                                            (recipient_id, task_id, type, message)
+                                            VALUES (?, ?, 'TaskApproved', ?)`,
+                                            [
+                                                updatedTask.assignee_id,
+                                                taskId,
+                                                `Task "${updatedTask.title}" has been approved.`,
+                                            ],
+                                            (notificationError) => {
+                                                if (notificationError) {
+                                                    console.error(
+                                                        "Failed to create TaskApproved notification:",
+                                                        notificationError
+                                                    );
+                                                }
+
+                                                sendResponse();
+                                            }
+                                        );
+
+                                        return;
+                                    }
+
                                     if (!assigneeChanged) {
                                         sendResponse();
                                         return;
