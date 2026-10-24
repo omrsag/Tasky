@@ -93,7 +93,12 @@ export function registerCommentRoutes(app: express.Express): void {
         }
 
         db.query<mysql.RowDataPacket[]>(
-            `SELECT t.id, p.status AS projectStatus
+            `SELECT
+                t.id,
+                t.title AS taskTitle,
+                t.assignee_id AS assigneeId,
+                p.manager_id AS managerId,
+                p.status AS projectStatus
             FROM tasks t
             JOIN projects p ON p.id = t.project_id
             JOIN users u ON u.id = ? AND u.workspace_id = p.workspace_id
@@ -172,9 +177,39 @@ export function registerCommentRoutes(app: express.Express): void {
                                     return;
                                 }
 
-                                res.status(201).json({
-                                    comment: comments[0],
-                                });
+                                const recipients = [
+                                    Number(tasks[0].assigneeId),
+                                    Number(tasks[0].managerId),
+                                ].filter((recipientId) => recipientId !== Number(userId));
+
+                                const placeholders = recipients
+                                    .map(() => "(?, ?, 'NewComment', ?)")
+                                    .join(", ");
+
+                                const values = recipients.flatMap((recipientId) => [
+                                    recipientId,
+                                    taskId,
+                                    `New comment added to task "${tasks[0].taskTitle}".`,
+                                ]);
+
+                                db.query<mysql.ResultSetHeader>(
+                                    `INSERT INTO notifications
+                                    (recipient_id, task_id, type, message)
+                                    VALUES ${placeholders}`,
+                                    values,
+                                    (notificationError) => {
+                                        if (notificationError) {
+                                            console.error(
+                                                "Failed to create NewComment notifications:",
+                                                notificationError
+                                            );
+                                        }
+
+                                        res.status(201).json({
+                                            comment: comments[0],
+                                        });
+                                    }
+                                );
                             }
                         );
                     }

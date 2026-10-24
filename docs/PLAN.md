@@ -415,8 +415,8 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Create a `TaskSubmittedForReview` Notification for the responsible Manager when a Member submits a Task for Review.
 - [x] Create a `TaskApproved` Notification for the assignee when reviewed work is approved as `Done`.
 - [x] Create a `TaskReturned` Notification for the assignee when reviewed work returns to `In Progress`.
-- [ ] Create `NewComment` Notifications for the Task assignee and responsible Manager when a Comment is added.
-- [ ] Store notification recipient, related Task, type, message, unread state, and creation time.
+- [x] Create `NewComment` Notifications for the Task assignee and responsible Manager when a Comment is added.
+- [x] Store notification recipient, related Task, type, message, unread state, and creation time.
 - [ ] Implement `GET /notifications` for the current user's Notifications only.
 - [ ] Implement `GET /notifications/unread-count`.
 - [ ] Implement `PATCH /notifications/:id/read` and `PATCH /notifications/read-all`.
