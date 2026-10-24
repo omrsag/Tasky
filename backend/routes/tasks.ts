@@ -256,21 +256,40 @@ export function registerTaskRoutes(app: express.Express): void {
                                     return;
                                 }
 
-                                const today = new Date().toISOString().slice(0, 10);
-
-                                res.status(201).json({
-                                    task: {
-                                        id: result.insertId,
-                                        projectId,
+                                db.query<mysql.ResultSetHeader>(
+                                    `INSERT INTO notifications
+                                    (recipient_id, task_id, type, message)
+                                    VALUES (?, ?, 'TaskAssigned', ?)`,
+                                    [
                                         assigneeId,
-                                        title: title.trim(),
-                                        description: taskDescription,
-                                        priority,
-                                        status: "Todo",
-                                        dueDate: dueDate ?? null,
-                                        isOverdue: dueDate != null && dueDate < today,
-                                    },
-                                });
+                                        result.insertId,
+                                        `You have been assigned to task "${title.trim()}".`,
+                                    ],
+                                    (notificationError) => {
+                                        if (notificationError) {
+                                            console.error(
+                                                "Failed to create TaskAssigned notification:",
+                                                notificationError
+                                            );
+                                        }
+
+                                        const today = new Date().toISOString().slice(0, 10);
+
+                                        res.status(201).json({
+                                            task: {
+                                                id: result.insertId,
+                                                projectId,
+                                                assigneeId,
+                                                title: title.trim(),
+                                                description: taskDescription,
+                                                priority,
+                                                status: "Todo",
+                                                dueDate: dueDate ?? null,
+                                                isOverdue: dueDate != null && dueDate < today,
+                                            },
+                                        });
+                                    }
+                                );
                             }
                         );
                     }
@@ -697,20 +716,48 @@ export function registerTaskRoutes(app: express.Express): void {
 
                                     const updatedTask = results[0];
 
-                                    res.status(200).json({
-                                        task: {
-                                            id: updatedTask.id,
-                                            projectId: updatedTask.project_id,
-                                            assigneeId: updatedTask.assignee_id,
-                                            title: updatedTask.title,
-                                            description: updatedTask.description,
-                                            priority: updatedTask.priority,
-                                            status: updatedTask.status,
-                                            dueDate: updatedTask.due_date,
-                                            isOverdue: Boolean(updatedTask.is_overdue),
-                                            createdAt: updatedTask.created_at,
-                                        },
-                                    });
+                                    const sendResponse = (): void => {
+                                        res.status(200).json({
+                                            task: {
+                                                id: updatedTask.id,
+                                                projectId: updatedTask.project_id,
+                                                assigneeId: updatedTask.assignee_id,
+                                                title: updatedTask.title,
+                                                description: updatedTask.description,
+                                                priority: updatedTask.priority,
+                                                status: updatedTask.status,
+                                                dueDate: updatedTask.due_date,
+                                                isOverdue: Boolean(updatedTask.is_overdue),
+                                                createdAt: updatedTask.created_at,
+                                            },
+                                        });                                    
+                                    };
+
+                                    if (!assigneeChanged) {
+                                        sendResponse();
+                                        return;
+                                    }
+
+                                    db.query<mysql.ResultSetHeader>(
+                                        `INSERT INTO notifications
+                                        (recipient_id, task_id, type, message)
+                                        VALUES (?, ?, 'TaskAssigned', ?)`,
+                                        [
+                                            assigneeId,
+                                            taskId,
+                                            `You have been assigned to task "${updatedTask.title}".`,
+                                        ],
+                                        (notificationError) => {
+                                            if (notificationError) {
+                                                console.error(
+                                                    "Failed to create TaskAssigned notification:",
+                                                    notificationError
+                                                );
+                                            }
+
+                                            sendResponse();
+                                        }
+                                    );
                                 }
                             );
                         }
