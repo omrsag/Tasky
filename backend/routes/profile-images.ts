@@ -277,4 +277,116 @@ export function registerProfileImageRoutes(app: express.Express): void {
         );
     });
 
+    app.delete("/auth/profile-image", (_req, res) => {
+        const userId = res.locals.userId;
+        const workspaceId = res.locals.workspaceId;
+
+        db.query<mysql.RowDataPacket[]>(
+            `SELECT profile_image_path AS profileImagePath
+            FROM users
+            WHERE id = ? AND workspace_id = ?
+            LIMIT 1`,
+            [userId, workspaceId],
+            (error, users) => {
+                if (error) {
+                    console.error("Failed to fetch profile image:", error);
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
+                    return;
+                }
+
+                if (users.length === 0) {
+                    res.status(404).json({
+                        message: "User not found",
+                    });
+                    return;
+                }
+
+                const storedPath = users[0].profileImagePath;
+
+                if (storedPath === null) {
+                    res.status(404).json({
+                        message: "Profile image not found",
+                    });
+                    return;
+                }
+
+                if (
+                    typeof storedPath !== "string" ||
+                    !storedPath.trim()
+                ) {
+                    res.status(500).json({
+                        message: "Invalid profile image path",
+                    });
+                    return;
+                }
+
+                const backendRoot = path.resolve(__dirname, "../..");
+
+                const profileImagesRoot = path.join(
+                    backendRoot,
+                    "uploads",
+                    "profile-images"
+                );
+
+                const fullPath = path.isAbsolute(storedPath)
+                    ? path.resolve(storedPath)
+                    : path.resolve(backendRoot, storedPath);
+
+                if (!fullPath.startsWith(profileImagesRoot + path.sep)) {
+                    console.error("Invalid profile image path:", fullPath);
+                    res.status(500).json({
+                        message: "Invalid profile image path",
+                    });
+                    return;
+                }
+
+                db.query<mysql.ResultSetHeader>(
+                    `UPDATE users
+                    SET profile_image_path = NULL
+                    WHERE id = ?
+                    AND workspace_id = ?
+                    AND profile_image_path = ?`,
+                    [userId, workspaceId, storedPath],
+                    (error, result) => {
+                        if (error) {
+                            console.error("Failed to remove profile image:", error);
+                            res.status(500).json({
+                                message: "Something went wrong",
+                            });
+                            return;
+                        }
+
+                        if (result.affectedRows === 0) {
+                            res.status(409).json({
+                                message: "Profile image changed; please retry",
+                            });
+                            return;
+                        }
+
+                        fs.unlink(fullPath, (error) => {
+                            if (error && error.code !== "ENOENT") {
+                                console.error(
+                                    "Profile image cleanup failed:",
+                                    error
+                                );
+
+                                res.status(500).json({
+                                    message: "Profile image removed, but file cleanup failed",
+                                });
+                                return;
+                            }
+
+                            res.status(200).json({
+                                message: "Profile image deleted successfully",
+                                hasProfileImage: false,
+                            });
+                        });
+                    }
+                );
+            }
+        );
+    });
+
 }

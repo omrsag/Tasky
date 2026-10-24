@@ -390,7 +390,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Store attachment metadata and paths in MySQL rather than storing file bytes in the database.
 - [x] Implement `GET /attachments/:id/download` with authentication and Task permission checks; do not expose uploads as public static files.
 - [x] Implement `DELETE /attachments/:id` for the uploader, responsible Manager, or Admin, including filesystem cleanup.
-- [ ] Implement `GET /auth/profile-image`, `POST /auth/profile-image`, and `DELETE /auth/profile-image` for the signed-in user's own image.
+- [x] Implement `GET /auth/profile-image`, `POST /auth/profile-image`, and `DELETE /auth/profile-image` for the signed-in user's own image.
 - [ ] Return `404` when the user has no profile image and keep the `hasProfileImage` flag consistent.
 - [ ] Ensure deletion of a Task, Project, or Workspace also handles its stored files and related database records.
 - [ ] Test Comment permissions, file upload limits, protected downloads, profile image operations, and cleanup with Postman.
