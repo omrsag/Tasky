@@ -439,7 +439,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Support the `search` query parameter on `GET /projects`.
+- [x] Support the `search` query parameter on `GET /projects`.
 - [ ] Support the `search` query parameter on `GET /projects/:id/tasks`.
 - [ ] Support `status`, `priority`, and `assigneeId` Task filters.
 - [ ] Allow Task search and filter parameters to be combined in the same request.

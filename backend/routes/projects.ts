@@ -5,10 +5,16 @@ import db = require("../db");
 import { requireAdmin } from "../middleware/auth";
 
 export function registerProjectRoutes(app: express.Express): void {
-    app.get("/projects", (_req, res) => {
+    app.get("/projects", (req, res) => {
         const workspaceId: number = res.locals.workspaceId;
         const userId: number = res.locals.userId;
         const role: string = res.locals.role;
+        const search = req.query.search;
+
+        if (search !== undefined && typeof search !== "string") {
+            res.status(400).json({ message: "Invalid search parameter" });
+            return;
+        }
 
         let sql = `
             SELECT
@@ -24,7 +30,7 @@ export function registerProjectRoutes(app: express.Express): void {
             WHERE p.workspace_id = ?
         `;
 
-        const params: number[] = [workspaceId];
+        const params: (number | string)[] = [workspaceId];
 
         if (role === "Manager") {
             sql += " AND p.manager_id = ?";
@@ -42,6 +48,13 @@ export function registerProjectRoutes(app: express.Express): void {
         } else if (role !== "Admin") {
             res.status(403).json({ message: "Access denied" });
             return;
+        }
+
+        if (typeof search === "string" && search.trim()) {
+            const searchPattern = `%${search.trim()}%`;
+
+            sql += " AND (p.name LIKE ? OR p.description LIKE ?)";
+            params.push(searchPattern, searchPattern);
         }
 
         sql += " ORDER BY p.created_at DESC, p.id DESC";
