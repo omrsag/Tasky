@@ -4,6 +4,7 @@ import db = require("../db");
 import multer = require("multer");
 import fs = require("fs");
 import { attachmentUpload } from "../middleware/uploads";
+import path = require("path");
 
 export function registerAttachmentRoutes(app: express.Express): void {
     app.get("/tasks/:id/attachments", (req, res) => {
@@ -256,6 +257,121 @@ export function registerAttachmentRoutes(app: express.Express): void {
                             );
                         }
                     );
+                });
+            }
+        );
+    });
+
+    app.get("/attachments/:id/download", (req, res) => {
+        const attachmentId = Number(req.params.id);
+        const workspaceId = res.locals.workspaceId;
+        const userId = res.locals.userId;
+
+        if (!Number.isSafeInteger(attachmentId) || attachmentId <= 0) {
+            res.status(400).json({ message: "Invalid attachment ID" });
+            return;
+        }
+
+        db.query<mysql.RowDataPacket[]>(
+            `SELECT
+                a.file_name AS fileName,
+                a.file_path AS filePath
+            FROM attachments a
+            JOIN tasks t ON t.id = a.task_id
+            JOIN projects p ON p.id = t.project_id
+            JOIN users u ON u.id = ?
+                AND u.workspace_id = p.workspace_id
+            WHERE a.id = ?
+            AND p.workspace_id = ?
+            AND (
+                u.role = 'Admin'
+                OR (
+                u.role = 'Manager'
+                AND p.manager_id = u.id
+                )
+                OR (
+                u.role = 'Member'
+                AND EXISTS (
+                    SELECT 1
+                    FROM project_members pm
+                    WHERE pm.project_id = p.id
+                    AND pm.user_id = u.id
+                )
+                )
+            )
+            LIMIT 1`,
+            [userId, attachmentId, workspaceId],
+            (error, attachments) => {
+                if (error) {
+                    console.error("Failed to fetch attachment:", error);
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
+                    return;
+                }
+
+                if (attachments.length === 0) {
+                    res.status(404).json({
+                        message: "Attachment not found",
+                    });
+                    return;
+                }
+
+                const attachment = attachments[0];
+
+                if (
+                    typeof attachment.filePath !== "string" ||
+                    !attachment.filePath.trim() ||
+                    typeof attachment.fileName !== "string" ||
+                    !attachment.fileName.trim()
+                ) {
+                    res.status(500).json({
+                        message: "Invalid attachment file",
+                    });
+                    return;
+                }
+
+                const backendRoot = path.resolve(__dirname, "../..");
+                const attachmentsRoot = path.join(
+                    backendRoot,
+                    "uploads",
+                    "attachments"
+                );
+
+                const fullPath = path.isAbsolute(attachment.filePath)
+                    ? path.resolve(attachment.filePath)
+                    : path.resolve(backendRoot, attachment.filePath);
+
+                if (!fullPath.startsWith(attachmentsRoot + path.sep)) {
+                    console.error("Invalid attachment file path:", fullPath);
+                    res.status(500).json({
+                        message: "Invalid attachment file path",
+                    });
+                    return;
+                }
+
+                res.download(fullPath, attachment.fileName, (error) => {
+                    if (!error) {
+                        return;
+                    }
+
+                    console.error("Failed to download attachment:", error);
+
+                    if (res.headersSent) {
+                        res.end();
+                        return;
+                    }
+
+                    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+                        res.status(404).json({
+                            message: "Attachment file not found",
+                        });
+                        return;
+                    }
+
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
                 });
             }
         );
