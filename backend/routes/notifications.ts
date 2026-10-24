@@ -65,4 +65,68 @@ export function registerNotificationRoutes(app: express.Express): void {
         );
     });
 
+    app.patch("/notifications/:id/read", (req, res) => {
+        const notificationId = Number(req.params.id);
+
+        if (!Number.isSafeInteger(notificationId) || notificationId <= 0) {
+            res.status(400).json({
+                message: "Invalid notification ID",
+            });
+            return;
+        }
+
+        db.query<mysql.ResultSetHeader>(
+            `UPDATE notifications
+            SET is_read = TRUE
+            WHERE id = ? AND recipient_id = ?`,
+            [notificationId, res.locals.userId],
+            (error, result) => {
+                if (error) {
+                    console.error("Failed to mark notification as read:", error);
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
+                    return;
+                }
+
+                if (result.affectedRows === 0) {
+                    res.status(404).json({
+                        message: "Notification not found",
+                    });
+                    return;
+                }
+
+                res.status(200).json({
+                    message: "Notification marked as read",
+                });
+            }
+        );
+    });
+
+    app.patch("/notifications/read-all", (req, res) => {
+        db.query<mysql.ResultSetHeader>(
+            `UPDATE notifications
+            SET is_read = TRUE
+            WHERE recipient_id = ?
+                AND is_read = FALSE`,
+            [res.locals.userId],
+            (error, result) => {
+                if (error) {
+                    console.error(
+                        "Failed to mark all notifications as read:",
+                        error
+                    );
+                    res.status(500).json({
+                        message: "Something went wrong",
+                    });
+                    return;
+                }
+
+                res.status(200).json({
+                    message: "All notifications marked as read",
+                });
+            }
+        );
+    });
+
 }
