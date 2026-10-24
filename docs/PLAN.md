@@ -417,7 +417,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Create a `TaskReturned` Notification for the assignee when reviewed work returns to `In Progress`.
 - [x] Create `NewComment` Notifications for the Task assignee and responsible Manager when a Comment is added.
 - [x] Store notification recipient, related Task, type, message, unread state, and creation time.
-- [ ] Implement `GET /notifications` for the current user's Notifications only.
+- [x] Implement `GET /notifications` for the current user's Notifications only.
 - [ ] Implement `GET /notifications/unread-count`.
 - [ ] Implement `PATCH /notifications/:id/read` and `PATCH /notifications/read-all`.
 - [ ] Keep notifications mandatory; do not add preference, email, or opt-out features.
