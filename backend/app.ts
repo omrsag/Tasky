@@ -8,6 +8,9 @@ import { registerProjectRoutes } from "./routes/projects";
 import { registerProjectMemberRoutes } from "./routes/project-members";
 import { registerProjectDeletionRoutes } from "./routes/project-deletion";
 import { registerTaskRoutes } from "./routes/tasks";
+import { registerCommentRoutes } from "./routes/comments";
+import { registerAttachmentRoutes } from "./routes/attachments";
+import { registerProfileImageRoutes } from "./routes/profile-images";
 
 const FRONTEND_URL: string | undefined = process.env.FRONTEND_URL;
 
@@ -42,6 +45,9 @@ registerProjectRoutes(app);
 registerProjectMemberRoutes(app);
 registerProjectDeletionRoutes(app);
 registerTaskRoutes(app);
+registerCommentRoutes(app);
+registerAttachmentRoutes(app);
+registerProfileImageRoutes(app);
 
 // Error Handling
 app.use((_req: express.Request, res: express.Response) => {
