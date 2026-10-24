@@ -11,6 +11,7 @@ import { registerTaskRoutes } from "./routes/tasks";
 import { registerCommentRoutes } from "./routes/comments";
 import { registerAttachmentRoutes } from "./routes/attachments";
 import { registerProfileImageRoutes } from "./routes/profile-images";
+import { registerNotificationRoutes } from "./routes/notifications";
 
 const FRONTEND_URL: string | undefined = process.env.FRONTEND_URL;
 
@@ -46,6 +47,7 @@ registerProjectMemberRoutes(app);
 registerProjectDeletionRoutes(app);
 registerTaskRoutes(app);
 registerCommentRoutes(app);
+registerNotificationRoutes(app);
 registerAttachmentRoutes(app);
 registerProfileImageRoutes(app);
 
