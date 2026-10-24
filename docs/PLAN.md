@@ -412,7 +412,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 ### Tasks
 
 - [x] Create a `TaskAssigned` Notification for the new Task assignee when a Task is assigned or reassigned.
-- [ ] Create a `TaskSubmittedForReview` Notification for the responsible Manager when a Member submits a Task for Review.
+- [x] Create a `TaskSubmittedForReview` Notification for the responsible Manager when a Member submits a Task for Review.
 - [ ] Create a `TaskApproved` Notification for the assignee when reviewed work is approved as `Done`.
 - [ ] Create a `TaskReturned` Notification for the assignee when reviewed work returns to `In Progress`.
 - [ ] Create `NewComment` Notifications for the Task assignee and responsible Manager when a Comment is added.

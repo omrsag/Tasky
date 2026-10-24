@@ -733,6 +733,35 @@ export function registerTaskRoutes(app: express.Express): void {
                                         });                                    
                                     };
 
+                                    if (
+                                        res.locals.role === "Member" &&
+                                        task.status === "In Progress" &&
+                                        status === "Review"
+                                    ) {
+                                        db.query<mysql.ResultSetHeader>(
+                                            `INSERT INTO notifications
+                                            (recipient_id, task_id, type, message)
+                                            VALUES (?, ?, 'TaskSubmittedForReview', ?)`,
+                                            [
+                                                task.manager_id,
+                                                taskId,
+                                                `Task "${updatedTask.title}" has been submitted for review.`,
+                                            ],
+                                            (notificationError) => {
+                                                if (notificationError) {
+                                                    console.error(
+                                                        "Failed to create TaskSubmittedForReview notification:",
+                                                        notificationError
+                                                    );
+                                                }
+
+                                                sendResponse();
+                                            }
+                                        );
+
+                                        return;
+                                    }
+
                                     if (!assigneeChanged) {
                                         sendResponse();
                                         return;
