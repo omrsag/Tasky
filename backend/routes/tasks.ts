@@ -25,6 +25,44 @@ export function registerTaskRoutes(app: express.Express): void {
                 ? `%${search.trim()}%`
                 : null;
 
+        const status = req.query.status;
+
+        if (
+            status !== undefined &&
+            (typeof status !== "string" ||
+                !["Todo", "In Progress", "Review", "Done"].includes(status))
+        ) {
+            res.status(400).json({ message: "Invalid status filter" });
+            return;
+        }
+
+        const priority = req.query.priority;
+
+        if (
+            priority !== undefined &&
+            (typeof priority !== "string" ||
+                !["Low", "Medium", "High"].includes(priority))
+        ) {
+            res.status(400).json({ message: "Invalid priority filter" });
+            return;
+        }
+
+        const assigneeId = req.query.assigneeId;
+
+        if (
+            assigneeId !== undefined &&
+            (typeof assigneeId !== "string" ||
+                !/^\d+$/.test(assigneeId) ||
+                !Number.isSafeInteger(Number(assigneeId)) ||
+                Number(assigneeId) <= 0)
+        ) {
+            res.status(400).json({ message: "Invalid assignee filter" });
+            return;
+        }
+
+        const assigneeFilterId =
+            typeof assigneeId === "string" ? Number(assigneeId) : null;
+
         let sql = `
             SELECT p.id
             FROM projects p
@@ -88,10 +126,24 @@ export function registerTaskRoutes(app: express.Express): void {
                         ) AS is_overdue,
                         created_at
                         FROM tasks
-                        WHERE project_id = ?
-                            AND (? IS NULL OR title LIKE ? OR description LIKE ?)
-                        ORDER BY created_at DESC, id DESC`,
-                    [projectId, searchPattern, searchPattern, searchPattern],
+                    WHERE project_id = ?
+                        AND (? IS NULL OR title LIKE ? OR description LIKE ?)
+                        AND (? IS NULL OR status = ?)
+                        AND (? IS NULL OR priority = ?)
+                        AND (? IS NULL OR assignee_id = ?)
+                    ORDER BY created_at DESC, id DESC`,
+                    [
+                        projectId,
+                        searchPattern,
+                        searchPattern,
+                        searchPattern,
+                        status ?? null,
+                        status ?? null,
+                        priority ?? null,
+                        priority ?? null,
+                        assigneeFilterId,
+                        assigneeFilterId,
+                    ],
                     (tasksError, taskResults) => {
                         if (tasksError) {
                             console.error("Failed to fetch project tasks:", tasksError);

@@ -441,11 +441,11 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 - [x] Support the `search` query parameter on `GET /projects`.
 - [x] Support the `search` query parameter on `GET /projects/:id/tasks`.
-- [ ] Support `status`, `priority`, and `assigneeId` Task filters.
-- [ ] Allow Task search and filter parameters to be combined in the same request.
-- [ ] Validate filter values and use parameterized SQL queries.
-- [ ] Apply the same Workspace, role, and Project visibility rules to all search results.
-- [ ] Test individual filters, combined filters, empty results, and unauthorized search attempts with Postman.
+- [x] Support `status`, `priority`, and `assigneeId` Task filters.
+- [x] Allow Task search and filter parameters to be combined in the same request.
+- [x] Validate filter values and use parameterized SQL queries.
+- [x] Apply the same Workspace, role, and Project visibility rules to all search results.
+- [x] Test individual filters, combined filters, empty results, and unauthorized search attempts with Postman.
 
 ### Completion Criteria
 
