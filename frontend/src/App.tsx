@@ -1,26 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = () => {
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="/register" element={<div>Registration</div>} />
+                <Route path="/login" element={<div>Login</div>} />
+                <Route path="/dashboard" element={<div>Dashboard</div>} />
+                <Route path="/workspace" element={<div>Workspace</div>} />
+                <Route path="/users" element={<div>Users</div>} />
+                <Route path="/projects" element={<div>Projects</div>} />
+                <Route path="/projects/:id" element={<div>Project Details</div>} />
+                <Route path="/tasks/:id" element={<div>Task Details</div>} />
+                <Route path="/notifications" element={<div>Notifications</div>} />
+                <Route path="/profile" element={<div>Profile</div>} />
+                <Route path="*" element={<div>Page not found</div>} />
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
 export default App;
