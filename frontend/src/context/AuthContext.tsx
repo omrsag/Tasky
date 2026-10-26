@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import axios from "axios";
 
 export type AuthUser = {
     id: number;
@@ -14,6 +15,7 @@ type AuthContextValue = {
     setUser: (user: AuthUser | null) => void;
     token: string | null;
     setToken: (token: string | null) => void;
+    isAuthLoading: boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -35,8 +37,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setStoredToken(newToken);
     };
 
+    const [isAuthLoading, setIsAuthLoading] = useState(Boolean(token));
+
+    useEffect(() => {
+        let active = true;
+
+        const validateSession = async () => {
+            if (!token) {
+                setUser(null);
+                setIsAuthLoading(false);
+                return;
+            }
+
+            setIsAuthLoading(true);
+
+            try {
+                const response = await axios.get<{ user: AuthUser }>("/auth/me");
+
+                if (active) {
+                    setUser(response.data.user);
+                }
+            } catch {
+                if (active) {
+                    setUser(null);
+                }
+            } finally {
+                if (active) {
+                    setIsAuthLoading(false);
+                }
+            }
+        };
+
+        void validateSession();
+
+        return () => {
+            active = false;
+        };
+    }, [token]);
+
     return (
-        <AuthContext.Provider value={{ user, setUser, token, setToken }}>
+        <AuthContext.Provider value={{ user, setUser, token, setToken, isAuthLoading }}>
             {children}
         </AuthContext.Provider>
     );
