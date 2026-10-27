@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import ProjectsPage from "./pages/ProjectsPage";
+import RegistrationPage from "./pages/RegistrationPage";
 
 const App = () => {
   return (
@@ -20,7 +21,7 @@ const App = () => {
                 </Route>
             </Route>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/register" element={<div>Registration</div>} />
+            <Route path="/register" element={<RegistrationPage />} />
             <Route path="/login" element={<div>Login</div>} />
             <Route path="*" element={<div>Page not found</div>} />
           </Routes>

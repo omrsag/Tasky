@@ -491,7 +491,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Build the Registration page with Full Name, Email, Password, and Workspace Name.
+- [x] Build the Registration page with Full Name, Email, Password, and Workspace Name.
 - [ ] Connect Registration to `POST /auth/register` and store the returned session token.
 - [ ] Build the Login page and connect it to `POST /auth/login`.
 - [ ] Update `AuthContext` after successful registration or login and navigate into the application.
