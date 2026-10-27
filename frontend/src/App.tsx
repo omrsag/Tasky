@@ -4,6 +4,7 @@ import Layout from "./components/Layout";
 import ProjectsPage from "./pages/ProjectsPage";
 import RegistrationPage from "./pages/RegistrationPage";
 import LoginPage from "./pages/LoginPage";
+import GuestRoute from "./components/GuestRoute";
 
 const App = () => {
   return (
@@ -22,8 +23,10 @@ const App = () => {
                 </Route>
             </Route>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/register" element={<RegistrationPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route element={<GuestRoute />}>
+              <Route path="/register" element={<RegistrationPage />} />
+              <Route path="/login" element={<LoginPage />} />
+            </Route>
             <Route path="*" element={<div>Page not found</div>} />
           </Routes>
       </BrowserRouter>
