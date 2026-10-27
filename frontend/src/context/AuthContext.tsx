@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import axios from "axios";
 
@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         () => localStorage.getItem("taskyToken")
     );
 
-    const setToken = (newToken: string | null) => {
+    const setToken = useCallback((newToken: string | null) => {
         if (newToken) {
             localStorage.setItem("taskyToken", newToken);
         } else {
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         setStoredToken(newToken);
-    };
+    }, []);
 
     const [isAuthLoading, setIsAuthLoading] = useState(Boolean(token));
 
@@ -57,9 +57,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (active) {
                     setUser(response.data.user);
                 }
-            } catch {
+            
+            } catch (error) {
                 if (active) {
                     setUser(null);
+
+                    if (
+                        axios.isAxiosError(error) &&
+                        (error.response?.status === 401 ||
+                            error.response?.status === 403)
+                    ) {
+                        setToken(null);
+                    }
                 }
             } finally {
                 if (active) {
@@ -73,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => {
             active = false;
         };
-    }, [token]);
+    }, [token, setToken]);
 
     return (
         <AuthContext.Provider value={{ user, setUser, token, setToken, isAuthLoading }}>

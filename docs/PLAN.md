@@ -466,8 +466,8 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Create `AuthContext` as the only global Context needed for the MVP.
 - [x] Store the session token in `localStorage` and configure Axios to send it as a Bearer token.
 - [x] Validate stored sessions through `GET /auth/me` before showing protected pages.
-- [ ] Clear invalid local sessions and return unauthenticated users to Login.
-- [ ] Create `ProtectedRoute.tsx` to protect authenticated routes.
+- [x] Clear invalid local sessions and return unauthenticated users to Login.
+- [x] Create `ProtectedRoute.tsx` to protect authenticated routes.
 - [ ] Create shared `Layout.tsx`, `Navbar.tsx`, and simple reusable components as needed.
 - [ ] Use Bootstrap for the main UI and simple CSS only where needed.
 - [ ] Keep Project, Task, User, and Notification data in page-local React state (`useState` / `useEffect`).
