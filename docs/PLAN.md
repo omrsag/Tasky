@@ -468,8 +468,8 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Validate stored sessions through `GET /auth/me` before showing protected pages.
 - [x] Clear invalid local sessions and return unauthenticated users to Login.
 - [x] Create `ProtectedRoute.tsx` to protect authenticated routes.
-- [ ] Create shared `Layout.tsx`, `Navbar.tsx`, and simple reusable components as needed.
-- [ ] Use Bootstrap for the main UI and simple CSS only where needed.
+- [x] Create shared `Layout.tsx`, `Navbar.tsx`, and simple reusable components as needed.
+- [x] Use Bootstrap for the main UI and simple CSS only where needed.
 - [ ] Keep Project, Task, User, and Notification data in page-local React state (`useState` / `useEffect`).
 - [ ] Make Axios requests from pages without adding a separate API service layer.
 - [ ] Prepare common loading, empty, error, and action-feedback UI patterns.
