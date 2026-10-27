@@ -1,15 +1,33 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import "bootstrap/dist/css/bootstrap.min.css";
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { AuthProvider } from "./context/AuthContext";
+import axios from "axios";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+
+axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem("taskyToken");
+
+    if (token) {
+        config.headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    return config;
+});
+
 root.render(
   <React.StrictMode>
-    <App />
+      <AuthProvider>
+          <App />
+      </AuthProvider>
   </React.StrictMode>
 );
 

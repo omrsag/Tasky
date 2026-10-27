@@ -462,18 +462,18 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Set up React Router routes for the required pages.
-- [ ] Create `AuthContext` as the only global Context needed for the MVP.
-- [ ] Store the session token in `localStorage` and configure Axios to send it as a Bearer token.
-- [ ] Validate stored sessions through `GET /auth/me` before showing protected pages.
-- [ ] Clear invalid local sessions and return unauthenticated users to Login.
-- [ ] Create `ProtectedRoute.tsx` to protect authenticated routes.
-- [ ] Create shared `Layout.tsx`, `Navbar.tsx`, and simple reusable components as needed.
-- [ ] Use Bootstrap for the main UI and simple CSS only where needed.
-- [ ] Keep Project, Task, User, and Notification data in page-local React state (`useState` / `useEffect`).
-- [ ] Make Axios requests from pages without adding a separate API service layer.
-- [ ] Prepare common loading, empty, error, and action-feedback UI patterns.
-- [ ] Verify navigation and authenticated API requests in the browser.
+- [x] Set up React Router routes for the required pages.
+- [x] Create `AuthContext` as the only global Context needed for the MVP.
+- [x] Store the session token in `localStorage` and configure Axios to send it as a Bearer token.
+- [x] Validate stored sessions through `GET /auth/me` before showing protected pages.
+- [x] Clear invalid local sessions and return unauthenticated users to Login.
+- [x] Create `ProtectedRoute.tsx` to protect authenticated routes.
+- [x] Create shared `Layout.tsx`, `Navbar.tsx`, and simple reusable components as needed.
+- [x] Use Bootstrap for the main UI and simple CSS only where needed.
+- [x] Keep Project, Task, User, and Notification data in page-local React state (`useState` / `useEffect`).
+- [x] Make Axios requests from pages without adding a separate API service layer.
+- [x] Prepare common loading, empty, error, and action-feedback UI patterns.
+- [x] Verify navigation and authenticated API requests in the browser.
 
 ### Completion Criteria
 
