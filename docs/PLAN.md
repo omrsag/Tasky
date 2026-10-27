@@ -472,8 +472,8 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Use Bootstrap for the main UI and simple CSS only where needed.
 - [x] Keep Project, Task, User, and Notification data in page-local React state (`useState` / `useEffect`).
 - [x] Make Axios requests from pages without adding a separate API service layer.
-- [ ] Prepare common loading, empty, error, and action-feedback UI patterns.
-- [ ] Verify navigation and authenticated API requests in the browser.
+- [x] Prepare common loading, empty, error, and action-feedback UI patterns.
+- [x] Verify navigation and authenticated API requests in the browser.
 
 ### Completion Criteria
 
