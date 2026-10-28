@@ -491,14 +491,14 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Build the Registration page with Full Name, Email, Password, and Workspace Name.
-- [ ] Connect Registration to `POST /auth/register` and store the returned session token.
-- [ ] Build the Login page and connect it to `POST /auth/login`.
-- [ ] Update `AuthContext` after successful registration or login and navigate into the application.
-- [ ] Add Logout using `POST /auth/logout`, clear the local session, and return to Login.
-- [ ] Show clear errors for invalid credentials, duplicate emails, and failed requests.
-- [ ] Keep the user on the current page when a recoverable network or server request fails.
-- [ ] Verify session restoration and handling of invalidated or Disabled accounts in the browser.
+- [x] Build the Registration page with Full Name, Email, Password, and Workspace Name.
+- [x] Connect Registration to `POST /auth/register` and store the returned session token.
+- [x] Build the Login page and connect it to `POST /auth/login`.
+- [x] Update `AuthContext` after successful registration or login and navigate into the application.
+- [x] Add Logout using `POST /auth/logout`, clear the local session, and return to Login.
+- [x] Show clear errors for invalid credentials, duplicate emails, and failed requests.
+- [x] Keep the user on the current page when a recoverable network or server request fails.
+- [x] Verify session restoration and handling of invalidated or Disabled accounts in the browser.
 
 ### Completion Criteria
 

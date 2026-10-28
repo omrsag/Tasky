@@ -1,8 +1,43 @@
-import { Link, NavLink } from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
-    const { user } = useAuth();
+    const { user, setUser, setToken } = useAuth();
+    const navigate = useNavigate();
+
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [logoutError, setLogoutError] = useState<string | null>(null);
+
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        setLogoutError(null);
+
+        try {
+            await axios.post("/auth/logout");
+
+            setToken(null);
+            setUser(null);
+
+            navigate("/login", { replace: true });
+        } catch (error) {
+            if (
+                axios.isAxiosError(error) &&
+                (error.response?.status === 401 ||
+                    error.response?.status === 403)
+            ) {
+                setToken(null);
+                setUser(null);
+                navigate("/login", { replace: true });
+                return;
+            }
+
+            setLogoutError("Logout failed. Please try again.");
+        } finally {
+            setIsLoggingOut(false);
+        }
+    };
 
     return (
         <nav className="navbar bg-body-tertiary border-bottom">
@@ -44,6 +79,20 @@ const Navbar = () => {
                 <span className="small text-body-secondary ms-auto">
                     {user?.fullName}
                 </span>
+                <button
+                    type="button"
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                >
+                    {isLoggingOut ? "Logging out..." : "Logout"}
+                </button>
+
+                {logoutError && (
+                    <div className="alert alert-danger w-100 mb-0" role="alert">
+                        {logoutError}
+                    </div>
+                )}
             </div>
         </nav>
     );

@@ -2,6 +2,9 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import ProjectsPage from "./pages/ProjectsPage";
+import RegistrationPage from "./pages/RegistrationPage";
+import LoginPage from "./pages/LoginPage";
+import GuestRoute from "./components/GuestRoute";
 
 const App = () => {
   return (
@@ -20,8 +23,10 @@ const App = () => {
                 </Route>
             </Route>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/register" element={<div>Registration</div>} />
-            <Route path="/login" element={<div>Login</div>} />
+            <Route element={<GuestRoute />}>
+              <Route path="/register" element={<RegistrationPage />} />
+              <Route path="/login" element={<LoginPage />} />
+            </Route>
             <Route path="*" element={<div>Page not found</div>} />
           </Routes>
       </BrowserRouter>
