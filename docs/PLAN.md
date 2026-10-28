@@ -515,7 +515,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Create the Dashboard page and set it as the landing page after authentication.
+- [x] Create the Dashboard page and set it as the landing page after authentication.
 - [ ] Load summary information from the existing permitted Project and Task API endpoints.
 - [ ] Show relevant Projects and basic Task status/assigned-work information.
 - [ ] Respect the different visibility scopes of Admin, Manager, and Member.

@@ -5,6 +5,7 @@ import ProjectsPage from "./pages/ProjectsPage";
 import RegistrationPage from "./pages/RegistrationPage";
 import LoginPage from "./pages/LoginPage";
 import GuestRoute from "./components/GuestRoute";
+import DashboardPage from "./pages/DashboardPage";
 
 const App = () => {
   return (
@@ -12,7 +13,7 @@ const App = () => {
           <Routes>
             <Route element={<ProtectedRoute />}>
                 <Route element={<Layout />}>
-                  <Route path="/dashboard" element={<div>Dashboard</div>} />
+                  <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/workspace" element={<div>Workspace</div>} />
                   <Route path="/users" element={<div>Users</div>} />
                   <Route path="/projects" element={<ProjectsPage />} />
