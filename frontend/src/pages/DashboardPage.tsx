@@ -22,6 +22,7 @@ const DashboardPage = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [retryCount, setRetryCount] = useState(0);
 
     const { user } = useAuth();
 
@@ -53,6 +54,8 @@ const DashboardPage = () => {
     }
 
     useEffect(() => {
+        setIsLoading(true);
+        setError(null);
         let active = true;
 
         const loadProjects = async () => {
@@ -91,7 +94,7 @@ const DashboardPage = () => {
         return () => {
             active = false;
         };
-    }, []);
+    }, [retryCount]);
 
     return (
         <div>
@@ -101,10 +104,20 @@ const DashboardPage = () => {
                 Overview of your projects and tasks.
             </p>
             {isLoading ? (
-                <p className="text-body-secondary">Loading projects...</p>
+                <p className="text-body-secondary" role="status">
+                    Loading dashboard...
+                </p>
             ) : error ? (
                 <div className="alert alert-danger" role="alert">
-                    {error}
+                    <p className="mb-2">{error}</p>
+
+                    <button
+                        type="button"
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => setRetryCount((count) => count + 1)}
+                    >
+                        Retry
+                    </button>
                 </div>
             ) : (
                 <div className="row g-3">
@@ -123,6 +136,13 @@ const DashboardPage = () => {
                             </div>
                         </div>
                     ))}
+                    {projects.length > 0 && tasks.length === 0 && (
+                        <div className="col-12">
+                            <p className="text-body-secondary mb-0">
+                                No tasks available in your projects.
+                            </p>
+                        </div>
+                    )}
                     <div className="col-12 mt-4">
                         <h2 className="h5 mb-3">Projects</h2>
 

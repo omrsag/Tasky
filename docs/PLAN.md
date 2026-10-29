@@ -520,8 +520,8 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Show relevant Projects and basic Task status/assigned-work information.
 - [x] Respect the different visibility scopes of Admin, Manager, and Member.
 - [x] Provide navigation from Dashboard items to the corresponding Project or Task.
-- [ ] Handle loading, no-data, and request-failure states.
-- [ ] Check Dashboard behavior with each user role.
+- [x] Handle loading, no-data, and request-failure states.
+- [x] Check Dashboard behavior with each user role.
 
 ### Completion Criteria
 
