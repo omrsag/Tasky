@@ -540,7 +540,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 - [x] Create the Workspace management interface.
 - [x] Allow Admin to view the Workspace and change its name.
-- [ ] Create a user list and user detail/edit interface for Workspace accounts.
+- [x] Create a user list and user detail/edit interface for Workspace accounts.
 - [ ] Allow Admin to create Manager and Member accounts with name, email, password, and role.
 - [ ] Allow Admin to update allowed user fields and set Active/Disabled status.
 - [ ] Allow Admin to reset a Manager or Member's password.

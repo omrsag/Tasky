@@ -10,12 +10,32 @@ type WorkspaceUser = {
     status: "Active" | "Disabled";
 };
 
+type EditUserForm = {
+    fullName: string;
+    email: string;
+    role: "Manager" | "Member";
+    status: "Active" | "Disabled";
+};
+
 const UserDetailsPage = () => {
     const { id } = useParams();
 
     const [account, setAccount] = useState<WorkspaceUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState<EditUserForm>({
+        fullName: "",
+        email: "",
+        role: "Member",
+        status: "Active",
+    });
+    const [isSaving, setIsSaving] = useState(false);
+
+    const [feedback, setFeedback] = useState<{
+        type: "success" | "danger";
+        message: string;
+    } | null>(null);
 
     useEffect(() => {
         let active = true;
@@ -24,6 +44,7 @@ const UserDetailsPage = () => {
             setIsLoading(true);
             setError(null);
             setAccount(null);
+            setIsEditing(false);
 
             if (!id) {
                 setError("Invalid user ID.");
@@ -56,6 +77,69 @@ const UserDetailsPage = () => {
             active = false;
         };
     }, [id]);
+
+    useEffect(() => {
+        if (feedback?.type !== "success") return;
+
+        const timer = setTimeout(() => {
+            setFeedback(null);
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [feedback]);
+
+    const handleSaveUser = async () => {
+        if (!account || account.role === "Admin") return;
+
+        const fullName = editForm.fullName.trim();
+        const email = editForm.email.trim();
+
+        if (!fullName || !email) {
+            setFeedback({
+                type: "danger",
+                message: "Full name and email are required.",
+            });
+            return;
+        }
+
+        setIsSaving(true);
+        setFeedback(null);
+
+        try {
+            await axios.patch(`/users/${account.id}`, {
+                fullName,
+                email,
+                role: editForm.role,
+                status: editForm.status,
+            });
+
+            setAccount({
+                ...account,
+                fullName,
+                email,
+                role: editForm.role,
+                status: editForm.status,
+            });
+
+            setIsEditing(false);
+
+            setFeedback({
+                type: "success",
+                message: "User updated successfully.",
+            });
+        } catch (error) {
+            const message = axios.isAxiosError<{ message: string }>(error)
+                ? error.response?.data?.message ?? "Unable to update user."
+                : "Unable to update user.";
+
+            setFeedback({
+                type: "danger",
+                message,
+            });
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     return (
         <div>
@@ -92,6 +176,128 @@ const UserDetailsPage = () => {
                         <p className="mb-0">
                             <strong>Status:</strong> {account.status}
                         </p>
+                        {account.role !== "Admin" && (
+                            <button
+                                type="button"
+                                className="btn btn-outline-primary mt-3"
+                                disabled={isSaving}
+                                onClick={() => {
+                                    if (!isEditing && account.role !== "Admin") {
+                                        setEditForm({
+                                            fullName: account.fullName,
+                                            email: account.email,
+                                            role: account.role,
+                                            status: account.status,
+                                        });
+                                    }
+
+                                    setIsEditing(!isEditing);
+                                }}
+                            >
+                                {isEditing ? "Cancel" : "Edit User"}
+                            </button>
+                        )}                        
+                        {feedback && (
+                            <div
+                                className={`alert alert-${feedback.type} mt-3`}
+                                role="alert"
+                            >
+                                {feedback.message}
+                            </div>
+                        )}
+                        {isEditing && account.role !== "Admin" && (
+                            <div className="mt-4">
+                                <h3 className="h5 mb-3">Edit Account</h3>
+
+                                <div className="mb-3">
+                                    <label htmlFor="editFullName" className="form-label">
+                                        Full Name
+                                    </label>
+                                    <input
+                                        id="editFullName"
+                                        type="text"
+                                        className="form-control"
+                                        value={editForm.fullName}
+                                        onChange={(event) =>
+                                            setEditForm({
+                                                ...editForm,
+                                                fullName: event.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label htmlFor="editEmail" className="form-label">
+                                        Email
+                                    </label>
+                                    <input
+                                        id="editEmail"
+                                        type="email"
+                                        className="form-control"
+                                        value={editForm.email}
+                                        onChange={(event) =>
+                                            setEditForm({
+                                                ...editForm,
+                                                email: event.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
+
+                                <div className="mb-3">
+                                    <label htmlFor="editRole" className="form-label">
+                                        Role
+                                    </label>
+                                    <select
+                                        id="editRole"
+                                        className="form-select"
+                                        value={editForm.role}
+                                        onChange={(event) =>
+                                            setEditForm({
+                                                ...editForm,
+                                                role: event.target.value as "Manager" | "Member",
+                                            })
+                                        }
+                                    >
+                                        <option value="Manager">Manager</option>
+                                        <option value="Member">Member</option>
+                                    </select>
+                                </div>
+
+                                <div className="mb-3">
+                                    <label htmlFor="editStatus" className="form-label">
+                                        Status
+                                    </label>
+                                    <select
+                                        id="editStatus"
+                                        className="form-select"
+                                        value={editForm.status}
+                                        onChange={(event) =>
+                                            setEditForm({
+                                                ...editForm,
+                                                status: event.target.value as "Active" | "Disabled",
+                                            })
+                                        }
+                                    >
+                                        <option value="Active">Active</option>
+                                        <option value="Disabled">Disabled</option>
+                                    </select>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={() => void handleSaveUser()}
+                                    disabled={
+                                        isSaving ||
+                                        !editForm.fullName.trim() ||
+                                        !editForm.email.trim()
+                                    }
+                                >
+                                    {isSaving ? "Saving..." : "Save Changes"}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             ) : (
