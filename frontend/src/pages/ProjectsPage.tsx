@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 type Project = {
     id: number;
@@ -70,13 +71,37 @@ const ProjectsPage = () => {
                     No projects found.
                 </p>
             ) : (
-                <ul>
-                    {projects.map((project) => (
-                        <li key={project.id}>
-                            {project.name} - {project.status}
-                        </li>
-                    ))}
-                </ul>
+                <div className="table-responsive">
+                    <table className="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {projects.map((project) => (
+                                <tr key={project.id}>
+                                    <td>
+                                        <Link
+                                            to={`/projects/${project.id}`}
+                                            className="text-decoration-none"
+                                        >
+                                            {project.name}
+                                        </Link>
+                                    </td>
+
+                                    <td>
+                                        <span className="badge text-bg-secondary">
+                                            {project.status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     );
