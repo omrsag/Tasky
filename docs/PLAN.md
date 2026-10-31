@@ -543,7 +543,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Create a user list and user detail/edit interface for Workspace accounts.
 - [x] Allow Admin to create Manager and Member accounts with name, email, password, and role.
 - [x] Allow Admin to update allowed user fields and set Active/Disabled status.
-- [ ] Allow Admin to reset a Manager or Member's password.
+- [x] Allow Admin to reset a Manager or Member's password.
 - [ ] Show errors when disabling a Manager with assigned Projects or making an invalid role change.
 - [ ] Show the required confirmation before Admin deletes the Workspace.
 - [ ] Hide unauthorized management actions and rely on the backend to enforce permissions.

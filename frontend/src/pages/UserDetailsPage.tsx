@@ -31,6 +31,9 @@ const UserDetailsPage = () => {
         status: "Active",
     });
     const [isSaving, setIsSaving] = useState(false);
+    const [isResettingPassword, setIsResettingPassword] = useState(false);
+    const [newPassword, setNewPassword] = useState("");
+    const [isPasswordSaving, setIsPasswordSaving] = useState(false);
 
     const [feedback, setFeedback] = useState<{
         type: "success" | "danger";
@@ -45,6 +48,8 @@ const UserDetailsPage = () => {
             setError(null);
             setAccount(null);
             setIsEditing(false);
+            setIsResettingPassword(false);
+            setNewPassword("");
 
             if (!id) {
                 setError("Invalid user ID.");
@@ -141,6 +146,49 @@ const UserDetailsPage = () => {
         }
     };
 
+    const handleResetPassword = async () => {
+        if (!account || account.role === "Admin") return;
+
+        if (newPassword.length < 8) {
+            setFeedback({
+                type: "danger",
+                message: "Password must be at least 8 characters.",
+            });
+            return;
+        }
+
+        setIsPasswordSaving(true);
+        setFeedback(null);
+
+        try {
+            await axios.post(
+                `/users/${account.id}/reset-password`,
+                {
+                    password: newPassword,
+                }
+            );
+
+            setNewPassword("");
+            setIsResettingPassword(false);
+
+            setFeedback({
+                type: "success",
+                message: "Password reset successfully.",
+            });
+        } catch (error) {
+            const message = axios.isAxiosError<{ message: string }>(error)
+                ? error.response?.data?.message ?? "Unable to reset password."
+                : "Unable to reset password.";
+
+            setFeedback({
+                type: "danger",
+                message,
+            });
+        } finally {
+            setIsPasswordSaving(false);
+        }
+    };
+
     return (
         <div>
             <h1 className="h3 mb-3">User Details</h1>
@@ -196,7 +244,63 @@ const UserDetailsPage = () => {
                             >
                                 {isEditing ? "Cancel" : "Edit User"}
                             </button>
-                        )}                        
+                        )}
+                        {account.role !== "Admin" && (
+                            <div className="mt-3">
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-secondary"
+                                    disabled={isPasswordSaving}
+                                    onClick={() => {
+                                        setIsResettingPassword(!isResettingPassword);
+                                        setIsEditing(false);
+                                        setNewPassword("");
+                                    }}
+                                >
+                                    {isResettingPassword ? "Cancel Reset" : "Reset Password"}
+                                </button>
+
+                                {isResettingPassword && (
+                                    <div className="card mt-3">
+                                        <div className="card-body">
+                                            <h3 className="h5">Reset Password</h3>
+
+                                            <p className="text-body-secondary mb-0">
+                                                Set a new password for this user.
+                                            </p>
+                                            <div className="mt-3">
+                                                <label htmlFor="newPassword" className="form-label">
+                                                    New Password
+                                                </label>
+
+                                                <input
+                                                    id="newPassword"
+                                                    type="password"
+                                                    className="form-control"
+                                                    value={newPassword}
+                                                    onChange={(event) => setNewPassword(event.target.value)}
+                                                    minLength={8}
+                                                    disabled={isPasswordSaving}
+                                                    required
+                                                />
+
+                                                <div className="form-text">
+                                                    Password must be at least 8 characters.
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary mt-3"
+                                                    onClick={() => void handleResetPassword()}
+                                                    disabled={isPasswordSaving || newPassword.length < 8}
+                                                >
+                                                    {isPasswordSaving ? "Saving..." : "Save Password"}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         {feedback && (
                             <div
                                 className={`alert alert-${feedback.type} mt-3`}
