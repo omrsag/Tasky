@@ -545,7 +545,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Allow Admin to update allowed user fields and set Active/Disabled status.
 - [x] Allow Admin to reset a Manager or Member's password.
 - [x] Show errors when disabling a Manager with assigned Projects or making an invalid role change.
-- [ ] Show the required confirmation before Admin deletes the Workspace.
+- [x] Show the required confirmation before Admin deletes the Workspace.
 - [ ] Hide unauthorized management actions and rely on the backend to enforce permissions.
 - [ ] Refresh affected page data after successful creates, edits, and deletions.
 - [ ] Test the Admin and non-Admin experiences in the browser.

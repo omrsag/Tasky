@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 type Workspace = {
     id: number;
@@ -8,15 +9,17 @@ type Workspace = {
 };
 
 const WorkspacePage = () => {
+    const { user, setUser, setToken } = useAuth();
+    const navigate = useNavigate();
+
     const [workspace, setWorkspace] = useState<Workspace | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    const { user } = useAuth();
-
     const [workspaceName, setWorkspaceName] = useState("");
     const [isSaving, setIsSaving] = useState(false);
-
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
     const [feedback, setFeedback] = useState<{
         type: "success" | "danger";
         message: string;
@@ -99,6 +102,30 @@ const WorkspacePage = () => {
         }
     };
 
+    const handleDeleteWorkspace = async () => {
+        if (!workspace || user?.role !== "Admin" || isDeleting) return;
+
+        setIsDeleting(true);
+        setDeleteError(null);
+
+        try {
+            await axios.delete("/workspace");
+
+            setUser(null);
+            setToken(null);
+
+            navigate("/login", { replace: true });
+        } catch (error) {
+            const message = axios.isAxiosError<{ message: string }>(error)
+                ? error.response?.data?.message ?? "Unable to delete workspace."
+                : "Unable to delete workspace.";
+
+            setDeleteError(message);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
     return (
         <div>
             <h1 className="h3 mb-3">Workspace</h1>
@@ -170,6 +197,61 @@ const WorkspacePage = () => {
                                     </div>
                                 )}
                             </form>
+                        )}
+                        {user?.role === "Admin" && (
+                            <div className="border-top mt-4 pt-4">
+                                <h3 className="h5 text-danger">Danger Zone</h3>
+
+                                <p className="text-body-secondary">
+                                    Permanently delete this workspace and all its data.
+                                </p>
+
+                                {!showDeleteConfirmation ? (
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-danger"
+                                        onClick={() => setShowDeleteConfirmation(true)}
+                                    >
+                                        Delete Workspace
+                                    </button>
+                                ) : (
+                                    <div className="alert alert-danger" role="alert">
+                                        <p>
+                                            Are you sure you want to permanently delete
+                                            <strong> {workspace.name}</strong>?
+                                        </p>
+
+                                        <p>
+                                            All workspace users, projects, tasks, and related
+                                            data will be permanently deleted.
+                                            This action cannot be undone.
+                                        </p>
+
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary"
+                                            disabled={isDeleting}
+                                            onClick={() => setShowDeleteConfirmation(false)}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-danger ms-2"
+                                            onClick={() => void handleDeleteWorkspace()}
+                                            disabled={isDeleting}
+                                        >
+                                            {isDeleting ? "Deleting..." : "Yes, Delete Workspace"}
+                                        </button>
+
+                                        {deleteError && (
+                                            <p className="mt-3 mb-0 text-danger">
+                                                {deleteError}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
                 </div>
