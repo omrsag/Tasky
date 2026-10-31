@@ -6,6 +6,10 @@ import RegistrationPage from "./pages/RegistrationPage";
 import LoginPage from "./pages/LoginPage";
 import GuestRoute from "./components/GuestRoute";
 import DashboardPage from "./pages/DashboardPage";
+import WorkspacePage from "./pages/WorkspacePage";
+import UsersPage from "./pages/UsersPage";
+import UserDetailsPage from "./pages/UserDetailsPage";
+import AdminRoute from "./components/AdminRoute";
 
 const App = () => {
   return (
@@ -14,8 +18,11 @@ const App = () => {
             <Route element={<ProtectedRoute />}>
                 <Route element={<Layout />}>
                   <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/workspace" element={<div>Workspace</div>} />
-                  <Route path="/users" element={<div>Users</div>} />
+                  <Route element={<AdminRoute />}>
+                    <Route path="/workspace" element={<WorkspacePage />} />
+                    <Route path="/users" element={<UsersPage />} />
+                    <Route path="/users/:id" element={<UserDetailsPage />} />
+                  </Route>
                   <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/projects/:id" element={<div>Project Details</div>} />
                   <Route path="/tasks/:id" element={<div>Task Details</div>} />
