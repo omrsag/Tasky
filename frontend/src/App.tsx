@@ -11,6 +11,7 @@ import UsersPage from "./pages/UsersPage";
 import UserDetailsPage from "./pages/UserDetailsPage";
 import AdminRoute from "./components/AdminRoute";
 import ProjectDetailsPage from "./pages/ProjectDetailsPage";
+import CreateProjectPage from "./pages/CreateProjectPage";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
                 <Route element={<Layout />}>
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route element={<AdminRoute />}>
+                    <Route path="/projects/new" element={<CreateProjectPage />} />
                     <Route path="/workspace" element={<WorkspacePage />} />
                     <Route path="/users" element={<UsersPage />} />
                     <Route path="/users/:id" element={<UserDetailsPage />} />

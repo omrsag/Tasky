@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 type Project = {
     id: number;
@@ -9,6 +10,8 @@ type Project = {
 };
 
 const ProjectsPage = () => {
+    const { user } = useAuth();
+
     const [projects, setProjects] = useState<Project[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -48,8 +51,18 @@ const ProjectsPage = () => {
 
     return (
         <div>
-            <h1>Projects</h1>
-     
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h1 className="h3 mb-0">Projects</h1>
+
+                {user?.role === "Admin" && (
+                    <Link
+                        to="/projects/new"
+                        className="btn btn-primary"
+                    >
+                        Create Project
+                    </Link>
+                )}
+            </div>
             {isLoading ? (
                 <p className="text-body-secondary" role="status">
                     Loading projects...
