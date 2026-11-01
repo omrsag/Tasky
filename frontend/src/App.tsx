@@ -10,6 +10,7 @@ import WorkspacePage from "./pages/WorkspacePage";
 import UsersPage from "./pages/UsersPage";
 import UserDetailsPage from "./pages/UserDetailsPage";
 import AdminRoute from "./components/AdminRoute";
+import ProjectDetailsPage from "./pages/ProjectDetailsPage";
 
 const App = () => {
   return (
@@ -24,7 +25,7 @@ const App = () => {
                     <Route path="/users/:id" element={<UserDetailsPage />} />
                   </Route>
                   <Route path="/projects" element={<ProjectsPage />} />
-                  <Route path="/projects/:id" element={<div>Project Details</div>} />
+                  <Route path="/projects/:id" element={<ProjectDetailsPage />} />
                   <Route path="/tasks/:id" element={<div>Task Details</div>} />
                   <Route path="/notifications" element={<div>Notifications</div>} />
                   <Route path="/profile" element={<div>Profile</div>} />

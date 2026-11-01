@@ -566,7 +566,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 ### Tasks
 
 - [x] Build the Projects list showing only Projects visible to the signed-in user.
-- [ ] Build the Project details page with name, description, dates, status, and responsible Manager.
+- [x] Build the Project details page with name, description, dates, status, and responsible Manager.
 - [ ] Let Admin create a Project and select exactly one eligible Manager.
 - [ ] Support permitted Project updates, including Admin Manager reassignment.
 - [ ] Show and manage Project Members for Admin and the responsible Manager.
