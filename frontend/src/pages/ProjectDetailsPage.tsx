@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 type Project = {
     id: number;
@@ -15,6 +16,7 @@ type Project = {
 
 const ProjectDetailsPage = () => {
     const { id } = useParams();
+    const { user } = useAuth();
 
     const [project, setProject] = useState<Project | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +62,12 @@ const ProjectDetailsPage = () => {
         };
     }, [id]);
 
+    const canEditProject =
+        project?.status === "Active" &&
+        (user?.role === "Admin" ||
+            (user?.role === "Manager" &&
+                user.id === project.managerId));
+
     return (
         <div>
             <h1 className="h3 mb-3">Project Details</h1>
@@ -78,7 +86,18 @@ const ProjectDetailsPage = () => {
             ) : project ? (
                 <div className="card">
                     <div className="card-body">
-                        <h2 className="h5 mb-3">Project Information</h2>
+                        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <h2 className="h5 mb-0">Project Information</h2>
+
+                            {canEditProject && (
+                                <Link
+                                    to={`/projects/${project.id}/edit`}
+                                    className="btn btn-outline-primary btn-sm"
+                                >
+                                    Edit Project
+                                </Link>
+                            )}
+                        </div>
                         <p>
                             <strong>Name:</strong> {project.name}
                         </p>
