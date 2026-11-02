@@ -85,6 +85,81 @@ export function registerProjectMemberRoutes(app: express.Express): void {
         });
     });
 
+    app.get("/projects/:id/available-members", (req, res) => {
+        const projectId = Number(req.params.id);
+
+        if (!Number.isSafeInteger(projectId) || projectId <= 0) {
+            res.status(400).json({ message: "Invalid project ID" });
+            return;
+        }
+
+        if (res.locals.role !== "Admin" && res.locals.role !== "Manager") {
+            res.status(403).json({ message: "Access denied" });
+            return;
+        }
+
+        let sql = `
+            SELECT p.status
+            FROM projects p
+            WHERE p.id = ? AND p.workspace_id = ?
+        `;
+
+        const params: number[] = [projectId, res.locals.workspaceId];
+
+        if (res.locals.role === "Manager") {
+            sql += " AND p.manager_id = ?";
+            params.push(res.locals.userId);
+        }
+
+        sql += " LIMIT 1";
+
+        db.query<mysql.RowDataPacket[]>(sql, params, (error, projects) => {
+            if (error) {
+                console.error("Failed to validate project access:", error);
+                res.status(500).json({ message: "Something went wrong" });
+                return;
+            }
+
+            if (projects.length === 0) {
+                res.status(404).json({ message: "Project not found" });
+                return;
+            }
+
+            if (projects[0].status !== "Active") {
+                res.status(403).json({ message: "Project is read-only" });
+                return;
+            }
+
+            db.query<mysql.RowDataPacket[]>(
+                `SELECT u.id, u.full_name, u.email
+                FROM users u
+                LEFT JOIN project_members pm
+                    ON pm.user_id = u.id AND pm.project_id = ?
+                WHERE u.workspace_id = ?
+                    AND u.role = 'Member'
+                    AND u.status = 'Active'
+                    AND pm.id IS NULL
+                ORDER BY u.full_name ASC, u.id ASC`,
+                [projectId, res.locals.workspaceId],
+                (membersError, results) => {
+                    if (membersError) {
+                        console.error("Failed to fetch available members:", membersError);
+                        res.status(500).json({ message: "Something went wrong" });
+                        return;
+                    }
+
+                    const availableMembers = results.map((member) => ({
+                        id: member.id,
+                        fullName: member.full_name,
+                        email: member.email,
+                    }));
+
+                    res.status(200).json({ availableMembers });
+                }
+            );
+        });
+    });
+
     app.post("/projects/:id/members", (req, res) => {
         const projectId = Number(req.params.id);
 
