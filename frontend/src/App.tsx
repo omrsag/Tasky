@@ -13,6 +13,7 @@ import AdminRoute from "./components/AdminRoute";
 import ProjectDetailsPage from "./pages/ProjectDetailsPage";
 import CreateProjectPage from "./pages/CreateProjectPage";
 import EditProjectPage from "./pages/EditProjectPage";
+import ProjectMembersPage from "./pages/ProjectMembersPage";
 
 const App = () => {
   return (
@@ -30,6 +31,10 @@ const App = () => {
                   <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/projects/:id" element={<ProjectDetailsPage />} />
                   <Route path="/projects/:id/edit" element={<EditProjectPage />} />
+                  <Route
+                    path="/projects/:id/members"
+                    element={<ProjectMembersPage />}
+                  />
                   <Route path="/tasks/:id" element={<div>Task Details</div>} />
                   <Route path="/notifications" element={<div>Notifications</div>} />
                   <Route path="/profile" element={<div>Profile</div>} />

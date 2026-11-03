@@ -89,14 +89,23 @@ const ProjectDetailsPage = () => {
                         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                             <h2 className="h5 mb-0">Project Information</h2>
 
-                            {canEditProject && (
+                            <div className="d-flex flex-wrap gap-2">
                                 <Link
-                                    to={`/projects/${project.id}/edit`}
-                                    className="btn btn-outline-primary btn-sm"
+                                    to={`/projects/${project.id}/members`}
+                                    className="btn btn-outline-secondary btn-sm"
                                 >
-                                    Edit Project
+                                    Project Members
                                 </Link>
-                            )}
+
+                                {canEditProject && (
+                                    <Link
+                                        to={`/projects/${project.id}/edit`}
+                                        className="btn btn-outline-primary btn-sm"
+                                    >
+                                        Edit Project
+                                    </Link>
+                                )}
+                            </div>
                         </div>
                         <p>
                             <strong>Name:</strong> {project.name}
