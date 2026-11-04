@@ -16,6 +16,7 @@ const ProjectsPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [retryCount, setRetryCount] = useState(0);
+    const [showArchived, setShowArchived] = useState(false);
 
     useEffect(() => {
         setIsLoading(true);
@@ -49,6 +50,12 @@ const ProjectsPage = () => {
         };
     }, [retryCount]);
 
+    const visibleProjects = projects.filter((project) =>
+        showArchived
+            ? project.status === "Archived"
+            : project.status !== "Archived"
+    );
+
     return (
         <div>
             <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -63,6 +70,15 @@ const ProjectsPage = () => {
                     </Link>
                 )}
             </div>
+            <button
+                type="button"
+                className="btn btn-outline-secondary mb-3"
+                onClick={() => setShowArchived((previous) => !previous)}
+            >
+                {showArchived
+                    ? "View Current Projects"
+                    : "View Archived Projects"}
+            </button>
             {isLoading ? (
                 <p className="text-body-secondary" role="status">
                     Loading projects...
@@ -79,9 +95,11 @@ const ProjectsPage = () => {
                         Retry
                     </button>
                 </div>
-            ) : projects.length === 0 ? (
+            ) : visibleProjects.length === 0 ? (
                 <p className="text-body-secondary">
-                    No projects found.
+                    {showArchived
+                        ? "No archived projects found."
+                        : "No current projects found."}
                 </p>
             ) : (
                 <div className="table-responsive">
@@ -94,7 +112,7 @@ const ProjectsPage = () => {
                         </thead>
 
                         <tbody>
-                            {projects.map((project) => (
+                            {visibleProjects.map((project) => (
                                 <tr key={project.id}>
                                     <td>
                                         <Link
