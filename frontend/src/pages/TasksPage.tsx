@@ -69,7 +69,11 @@ const TasksPage = () => {
                         <tbody>
                             {tasks.map((task) => (
                                 <tr key={task.id}>
-                                    <td>{task.title}</td>
+                                    <td>
+                                        <Link to={`/tasks/${task.id}`}>
+                                            {task.title}
+                                        </Link>
+                                    </td>
                                     <td>{task.status}</td>
                                 </tr>
                             ))}
