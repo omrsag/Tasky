@@ -574,7 +574,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Support changing an Active Project to `Completed` or `Archived` under the established rules.
 - [x] Allow only Admin to reactivate a Completed or Archived Project.
 - [x] Show Completed and Archived Projects as Read-only and keep Archived Projects outside normal active views.
-- [ ] Require confirmation before Admin permanently deletes a Project.
+- [x] Require confirmation before Admin permanently deletes a Project.
 - [ ] Refresh the relevant Project data after successful operations.
 - [ ] Test Project visibility and permitted actions for all three roles.
 

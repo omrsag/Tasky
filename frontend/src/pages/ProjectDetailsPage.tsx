@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
@@ -17,12 +17,16 @@ type Project = {
 const ProjectDetailsPage = () => {
     const { id } = useParams();
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     const [project, setProject] = useState<Project | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isChangingStatus, setIsChangingStatus] = useState(false);
     const [statusError, setStatusError] = useState<string | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
 
     useEffect(() => {
         let active = true;
@@ -75,6 +79,9 @@ const ProjectDetailsPage = () => {
         (project?.status === "Completed" ||
             project?.status === "Archived");
 
+    const canDeleteProject =
+        user?.role === "Admin" && project !== null;
+
     const handleChangeProjectStatus = async (
         nextStatus: "Active" | "Completed" | "Archived"
     ) => {
@@ -109,6 +116,30 @@ const ProjectDetailsPage = () => {
             }
         } finally {
             setIsChangingStatus(false);
+        }
+    };
+
+    const handleDeleteProject = async () => {
+        if (!project || !canDeleteProject || isDeleting) return;
+
+        setDeleteError(null);
+        setIsDeleting(true);
+
+        try {
+            await axios.delete(`/projects/${project.id}`);
+
+            navigate("/projects");
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setDeleteError(
+                    error.response?.data?.message ||
+                    "Unable to delete project."
+                );
+            } else {
+                setDeleteError("Unable to delete project.");
+            }
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -179,6 +210,19 @@ const ProjectDetailsPage = () => {
                                         {isChangingStatus ? "Updating..." : "Reactivate Project"}
                                     </button>
                                 )}
+                                {canDeleteProject && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-danger btn-sm"
+                                        onClick={() => {
+                                            setDeleteError(null);
+                                            setShowDeleteModal(true);
+                                        }}
+                                        disabled={isChangingStatus}
+                                    >
+                                        Delete Project
+                                    </button>
+                                )}
                             </div>
                         </div>
                         {statusError && (
@@ -214,6 +258,77 @@ const ProjectDetailsPage = () => {
                             {project.managerName}
                         </p>
                     </div>
+                    {showDeleteModal && project && (
+                        <>
+                            <div
+                                className="modal fade show d-block"
+                                tabIndex={-1}
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="deleteProjectModalTitle"
+                            >
+                                <div className="modal-dialog modal-dialog-centered">
+                                    <div className="modal-content">
+                                        <div className="modal-header">
+                                            <h2
+                                                className="modal-title fs-5"
+                                                id="deleteProjectModalTitle"
+                                            >
+                                                Delete Project
+                                            </h2>
+
+                                            <button
+                                                type="button"
+                                                className="btn-close"
+                                                aria-label="Close"
+                                                disabled={isDeleting}
+                                                onClick={() => setShowDeleteModal(false)}
+                                            />
+                                        </div>
+
+                                        <div className="modal-body">
+                                            <p>
+                                                Are you sure you want to permanently delete{" "}
+                                                <strong>{project.name}</strong>?
+                                            </p>
+
+                                            <p className="text-danger mb-0">
+                                                This action cannot be undone. All related
+                                                tasks, comments, and attachments will
+                                                also be deleted.
+                                            </p>
+                                            {deleteError && (
+                                                <div className="alert alert-danger mt-3 mb-0" role="alert">
+                                                    {deleteError}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="modal-footer">
+                                            <button
+                                                type="button"
+                                                disabled={isDeleting}
+                                                className="btn btn-secondary"
+                                                onClick={() => setShowDeleteModal(false)}
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn btn-danger"
+                                                disabled={isDeleting}
+                                                onClick={() => void handleDeleteProject()}
+                                            >
+                                                {isDeleting ? "Deleting..." : "Delete Permanently"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="modal-backdrop fade show" />
+                        </>
+                    )}
                 </div>
             ) : (
                 <p className="text-body-secondary">
