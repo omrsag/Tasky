@@ -70,10 +70,20 @@ const ProjectDetailsPage = () => {
             (user?.role === "Manager" &&
                 user.id === project.managerId));
 
+    const canReactivateProject =
+        user?.role === "Admin" &&
+        (project?.status === "Completed" ||
+            project?.status === "Archived");
+
     const handleChangeProjectStatus = async (
-        nextStatus: "Completed" | "Archived"
+        nextStatus: "Active" | "Completed" | "Archived"
     ) => {
-        if (!project || !canEditProject || isChangingStatus) return;
+    const allowed =
+        nextStatus === "Active"
+            ? canReactivateProject
+            : canEditProject;
+
+    if (!project || !allowed || isChangingStatus) return;
 
         setStatusError(null);
         setIsChangingStatus(true);
@@ -159,13 +169,23 @@ const ProjectDetailsPage = () => {
                                         {isChangingStatus ? "Updating..." : "Archive Project"}
                                     </button>
                                 )}
+                                {canReactivateProject && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-primary btn-sm"
+                                        onClick={() => void handleChangeProjectStatus("Active")}
+                                        disabled={isChangingStatus}
+                                    >
+                                        {isChangingStatus ? "Updating..." : "Reactivate Project"}
+                                    </button>
+                                )}
                             </div>
-                            {statusError && (
-                                <div className="alert alert-danger mt-3" role="alert">
-                                    {statusError}
-                                </div>
-                            )}
                         </div>
+                        {statusError && (
+                            <div className="alert alert-danger mt-3" role="alert">
+                                {statusError}
+                            </div>
+                        )}
                         <p>
                             <strong>Name:</strong> {project.name}
                         </p>
