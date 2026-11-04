@@ -1,4 +1,3 @@
-
 import express = require("express");
 import mysql = require("mysql2");
 import db = require("../db");
@@ -208,11 +207,14 @@ export function registerProjectRoutes(app: express.Express): void {
                 p.name,
                 p.description,
                 p.manager_id,
+                u.full_name AS manager_name,
                 DATE_FORMAT(p.start_date, '%Y-%m-%d') AS start_date,
                 DATE_FORMAT(p.end_date, '%Y-%m-%d') AS end_date,
                 p.status,
                 p.created_at
             FROM projects p
+            JOIN users u ON u.id = p.manager_id
+                AND u.workspace_id = p.workspace_id
             WHERE p.id = ? AND p.workspace_id = ?
         `;
 
@@ -265,6 +267,7 @@ export function registerProjectRoutes(app: express.Express): void {
                         endDate: project.end_date,
                         status: project.status,
                         createdAt: project.created_at,
+                        managerName: project.manager_name,
                     },
                 });
             }

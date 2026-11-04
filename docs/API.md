@@ -144,8 +144,29 @@ The backend validates all Project status rules before applying the change.
 | Method | Endpoint | Purpose |
 |---|---|---|
 | `GET` | `/projects/:id/members` | List Project Members |
+| `GET` | `/projects/:id/available-members` | List eligible Members available to add to an Active Project |
 | `POST` | `/projects/:id/members` | Add a Member |
 | `DELETE` | `/projects/:id/members/:userId` | Remove a Member |
+
+`GET /projects/:id/available-members` is available to Admin and the responsible Manager for Active Projects only.
+
+It returns Active users with the `Member` role from the same Workspace who are not already members of the requested Project.
+
+Example response:
+
+```json
+{
+  "availableMembers": [
+    {
+      "id": 7,
+      "fullName": "Ahmed Ali",
+      "email": "ahmed@example.com"
+    }
+  ]
+}
+```
+
+Members cannot access this endpoint. Completed and Archived Projects are read-only.
 
 Removal is blocked while the Member has unfinished assigned Tasks.
 

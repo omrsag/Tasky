@@ -1,5 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 type Project = {
     id: number;
@@ -8,10 +10,13 @@ type Project = {
 };
 
 const ProjectsPage = () => {
+    const { user } = useAuth();
+
     const [projects, setProjects] = useState<Project[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [retryCount, setRetryCount] = useState(0);
+    const [showArchived, setShowArchived] = useState(false);
 
     useEffect(() => {
         setIsLoading(true);
@@ -45,10 +50,35 @@ const ProjectsPage = () => {
         };
     }, [retryCount]);
 
+    const visibleProjects = projects.filter((project) =>
+        showArchived
+            ? project.status === "Archived"
+            : project.status !== "Archived"
+    );
+
     return (
         <div>
-            <h1>Projects</h1>
-     
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h1 className="h3 mb-0">Projects</h1>
+
+                {user?.role === "Admin" && (
+                    <Link
+                        to="/projects/new"
+                        className="btn btn-primary"
+                    >
+                        Create Project
+                    </Link>
+                )}
+            </div>
+            <button
+                type="button"
+                className="btn btn-outline-secondary mb-3"
+                onClick={() => setShowArchived((previous) => !previous)}
+            >
+                {showArchived
+                    ? "View Current Projects"
+                    : "View Archived Projects"}
+            </button>
             {isLoading ? (
                 <p className="text-body-secondary" role="status">
                     Loading projects...
@@ -65,18 +95,44 @@ const ProjectsPage = () => {
                         Retry
                     </button>
                 </div>
-            ) : projects.length === 0 ? (
+            ) : visibleProjects.length === 0 ? (
                 <p className="text-body-secondary">
-                    No projects found.
+                    {showArchived
+                        ? "No archived projects found."
+                        : "No current projects found."}
                 </p>
             ) : (
-                <ul>
-                    {projects.map((project) => (
-                        <li key={project.id}>
-                            {project.name} - {project.status}
-                        </li>
-                    ))}
-                </ul>
+                <div className="table-responsive">
+                    <table className="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {visibleProjects.map((project) => (
+                                <tr key={project.id}>
+                                    <td>
+                                        <Link
+                                            to={`/projects/${project.id}`}
+                                            className="text-decoration-none"
+                                        >
+                                            {project.name}
+                                        </Link>
+                                    </td>
+
+                                    <td>
+                                        <span className="badge text-bg-secondary">
+                                            {project.status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     );
