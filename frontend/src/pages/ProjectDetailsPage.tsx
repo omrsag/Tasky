@@ -171,7 +171,12 @@ const ProjectDetailsPage = () => {
                                 >
                                     Project Members
                                 </Link>
-
+                                <Link
+                                    to={`/projects/${project.id}/tasks`}
+                                    className="btn btn-outline-primary btn-sm"
+                                >
+                                    View Tasks
+                                </Link>
                                 {canEditProject && (
                                     <Link
                                         to={`/projects/${project.id}/edit`}

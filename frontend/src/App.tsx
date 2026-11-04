@@ -14,6 +14,7 @@ import ProjectDetailsPage from "./pages/ProjectDetailsPage";
 import CreateProjectPage from "./pages/CreateProjectPage";
 import EditProjectPage from "./pages/EditProjectPage";
 import ProjectMembersPage from "./pages/ProjectMembersPage";
+import TasksPage from "./pages/TasksPage";
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
                   <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/projects/:id" element={<ProjectDetailsPage />} />
                   <Route path="/projects/:id/edit" element={<EditProjectPage />} />
+                  <Route path="/projects/:id/tasks" element={<TasksPage />} />
                   <Route
                     path="/projects/:id/members"
                     element={<ProjectMembersPage />}

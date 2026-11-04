@@ -593,7 +593,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Build the Task list within each Project.
+- [x] Build the Task list within each Project.
 - [ ] Build the Task details interface.
 - [ ] Allow Admin and the responsible Manager to create Tasks with required fields and optional details.
 - [ ] Allow permitted Task edits, reassignment, and deletion.
