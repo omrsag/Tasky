@@ -21,6 +21,8 @@ const ProjectDetailsPage = () => {
     const [project, setProject] = useState<Project | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isChangingStatus, setIsChangingStatus] = useState(false);
+    const [statusError, setStatusError] = useState<string | null>(null);
 
     useEffect(() => {
         let active = true;
@@ -68,6 +70,38 @@ const ProjectDetailsPage = () => {
             (user?.role === "Manager" &&
                 user.id === project.managerId));
 
+    const handleChangeProjectStatus = async (
+        nextStatus: "Completed" | "Archived"
+    ) => {
+        if (!project || !canEditProject || isChangingStatus) return;
+
+        setStatusError(null);
+        setIsChangingStatus(true);
+
+        try {
+            await axios.patch(`/projects/${project.id}`, {
+                status: nextStatus,
+            });
+
+            const response = await axios.get<{
+                project: Project;
+            }>(`/projects/${project.id}`);
+
+            setProject(response.data.project);
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setStatusError(
+                    error.response?.data?.message ||
+                    "Unable to update project status."
+                );
+            } else {
+                setStatusError("Unable to update project status.");
+            }
+        } finally {
+            setIsChangingStatus(false);
+        }
+    };
+
     return (
         <div>
             <h1 className="h3 mb-3">Project Details</h1>
@@ -105,7 +139,32 @@ const ProjectDetailsPage = () => {
                                         Edit Project
                                     </Link>
                                 )}
+                                {canEditProject && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-success btn-sm"
+                                        onClick={() => void handleChangeProjectStatus("Completed")}
+                                        disabled={isChangingStatus}
+                                    >
+                                        {isChangingStatus ? "Updating..." : "Mark as Completed"}
+                                    </button>
+                                )}
+                                {canEditProject && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-warning btn-sm"
+                                        onClick={() => void handleChangeProjectStatus("Archived")}
+                                        disabled={isChangingStatus}
+                                    >
+                                        {isChangingStatus ? "Updating..." : "Archive Project"}
+                                    </button>
+                                )}
                             </div>
+                            {statusError && (
+                                <div className="alert alert-danger mt-3" role="alert">
+                                    {statusError}
+                                </div>
+                            )}
                         </div>
                         <p>
                             <strong>Name:</strong> {project.name}

@@ -571,7 +571,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Support permitted Project updates, including Admin Manager reassignment.
 - [x] Show and manage Project Members for Admin and the responsible Manager.
 - [x] Display an error when attempting to remove a Member who still has unfinished Tasks.
-- [ ] Support changing an Active Project to `Completed` or `Archived` under the established rules.
+- [x] Support changing an Active Project to `Completed` or `Archived` under the established rules.
 - [ ] Allow only Admin to reactivate a Completed or Archived Project.
 - [ ] Show Completed and Archived Projects as Read-only and keep Archived Projects outside normal active views.
 - [ ] Require confirmation before Admin permanently deletes a Project.
