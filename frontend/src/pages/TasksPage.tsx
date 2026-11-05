@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 type Task = {
     id: number;
@@ -8,12 +9,20 @@ type Task = {
     status: string;
 };
 
+type Project = {
+	id: number;
+	managerId: number;
+	status: "Active" | "Completed" | "Archived";
+};
+
 const TasksPage = () => {
     const { id } = useParams();
+    const { user } = useAuth();
 
     const [tasks, setTasks] = useState<Task[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [project, setProject] = useState<Project | null>(null);
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -36,17 +45,52 @@ const TasksPage = () => {
         void fetchTasks();
     }, [id]);
 
+    useEffect(() => {
+        const fetchProject = async () => {
+            try {
+                setProject(null);
+
+                const response = await axios.get<{ project: Project }>(
+                    `/projects/${id}`
+                );
+
+                setProject(response.data.project);
+            } catch {
+                setProject(null);
+            }
+        };
+
+        void fetchProject();
+    }, [id]);
+
+    const canCreateTask =
+        project?.id === Number(id) &&
+        project.status === "Active" &&
+        (user?.role === "Admin" ||
+            (user?.role === "Manager" && user.id === project.managerId));
+
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2>Project Tasks</h2>
 
-                <Link
-                    to={`/projects/${id}`}
-                    className="btn btn-outline-secondary"
-                >
-                    Back to Project
-                </Link>
+                <div className="d-flex gap-2">
+                    {canCreateTask && (
+                        <Link
+                            to={`/projects/${id}/tasks/new`}
+                            className="btn btn-primary"
+                        >
+                            Create Task
+                        </Link>
+                    )}
+
+                    <Link
+                        to={`/projects/${id}`}
+                        className="btn btn-outline-secondary"
+                    >
+                        Back to Project
+                    </Link>
+                </div>
             </div>
             {isLoading ? (
                 <p>Loading tasks...</p>

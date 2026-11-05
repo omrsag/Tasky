@@ -595,7 +595,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 - [x] Build the Task list within each Project.
 - [x] Build the Task details interface.
-- [ ] Allow Admin and the responsible Manager to create Tasks with required fields and optional details.
+- [x] Allow Admin and the responsible Manager to create Tasks with required fields and optional details.
 - [ ] Allow permitted Task edits, reassignment, and deletion.
 - [ ] Show exactly one assignee per Task and present Task priority and due date.
 - [ ] Allow Members to change the status only of Tasks assigned to them and never approve a Task as `Done`.
