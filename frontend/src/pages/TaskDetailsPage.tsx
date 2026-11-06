@@ -41,6 +41,8 @@ const TaskDetailsPage = () => {
     const [assigneeName, setAssigneeName] = useState<string | null>(null);
     const [isLoadingAssignee, setIsLoadingAssignee] = useState(false);
     const [assigneeError, setAssigneeError] = useState<string | null>(null);
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+    const [statusError, setStatusError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -103,7 +105,57 @@ const TaskDetailsPage = () => {
         project?.status === "Active" &&
         (user?.role === "Admin" ||
             (user?.role === "Manager" && user.id === project.managerId));
-            
+
+    const canChangeOwnTaskStatus =
+        task !== null &&
+        project?.id === task.projectId &&
+        project.status === "Active" &&
+        user?.role === "Member" &&
+        user.id === task.assigneeId;
+
+    const handleChangeTaskStatus = async (
+        nextStatus: "Todo" | "In Progress" | "Review"
+    ) => {
+        if (!task || !canChangeOwnTaskStatus || isUpdatingStatus) {
+            return;
+        }
+
+        const isValidTransition =
+            (task.status === "Todo" && nextStatus === "In Progress") ||
+            (task.status === "In Progress" &&
+                (nextStatus === "Todo" || nextStatus === "Review"));
+
+        if (!isValidTransition) {
+            return;
+        }
+
+        try {
+            setIsUpdatingStatus(true);
+            setStatusError(null);
+
+            await axios.patch(`/tasks/${task.id}`, {
+                status: nextStatus
+            });
+
+            const response = await axios.get<{ task: Task }>(
+                `/tasks/${task.id}`
+            );
+
+            setTask(response.data.task);
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setStatusError(
+                    error.response?.data?.message ||
+                    "Unable to update task status."
+                );
+            } else {
+                setStatusError("Unable to update task status.");
+            }
+        } finally {
+            setIsUpdatingStatus(false);
+        }
+    };
+
     const handleDeleteTask = async () => {
         if (!task || !canEditTask || isDeleting) {
             return;
@@ -198,7 +250,45 @@ const TaskDetailsPage = () => {
                     <p>
                         <strong>Status:</strong> {task.status}
                     </p>
+                    {statusError && (
+                        <div className="alert alert-danger">
+                            {statusError}
+                        </div>
+                    )}
+                    {canChangeOwnTaskStatus && task.status === "Todo" && (
+                        <div className="mb-3">
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                disabled={isUpdatingStatus}
+                                onClick={() => void handleChangeTaskStatus("In Progress")}
+                            >
+                                Start Task
+                            </button>
+                        </div>
+                    )}
 
+                    {canChangeOwnTaskStatus && task.status === "In Progress" && (
+                        <div className="d-flex gap-2 mb-3">
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                disabled={isUpdatingStatus}
+                                onClick={() => void handleChangeTaskStatus("Todo")}
+                            >
+                                Move to Todo
+                            </button>
+
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                disabled={isUpdatingStatus}
+                                onClick={() => void handleChangeTaskStatus("Review")}
+                            >
+                                Submit for Review
+                            </button>
+                        </div>
+                    )}
                     <p>
                         <strong>Priority:</strong> {task.priority}
                     </p>
