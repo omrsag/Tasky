@@ -7,12 +7,20 @@ type Task = {
     id: number;
     title: string;
     status: string;
+    priority: "Low" | "Medium" | "High";
+    dueDate: string | null;
+    assigneeId: number;
 };
 
 type Project = {
 	id: number;
 	managerId: number;
 	status: "Active" | "Completed" | "Archived";
+};
+
+type ProjectMember = {
+	id: number;
+	fullName: string;
 };
 
 const TasksPage = () => {
@@ -23,6 +31,9 @@ const TasksPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [project, setProject] = useState<Project | null>(null);
+    const [members, setMembers] = useState<ProjectMember[]>([]);
+    const [isLoadingMembers, setIsLoadingMembers] = useState(true);
+    const [membersError, setMembersError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -69,6 +80,35 @@ const TasksPage = () => {
         (user?.role === "Admin" ||
             (user?.role === "Manager" && user.id === project.managerId));
 
+    useEffect(() => {
+        const fetchMembers = async () => {
+            try {
+                setIsLoadingMembers(true);
+                setMembersError(null);
+                setMembers([]);
+
+                const response = await axios.get<{ members: ProjectMember[] }>(
+                    `/projects/${id}/members`
+                );
+
+                setMembers(response.data.members);
+            } catch (error) {
+                if (axios.isAxiosError<{ message: string }>(error)) {
+                    setMembersError(
+                        error.response?.data?.message ||
+                        "Unable to load project members."
+                    );
+                } else {
+                    setMembersError("Unable to load project members.");
+                }
+            } finally {
+                setIsLoadingMembers(false);
+            }
+        };
+
+        void fetchMembers();
+    }, [id]);
+
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -92,6 +132,11 @@ const TasksPage = () => {
                     </Link>
                 </div>
             </div>
+            {membersError && (
+                <div className="alert alert-danger">
+                    {membersError}
+                </div>
+            )}
             {isLoading ? (
                 <p>Loading tasks...</p>
             ) : error ? (
@@ -107,6 +152,9 @@ const TasksPage = () => {
                             <tr>
                                 <th>Task</th>
                                 <th>Status</th>
+                                <th>Priority</th>
+                                <th>Due Date</th>
+                                <th>Assignee</th>
                             </tr>
                         </thead>
 
@@ -119,6 +167,18 @@ const TasksPage = () => {
                                         </Link>
                                     </td>
                                     <td>{task.status}</td>
+                                    <td>{task.priority}</td>
+                                    <td>
+                                        {task.dueDate
+                                            ? task.dueDate.slice(0, 10)
+                                            : "Not set"}
+                                    </td>
+                                    <td>
+                                        {isLoadingMembers
+                                            ? "Loading..."
+                                            : members.find((member) => member.id === task.assigneeId)?.fullName ||
+                                                `User #${task.assigneeId}`}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

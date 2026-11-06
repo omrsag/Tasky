@@ -20,6 +20,11 @@ type Project = {
 	status: "Active" | "Completed" | "Archived";
 };
 
+type ProjectMember = {
+	id: number;
+	fullName: string;
+};
+
 const TaskDetailsPage = () => {
     const { id } = useParams();
     const { user } = useAuth();
@@ -33,6 +38,9 @@ const TaskDetailsPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [assigneeName, setAssigneeName] = useState<string | null>(null);
+    const [isLoadingAssignee, setIsLoadingAssignee] = useState(false);
+    const [assigneeError, setAssigneeError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -122,6 +130,47 @@ const TaskDetailsPage = () => {
         }
     };
 
+    const assigneeId = task?.assigneeId;
+
+    useEffect(() => {
+        if (!projectId || !assigneeId) {
+            setAssigneeName(null);
+            setIsLoadingAssignee(false);
+            return;
+        }
+
+        const fetchAssignee = async () => {
+            try {
+                setIsLoadingAssignee(true);
+                setAssigneeError(null);
+                setAssigneeName(null);
+
+                const response = await axios.get<{ members: ProjectMember[] }>(
+                    `/projects/${projectId}/members`
+                );
+
+                const assignee = response.data.members.find(
+                    (member) => member.id === assigneeId
+                );
+
+                setAssigneeName(assignee?.fullName || null);
+            } catch (error) {
+                if (axios.isAxiosError<{ message: string }>(error)) {
+                    setAssigneeError(
+                        error.response?.data?.message ||
+                        "Unable to load task assignee."
+                    );
+                } else {
+                    setAssigneeError("Unable to load task assignee.");
+                }
+            } finally {
+                setIsLoadingAssignee(false);
+            }
+        };
+
+        void fetchAssignee();
+    }, [projectId, assigneeId]);
+
     return (
         <div>
             <h2 className="mb-4">Task Details</h2>
@@ -153,6 +202,19 @@ const TaskDetailsPage = () => {
                     <p>
                         <strong>Priority:</strong> {task.priority}
                     </p>
+                    
+                    <p>
+                        <strong>Assignee:</strong>{" "}
+                        {isLoadingAssignee
+                            ? "Loading..."
+                            : assigneeName || `User #${task.assigneeId}`}
+                    </p>
+
+                    {assigneeError && (
+                        <div className="alert alert-danger">
+                            {assigneeError}
+                        </div>
+                    )}
 
                     <p>
                         <strong>Due Date:</strong>{" "}
