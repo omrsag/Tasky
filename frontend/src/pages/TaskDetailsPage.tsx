@@ -1,6 +1,7 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 type Task = {
     id: number;
@@ -13,12 +14,25 @@ type Task = {
     dueDate: string | null;
 };
 
+type Project = {
+	id: number;
+	managerId: number;
+	status: "Active" | "Completed" | "Archived";
+};
+
 const TaskDetailsPage = () => {
     const { id } = useParams();
+    const { user } = useAuth();
+    const navigate = useNavigate();
 
     const [task, setTask] = useState<Task | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [project, setProject] = useState<Project | null>(null);
+    const [projectError, setProjectError] = useState<string | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -41,6 +55,72 @@ const TaskDetailsPage = () => {
 
         void fetchTask();
     }, [id]);
+
+    const projectId = task?.projectId;
+
+    useEffect(() => {
+        if (!projectId) {
+            setProject(null);
+            return;
+        }
+
+        const fetchProject = async () => {
+            try {
+                setProject(null);
+                setProjectError(null);
+
+                const response = await axios.get<{ project: Project }>(
+                    `/projects/${projectId}`
+                );
+
+                setProject(response.data.project);
+            } catch (error) {
+                if (axios.isAxiosError<{ message: string }>(error)) {
+                    setProjectError(
+                        error.response?.data?.message ||
+                        "Unable to load project information."
+                    );
+                } else {
+                    setProjectError("Unable to load project information.");
+                }
+            }
+        };
+
+        void fetchProject();
+    }, [projectId]);
+
+    const canEditTask =
+        task !== null &&
+        project?.id === task.projectId &&
+        project?.status === "Active" &&
+        (user?.role === "Admin" ||
+            (user?.role === "Manager" && user.id === project.managerId));
+            
+    const handleDeleteTask = async () => {
+        if (!task || !canEditTask || isDeleting) {
+            return;
+        }
+
+        try {
+            setIsDeleting(true);
+            setDeleteError(null);
+
+            await axios.delete(`/tasks/${task.id}`);
+
+            navigate(`/projects/${task.projectId}/tasks`);
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setDeleteError(
+                    error.response?.data?.message ||
+                    "Unable to delete task."
+                );
+            } else {
+                setDeleteError("Unable to delete task.");
+            }
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     return (
         <div>
@@ -80,12 +160,106 @@ const TaskDetailsPage = () => {
                             ? task.dueDate.slice(0, 10)
                             : "Not set"}
                     </p>
+                    {projectError && (
+                        <div className="alert alert-danger">
+                            {projectError}
+                        </div>
+                    )}
+                    {canEditTask && (
+                        <Link
+                            to={`/tasks/${task.id}/edit`}
+                            className="btn btn-primary mt-2 me-2"
+                        >
+                            Edit Task
+                        </Link>
+                    )}
+                    {canEditTask && (
+                        <button
+                            type="button"
+                            className="btn btn-outline-danger mt-2 me-2"
+                            onClick={() => {
+                                setDeleteError(null);
+                                setShowDeleteModal(true);
+                            }}
+                        >
+                            Delete Task
+                        </button>
+                    )}
                     <Link
                         to={`/projects/${task.projectId}/tasks`}
                         className="btn btn-outline-secondary mt-2"
                     >
                         Back to Project Tasks
                     </Link>
+                    {showDeleteModal && canEditTask && (
+                        <>
+                            <div
+                                className="modal fade show d-block"
+                                tabIndex={-1}
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="deleteTaskModalTitle"
+                            >
+                                <div className="modal-dialog modal-dialog-centered">
+                                    <div className="modal-content">
+                                        <div className="modal-header">
+                                            <h5
+                                                className="modal-title"
+                                                id="deleteTaskModalTitle"
+                                            >
+                                                Delete Task
+                                            </h5>
+
+                                            <button
+                                                type="button"
+                                                className="btn-close"
+                                                aria-label="Close"
+                                                disabled={isDeleting}
+                                                onClick={() => setShowDeleteModal(false)}
+                                            />
+                                        </div>
+
+                                        <div className="modal-body">
+                                            <p>
+                                                Are you sure you want to permanently delete
+                                                <strong> {task.title}</strong>?
+                                            </p>
+
+                                            <div className="alert alert-warning mb-0">
+                                                This action cannot be undone.
+                                            </div>
+                                            {deleteError && (
+                                                <div className="alert alert-danger mt-3 mb-0">
+                                                    {deleteError}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="modal-footer">
+                                            <button
+                                                type="button"
+                                                className="btn btn-secondary"
+                                                onClick={() => setShowDeleteModal(false)}
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                className="btn btn-danger"
+                                                disabled={isDeleting}
+                                                onClick={() => void handleDeleteTask()}
+                                            >
+                                                {isDeleting ? "Deleting..." : "Delete Permanently"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="modal-backdrop fade show" />
+                        </>
+                    )}
                 </div>
             </div>
             )}
