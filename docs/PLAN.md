@@ -599,7 +599,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Allow permitted Task edits, reassignment, and deletion.
 - [x] Show exactly one assignee per Task and present Task priority and due date.
 - [x] Allow Members to change the status only of Tasks assigned to them and never approve a Task as `Done`.
-- [ ] Provide Manager/Admin review actions to approve a Task as `Done` or return it to `In Progress`.
+- [x] Provide Manager/Admin review actions to approve a Task as `Done` or return it to `In Progress`.
 - [ ] Reflect the automatic reset to `Todo` after reassignment.
 - [ ] Show an Overdue indicator for Tasks whose due date has passed and are not Done.
 - [ ] Display clear validation errors for invalid assignees and due dates.
