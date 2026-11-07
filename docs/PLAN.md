@@ -593,19 +593,19 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Build the Task list within each Project.
-- [ ] Build the Task details interface.
-- [ ] Allow Admin and the responsible Manager to create Tasks with required fields and optional details.
-- [ ] Allow permitted Task edits, reassignment, and deletion.
-- [ ] Show exactly one assignee per Task and present Task priority and due date.
-- [ ] Allow Members to change the status only of Tasks assigned to them and never approve a Task as `Done`.
-- [ ] Provide Manager/Admin review actions to approve a Task as `Done` or return it to `In Progress`.
-- [ ] Reflect the automatic reset to `Todo` after reassignment.
-- [ ] Show an Overdue indicator for Tasks whose due date has passed and are not Done.
-- [ ] Display clear validation errors for invalid assignees and due dates.
-- [ ] Make Tasks in Completed or Archived Projects Read-only.
-- [ ] Require confirmation before permanently deleting a Task.
-- [ ] Refresh Task details/lists after successful changes and test with all three roles.
+- [x] Build the Task list within each Project.
+- [x] Build the Task details interface.
+- [x] Allow Admin and the responsible Manager to create Tasks with required fields and optional details.
+- [x] Allow permitted Task edits, reassignment, and deletion.
+- [x] Show exactly one assignee per Task and present Task priority and due date.
+- [x] Allow Members to change the status only of Tasks assigned to them and never approve a Task as `Done`.
+- [x] Provide Manager/Admin review actions to approve a Task as `Done` or return it to `In Progress`.
+- [x] Reflect the automatic reset to `Todo` after reassignment.
+- [x] Show an Overdue indicator for Tasks whose due date has passed and are not Done.
+- [x] Display clear validation errors for invalid assignees and due dates.
+- [x] Make Tasks in Completed or Archived Projects Read-only.
+- [x] Require confirmation before permanently deleting a Task.
+- [x] Refresh Task details/lists after successful changes and test with all three roles.
 
 ### Completion Criteria
 
