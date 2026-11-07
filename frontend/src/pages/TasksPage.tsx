@@ -109,6 +109,14 @@ const TasksPage = () => {
         void fetchMembers();
     }, [id]);
 
+    const today = new Date();
+
+    const todayDate = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, "0"),
+        String(today.getDate()).padStart(2, "0")
+    ].join("-");
+
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -172,6 +180,15 @@ const TasksPage = () => {
                                         {task.dueDate
                                             ? task.dueDate.slice(0, 10)
                                             : "Not set"}
+
+                                        {task.dueDate &&
+                                            task.dueDate.slice(0, 10) < todayDate &&
+                                            task.status !== "Done" && (
+                                                <span className="badge bg-danger ms-2">
+                                                    Overdue 
+                                                </span>
+                                            )
+                                        }
                                     </td>
                                     <td>
                                         {isLoadingMembers

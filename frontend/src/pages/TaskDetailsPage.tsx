@@ -242,6 +242,19 @@ const TaskDetailsPage = () => {
         void fetchAssignee();
     }, [projectId, assigneeId]);
 
+    const today = new Date();
+
+    const todayDate = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, "0"),
+        String(today.getDate()).padStart(2, "0")
+    ].join("-");
+
+    const isOverdue =
+        task?.dueDate != null &&
+        task.dueDate.slice(0, 10) < todayDate &&
+        task.status !== "Done";
+
     return (
         <div>
             <h2 className="mb-4">Task Details</h2>
@@ -384,6 +397,12 @@ const TaskDetailsPage = () => {
                         {task.dueDate
                             ? task.dueDate.slice(0, 10)
                             : "Not set"}
+
+                        {isOverdue && (
+                            <span className="badge bg-danger ms-2">
+                                Overdue
+                            </span>
+                        )}
                     </p>
                     {projectError && (
                         <div className="alert alert-danger">
