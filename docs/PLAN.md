@@ -605,7 +605,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Display clear validation errors for invalid assignees and due dates.
 - [x] Make Tasks in Completed or Archived Projects Read-only.
 - [x] Require confirmation before permanently deleting a Task.
-- [ ] Refresh Task details/lists after successful changes and test with all three roles.
+- [x] Refresh Task details/lists after successful changes and test with all three roles.
 
 ### Completion Criteria
 
