@@ -15,6 +15,8 @@ type Project = {
 	id: number;
 	managerId: number;
 	status: "Active" | "Completed" | "Archived";
+    startDate: string | null;
+    endDate: string | null;
 };
 
 const CreateTaskPage = () => {
@@ -85,10 +87,34 @@ const CreateTaskPage = () => {
         void fetchProject();
     }, [id]);
 
-const canCreateTask =
-	project?.status === "Active" &&
-	(user?.role === "Admin" ||
-		(user?.role === "Manager" && user.id === project.managerId));
+    const canCreateTask =
+        project?.status === "Active" &&
+        (user?.role === "Admin" ||
+            (user?.role === "Manager" && user.id === project.managerId));
+
+    const assigneeError =
+        assigneeId !== "" &&
+        !isLoadingMembers &&
+        membersError === null &&
+        !members.some((member) => member.id === Number(assigneeId))
+            ? "Selected assignee is not eligible for this project."
+            : null;
+            
+    let dueDateError: string | null = null;
+
+    if (
+        dueDate &&
+        project?.startDate &&
+        dueDate < project.startDate.slice(0, 10)
+    ) {
+        dueDateError = `Due Date cannot be before ${project.startDate.slice(0, 10)}.`;
+    } else if (
+        dueDate &&
+        project?.endDate &&
+        dueDate > project.endDate.slice(0, 10)
+    ) {
+        dueDateError = `Due Date cannot be after ${project.endDate.slice(0, 10)}.`;
+    }
 
     const handleCreateTask = async () => {
         if (
@@ -97,6 +123,8 @@ const canCreateTask =
             !title.trim() ||
             !assigneeId ||
             isLoadingMembers ||
+            dueDateError !== null ||
+            assigneeError !== null ||
             isCreatingTask
         ) {
             return;
@@ -227,7 +255,11 @@ const canCreateTask =
                                 </option>
                             ))}
                         </select>
-
+                        {assigneeError && (
+                            <div className="text-danger mt-2" role="alert">
+                                {assigneeError}
+                            </div>
+                        )}
                         {membersError && (
                             <div className="text-danger mt-2">
                                 {membersError}
@@ -252,6 +284,11 @@ const canCreateTask =
                             value={dueDate}
                             onChange={(event) => setDueDate(event.target.value)}
                         />
+                        {dueDateError && (
+                            <div className="text-danger mt-2" role="alert">
+                                {dueDateError}
+                            </div>
+                        )}
                     </div>
                     {createError && (
                         <div className="alert alert-danger">
@@ -267,6 +304,8 @@ const canCreateTask =
                                 isCreatingTask ||
                                 !title.trim() ||
                                 !assigneeId ||
+                                dueDateError !== null ||
+                                assigneeError !== null ||
                                 isLoadingMembers
                             }
                         >

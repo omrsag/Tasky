@@ -26,6 +26,8 @@ type Project = {
 	id: number;
 	managerId: number;
 	status: "Active" | "Completed" | "Archived";
+    startDate: string | null;
+    endDate: string | null;
 };
 
 const EditTaskPage = () => {
@@ -156,7 +158,31 @@ const EditTaskPage = () => {
         project?.status === "Active" &&
         (user?.role === "Admin" ||
             (user?.role === "Manager" && user.id === project.managerId));
-          
+
+    const assigneeError =
+        assigneeId !== "" &&
+        !isLoadingMembers &&
+        membersError === null &&
+        !members.some((member) => member.id === Number(assigneeId))
+            ? "Selected assignee is not eligible for this project."
+            : null;
+            
+    let dueDateError: string | null = null;
+
+    if (
+        dueDate &&
+        project?.startDate &&
+        dueDate < project.startDate.slice(0, 10)
+    ) {
+        dueDateError = `Due Date cannot be before ${project.startDate.slice(0, 10)}.`;
+    } else if (
+        dueDate &&
+        project?.endDate &&
+        dueDate > project.endDate.slice(0, 10)
+    ) {
+        dueDateError = `Due Date cannot be after ${project.endDate.slice(0, 10)}.`;
+    }
+
     const handleSaveTask = async () => {
         if (
             !task ||
@@ -166,6 +192,7 @@ const EditTaskPage = () => {
             !assigneeId ||
             isLoadingMembers ||
             membersError !== null ||
+            dueDateError !== null ||
             !members.some((member) => member.id === Number(assigneeId)) ||
             isSaving
         ) {
@@ -308,7 +335,11 @@ const EditTaskPage = () => {
                                 </option>
                             ))}
                         </select>
-
+                        {assigneeError && (
+                            <div className="text-danger mt-2" role="alert">
+                                {assigneeError}
+                            </div>
+                        )}
                         {membersError && (
                             <div className="text-danger mt-2">
                                 {membersError}
@@ -334,6 +365,11 @@ const EditTaskPage = () => {
                             value={dueDate}
                             onChange={(event) => setDueDate(event.target.value)}
                         />
+                        {dueDateError && (
+                            <div className="text-danger mt-2" role="alert">
+                                {dueDateError}
+                            </div>
+                        )}
                     </div>
                     {saveError && (
                         <div className="alert alert-danger">
@@ -350,6 +386,7 @@ const EditTaskPage = () => {
                                 !title.trim() ||
                                 !assigneeId ||
                                 isLoadingMembers ||
+                                dueDateError !== null ||
                                 membersError !== null ||
                                 !members.some((member) => member.id === Number(assigneeId))
                             }

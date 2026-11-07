@@ -602,7 +602,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Provide Manager/Admin review actions to approve a Task as `Done` or return it to `In Progress`.
 - [x] Reflect the automatic reset to `Todo` after reassignment.
 - [x] Show an Overdue indicator for Tasks whose due date has passed and are not Done.
-- [ ] Display clear validation errors for invalid assignees and due dates.
+- [x] Display clear validation errors for invalid assignees and due dates.
 - [ ] Make Tasks in Completed or Archived Projects Read-only.
 - [ ] Require confirmation before permanently deleting a Task.
 - [ ] Refresh Task details/lists after successful changes and test with all three roles.
