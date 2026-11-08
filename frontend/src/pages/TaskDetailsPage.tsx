@@ -14,6 +14,15 @@ type Task = {
     dueDate: string | null;
 };
 
+type TaskComment = {
+	id: number;
+	taskId: number;
+	authorId: number;
+	authorName: string;
+	content: string;
+	createdAt: string;
+};
+
 type Project = {
 	id: number;
 	managerId: number;
@@ -43,6 +52,9 @@ const TaskDetailsPage = () => {
     const [assigneeError, setAssigneeError] = useState<string | null>(null);
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
     const [statusError, setStatusError] = useState<string | null>(null);
+    const [comments, setComments] = useState<TaskComment[]>([]);
+    const [isLoadingComments, setIsLoadingComments] = useState(false);
+    const [commentsError, setCommentsError] = useState("");
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -64,6 +76,37 @@ const TaskDetailsPage = () => {
         };
 
         void fetchTask();
+    }, [id]);
+
+    useEffect(() => {
+        if (!id) return;
+
+        const fetchComments = async () => {
+            setIsLoadingComments(true);
+            setCommentsError("");
+            setComments([]);
+
+            try {
+                const response = await axios.get<{ comments: TaskComment[] }>(
+                    `/tasks/${id}/comments`
+                );
+
+                setComments(response.data.comments);
+            } catch (error) {
+                if (axios.isAxiosError<{ message: string }>(error)) {
+                    setCommentsError(
+                        error.response?.data?.message ||
+                        "Failed to load comments."
+                    );
+                } else {
+                    setCommentsError("Failed to load comments.");
+                }
+            } finally {
+                setIsLoadingComments(false);
+            }
+        };
+
+        fetchComments();
     }, [id]);
 
     const projectId = task?.projectId;
@@ -435,6 +478,43 @@ const TaskDetailsPage = () => {
                     >
                         Back to Project Tasks
                     </Link>
+                    <hr className="my-4" />
+
+                    <h5 className="mb-3">Comments</h5>
+
+                    {isLoadingComments ? (
+                        <p>Loading comments...</p>
+                    ) : commentsError ? (
+                        <div className="alert alert-danger">
+                            {commentsError}
+                        </div>
+                    ) : comments.length === 0 ? (
+                        <p className="text-muted">No comments yet.</p>
+                    ) : (
+                        <div className="list-group">
+                            {comments.map((comment) => (
+                                <div
+                                    key={comment.id}
+                                    className="list-group-item"
+                                >
+                                    <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                        <strong>{comment.authorName}</strong>
+
+                                        <small className="text-muted">
+                                            {new Date(comment.createdAt).toLocaleString()}
+                                        </small>
+                                    </div>
+
+                                    <p
+                                        className="mb-0 text-break"
+                                        style={{ whiteSpace: "pre-wrap" }}
+                                    >
+                                        {comment.content}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                     {showDeleteModal && canEditTask && (
                         <>
                             <div
