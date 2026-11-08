@@ -55,6 +55,9 @@ const TaskDetailsPage = () => {
     const [comments, setComments] = useState<TaskComment[]>([]);
     const [isLoadingComments, setIsLoadingComments] = useState(false);
     const [commentsError, setCommentsError] = useState("");
+    const [newComment, setNewComment] = useState("");
+    const [isAddingComment, setIsAddingComment] = useState(false);
+    const [addCommentError, setAddCommentError] = useState("");
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -241,6 +244,50 @@ const TaskDetailsPage = () => {
             }
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleAddComment = async () => {
+        const content = newComment.trim();
+
+        if (
+            !task ||
+            !project ||
+            project.id !== task.projectId ||
+            project.status !== "Active" ||
+            !content ||
+            isAddingComment
+        ) {
+            return;
+        }
+
+        try {
+            setIsAddingComment(true);
+            setAddCommentError("");
+
+            await axios.post(`/tasks/${task.id}/comments`, {
+                content
+            });
+
+            setNewComment("");
+
+            const response = await axios.get<{ comments: TaskComment[] }>(
+                `/tasks/${task.id}/comments`
+            );
+
+            setComments(response.data.comments);
+            setCommentsError("");
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setAddCommentError(
+                    error.response?.data?.message ||
+                    "Unable to add comment or refresh comments."
+                );
+            } else {
+                setAddCommentError("Unable to add comment or refresh comments.");
+            }
+        } finally {
+            setIsAddingComment(false);
         }
     };
 
@@ -481,7 +528,36 @@ const TaskDetailsPage = () => {
                     <hr className="my-4" />
 
                     <h5 className="mb-3">Comments</h5>
+                    {project?.id === task.projectId && project.status === "Active" && (
+                        <div className="mb-3">
+                            <label htmlFor="newComment" className="form-label">
+                                New Comment
+                            </label>
 
+                            <textarea
+                                id="newComment"
+                                className="form-control"
+                                rows={3}
+                                placeholder="Write a comment..."
+                                value={newComment}
+                                onChange={(event) => setNewComment(event.target.value)}
+                            />
+                            {addCommentError && (
+                                <div className="alert alert-danger mt-2">
+                                    {addCommentError}
+                                </div>
+                            )}
+
+                            <button
+                                type="button"
+                                className="btn btn-primary mt-2"
+                                disabled={isAddingComment || !newComment.trim()}
+                                onClick={() => void handleAddComment()}
+                            >
+                                {isAddingComment ? "Adding..." : "Add Comment"}
+                            </button>
+                        </div>
+                    )}
                     {isLoadingComments ? (
                         <p>Loading comments...</p>
                     ) : commentsError ? (

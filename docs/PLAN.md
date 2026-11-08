@@ -623,7 +623,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 ### Tasks
 
 - [x] Show Comments for a Task to its authorized Project users.
-- [ ] Allow authorized users to add Comments.
+- [x] Allow authorized users to add Comments.
 - [ ] Allow users to edit their own Comments and delete Comments according to role permissions.
 - [ ] Show the Task's existing Attachments.
 - [ ] Provide file uploads only for the assignee, responsible Manager, or Admin.
