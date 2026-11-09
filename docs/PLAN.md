@@ -627,7 +627,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Allow users to edit their own Comments and delete Comments according to role permissions.
 - [x] Show the Task's existing Attachments.
 - [x] Provide file uploads only for the assignee, responsible Manager, or Admin.
-- [ ] Send attachments as `multipart/form-data` with the field name `file`.
+- [x] Send attachments as `multipart/form-data` with the field name `file`.
 - [ ] Support authenticated Attachment downloads through the backend endpoint.
 - [ ] Allow permitted users to delete Attachments.
 - [ ] Display an understandable error when an Attachment exceeds 10 MB or a request is denied.
