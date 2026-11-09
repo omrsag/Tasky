@@ -83,6 +83,9 @@ const TaskDetailsPage = () => {
     const [attachmentInputKey, setAttachmentInputKey] = useState(0);
     const [downloadingAttachmentId, setDownloadingAttachmentId] = useState<number | null>(null);
     const [downloadAttachmentError, setDownloadAttachmentError] = useState("");
+    const [attachmentToDeleteId, setAttachmentToDeleteId] = useState<number | null>(null);
+    const [isDeletingAttachment, setIsDeletingAttachment] = useState(false);
+    const [deleteAttachmentError, setDeleteAttachmentError] = useState("");
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -529,6 +532,50 @@ const TaskDetailsPage = () => {
             setDownloadAttachmentError(message);
         } finally {
             setDownloadingAttachmentId(null);
+        }
+    };
+
+    const handleDeleteAttachment = async () => {
+        const attachmentToDelete = attachments.find(
+            (attachment) => attachment.id === attachmentToDeleteId
+        );
+
+        if (
+            !task ||
+            !project ||
+            project.id !== task.projectId ||
+            project.status !== "Active" ||
+            !attachmentToDelete ||
+            !(canEditTask || user?.id === attachmentToDelete.uploaderId) ||
+            isDeletingAttachment
+        ) {
+            return;
+        }
+
+        try {
+            setIsDeletingAttachment(true);
+            setDeleteAttachmentError("");
+
+            await axios.delete(`/attachments/${attachmentToDelete.id}`);
+
+            setAttachments((previousAttachments) =>
+                previousAttachments.filter(
+                    (attachment) => attachment.id !== attachmentToDelete.id
+                )
+            );
+
+            setAttachmentToDeleteId(null);
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setDeleteAttachmentError(
+                    error.response?.data?.message ||
+                    "Unable to delete attachment."
+                );
+            } else {
+                setDeleteAttachmentError("Unable to delete attachment.");
+            }
+        } finally {
+            setIsDeletingAttachment(false);
         }
     };
 
@@ -1017,6 +1064,55 @@ const TaskDetailsPage = () => {
                                             ? "Downloading..."
                                             : "Download"}
                                     </button>
+                                    {project?.id === task.projectId &&
+                                    project.status === "Active" &&
+                                    (canEditTask || user?.id === attachment.uploaderId) && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-danger btn-sm mt-2 ms-2"
+                                            onClick={() => {
+                                                setDeleteAttachmentError("");
+                                                setAttachmentToDeleteId(attachment.id);
+                                            }}
+                                            disabled={isDeletingAttachment}
+                                        >
+                                            Delete
+                                        </button>
+                                    )}
+                                    {attachmentToDeleteId === attachment.id &&
+                                    project?.id === task.projectId &&
+                                    project.status === "Active" &&
+                                    (canEditTask || user?.id === attachment.uploaderId) && (
+                                        <div className="alert alert-warning mt-2 mb-0">
+                                            <p className="mb-2">
+                                                Are you sure you want to permanently delete this attachment?
+                                            </p>
+                                            {deleteAttachmentError && (
+                                                <div className="alert alert-danger">
+                                                    {deleteAttachmentError}
+                                                </div>
+                                            )}
+                                            <button
+                                                type="button"
+                                                className="btn btn-outline-secondary btn-sm"
+                                                onClick={() => {
+                                                    setDeleteAttachmentError("");
+                                                    setAttachmentToDeleteId(null);
+                                                }}
+                                                disabled={isDeletingAttachment}
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn btn-danger btn-sm ms-2"
+                                                disabled={isDeletingAttachment}
+                                                onClick={() => void handleDeleteAttachment()}
+                                            >
+                                                {isDeletingAttachment ? "Deleting..." : "Delete Permanently"}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
