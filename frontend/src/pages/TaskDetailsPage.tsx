@@ -34,6 +34,15 @@ type ProjectMember = {
 	fullName: string;
 };
 
+type TaskAttachment = {
+	id: number;
+	taskId: number;
+	uploaderId: number;
+	uploaderName: string;
+	fileName: string;
+	createdAt: string;
+};
+
 const TaskDetailsPage = () => {
     const { id } = useParams();
     const { user } = useAuth();
@@ -65,6 +74,9 @@ const TaskDetailsPage = () => {
     const [commentToDeleteId, setCommentToDeleteId] = useState<number | null>(null);
     const [isDeletingComment, setIsDeletingComment] = useState(false);
     const [deleteCommentError, setDeleteCommentError] = useState("");
+    const [attachments, setAttachments] = useState<TaskAttachment[]>([]);
+    const [isLoadingAttachments, setIsLoadingAttachments] = useState(false);
+    const [attachmentsError, setAttachmentsError] = useState("");
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -117,6 +129,37 @@ const TaskDetailsPage = () => {
         };
 
         fetchComments();
+    }, [id]);
+
+    useEffect(() => {
+        if (!id) return;
+
+        const fetchAttachments = async () => {
+            setIsLoadingAttachments(true);
+            setAttachmentsError("");
+            setAttachments([]);
+
+            try {
+                const response = await axios.get<{ attachments: TaskAttachment[] }>(
+                    `/tasks/${id}/attachments`
+                );
+
+                setAttachments(response.data.attachments);
+            } catch (error) {
+                if (axios.isAxiosError<{ message: string }>(error)) {
+                    setAttachmentsError(
+                        error.response?.data?.message ||
+                        "Failed to load attachments."
+                    );
+                } else {
+                    setAttachmentsError("Failed to load attachments.");
+                }
+            } finally {
+                setIsLoadingAttachments(false);
+            }
+        };
+
+        void fetchAttachments();
     }, [id]);
 
     const projectId = task?.projectId;
@@ -790,6 +833,40 @@ const TaskDetailsPage = () => {
                                             )}
                                         </>
                                     )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                    <hr className="my-4" />
+
+                    <h5 className="mb-3">Attachments</h5>
+
+                    {isLoadingAttachments ? (
+                        <p>Loading attachments...</p>
+                    ) : attachmentsError ? (
+                        <div className="alert alert-danger">
+                            {attachmentsError}
+                        </div>
+                    ) : attachments.length === 0 ? (
+                        <p className="text-muted">No attachments yet.</p>
+                    ) : (
+                        <div className="list-group">
+                            {attachments.map((attachment) => (
+                                <div
+                                    key={attachment.id}
+                                    className="list-group-item"
+                                >
+                                    <div className="fw-semibold text-break mb-1">
+                                        {attachment.fileName}
+                                    </div>
+
+                                    <div className="text-muted small">
+                                        Uploaded by {attachment.uploaderName}
+                                    </div>
+
+                                    <div className="text-muted small">
+                                        {new Date(attachment.createdAt).toLocaleString()}
+                                    </div>
                                 </div>
                             ))}
                         </div>
