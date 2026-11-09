@@ -628,7 +628,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Show the Task's existing Attachments.
 - [x] Provide file uploads only for the assignee, responsible Manager, or Admin.
 - [x] Send attachments as `multipart/form-data` with the field name `file`.
-- [ ] Support authenticated Attachment downloads through the backend endpoint.
+- [x] Support authenticated Attachment downloads through the backend endpoint.
 - [ ] Allow permitted users to delete Attachments.
 - [ ] Display an understandable error when an Attachment exceeds 10 MB or a request is denied.
 - [ ] Keep Task collaboration Read-only for Completed and Archived Projects.

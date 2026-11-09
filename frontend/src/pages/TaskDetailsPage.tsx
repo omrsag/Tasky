@@ -81,6 +81,8 @@ const TaskDetailsPage = () => {
     const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
     const [uploadAttachmentError, setUploadAttachmentError] = useState("");
     const [attachmentInputKey, setAttachmentInputKey] = useState(0);
+    const [downloadingAttachmentId, setDownloadingAttachmentId] = useState<number | null>(null);
+    const [downloadAttachmentError, setDownloadAttachmentError] = useState("");
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -477,6 +479,56 @@ const TaskDetailsPage = () => {
             }
         } finally {
             setIsUploadingAttachment(false);
+        }
+    };
+
+    const handleDownloadAttachment = async (attachment: TaskAttachment) => {
+        if (downloadingAttachmentId !== null) {
+            return;
+        }
+
+        try {
+            setDownloadingAttachmentId(attachment.id);
+            setDownloadAttachmentError("");
+
+            const response = await axios.get<Blob>(
+                `/attachments/${attachment.id}/download`,
+                { responseType: "blob" }
+            );
+
+            const fileUrl = URL.createObjectURL(response.data);
+
+            const link = document.createElement("a");
+            link.href = fileUrl;
+            link.download = attachment.fileName;
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            setTimeout(() => URL.revokeObjectURL(fileUrl), 1000);
+        } catch (error) {
+            let message = "Unable to download attachment.";
+
+            if (axios.isAxiosError(error)) {
+                const responseData = error.response?.data;
+
+                if (responseData instanceof Blob) {
+                    try {
+                        const errorBody = JSON.parse(
+                            await responseData.text()
+                        ) as { message?: string };
+
+                        message = errorBody.message || message;
+                    } catch {
+                        // Keep the fallback error message.
+                    }
+                }
+            }
+
+            setDownloadAttachmentError(message);
+        } finally {
+            setDownloadingAttachmentId(null);
         }
     };
 
@@ -886,6 +938,11 @@ const TaskDetailsPage = () => {
                     <hr className="my-4" />
 
                     <h5 className="mb-3">Attachments</h5>
+                    {downloadAttachmentError && (
+                        <div className="alert alert-danger">
+                            {downloadAttachmentError}
+                        </div>
+                    )}
                     {(canEditTask || canChangeOwnTaskStatus) && (
                         <div className="mb-3">
                             <label htmlFor="attachmentFile" className="form-label">
@@ -950,6 +1007,16 @@ const TaskDetailsPage = () => {
                                     <div className="text-muted small">
                                         {new Date(attachment.createdAt).toLocaleString()}
                                     </div>
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-primary btn-sm mt-2"
+                                        disabled={downloadingAttachmentId !== null}
+                                        onClick={() => void handleDownloadAttachment(attachment)}
+                                    >
+                                        {downloadingAttachmentId === attachment.id
+                                            ? "Downloading..."
+                                            : "Download"}
+                                    </button>
                                 </div>
                             ))}
                         </div>
