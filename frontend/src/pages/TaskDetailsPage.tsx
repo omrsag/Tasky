@@ -77,6 +77,10 @@ const TaskDetailsPage = () => {
     const [attachments, setAttachments] = useState<TaskAttachment[]>([]);
     const [isLoadingAttachments, setIsLoadingAttachments] = useState(false);
     const [attachmentsError, setAttachmentsError] = useState("");
+    const [selectedAttachmentFile, setSelectedAttachmentFile] = useState<File | null>(null);
+    const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
+    const [uploadAttachmentError, setUploadAttachmentError] = useState("");
+    const [attachmentInputKey, setAttachmentInputKey] = useState(0);
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -431,6 +435,48 @@ const TaskDetailsPage = () => {
             }
         } finally {
             setIsDeletingComment(false);
+        }
+    };
+
+    const handleUploadAttachment = async () => {
+        if (
+            !task ||
+            !selectedAttachmentFile ||
+            !(canEditTask || canChangeOwnTaskStatus) ||
+            isUploadingAttachment
+        ) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", selectedAttachmentFile);
+
+        try {
+            setIsUploadingAttachment(true);
+            setUploadAttachmentError("");
+
+            await axios.post(`/tasks/${task.id}/attachments`, formData);
+
+            setSelectedAttachmentFile(null);
+            setAttachmentInputKey((previousKey) => previousKey + 1);
+
+            const response = await axios.get<{ attachments: TaskAttachment[] }>(
+                `/tasks/${task.id}/attachments`
+            );
+
+            setAttachments(response.data.attachments);
+            setAttachmentsError("");
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setUploadAttachmentError(
+                    error.response?.data?.message ||
+                    "Unable to upload or refresh attachments."
+                );
+            } else {
+                setUploadAttachmentError("Unable to upload or refresh attachments.");
+            }
+        } finally {
+            setIsUploadingAttachment(false);
         }
     };
 
@@ -840,7 +886,44 @@ const TaskDetailsPage = () => {
                     <hr className="my-4" />
 
                     <h5 className="mb-3">Attachments</h5>
+                    {(canEditTask || canChangeOwnTaskStatus) && (
+                        <div className="mb-3">
+                            <label htmlFor="attachmentFile" className="form-label">
+                                Select File
+                            </label>
 
+                            <input
+                                type="file"
+                                id="attachmentFile"
+                                className="form-control"
+                                key={attachmentInputKey}
+                                disabled={isUploadingAttachment}
+                                onChange={(event) => {
+                                    setSelectedAttachmentFile(event.target.files?.[0] ?? null);
+                                }}
+                            />
+
+                            {selectedAttachmentFile && (
+                                <p className="text-muted small mt-2">
+                                    Selected file: {selectedAttachmentFile.name}
+                                </p>
+                            )}
+                            {uploadAttachmentError && (
+                                <div className="alert alert-danger mt-2">
+                                    {uploadAttachmentError}
+                                </div>
+                            )}
+
+                            <button
+                                type="button"
+                                className="btn btn-primary mt-2"
+                                disabled={isUploadingAttachment || !selectedAttachmentFile}
+                                onClick={() => void handleUploadAttachment()}
+                            >
+                                {isUploadingAttachment ? "Uploading..." : "Upload Attachment"}
+                            </button>
+                        </div>
+                    )}
                     {isLoadingAttachments ? (
                         <p>Loading attachments...</p>
                     ) : attachmentsError ? (
