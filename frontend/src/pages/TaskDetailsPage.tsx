@@ -58,6 +58,13 @@ const TaskDetailsPage = () => {
     const [newComment, setNewComment] = useState("");
     const [isAddingComment, setIsAddingComment] = useState(false);
     const [addCommentError, setAddCommentError] = useState("");
+    const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+    const [editedCommentContent, setEditedCommentContent] = useState("");
+    const [isSavingComment, setIsSavingComment] = useState(false);
+    const [editCommentError, setEditCommentError] = useState("");
+    const [commentToDeleteId, setCommentToDeleteId] = useState<number | null>(null);
+    const [isDeletingComment, setIsDeletingComment] = useState(false);
+    const [deleteCommentError, setDeleteCommentError] = useState("");
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -288,6 +295,99 @@ const TaskDetailsPage = () => {
             }
         } finally {
             setIsAddingComment(false);
+        }
+    };
+
+    const handleSaveComment = async () => {
+        const content = editedCommentContent.trim();
+
+        const commentToEdit = comments.find(
+            (comment) => comment.id === editingCommentId
+        );
+
+        if (
+            !task ||
+            !project ||
+            project.id !== task.projectId ||
+            project.status !== "Active" ||
+            !commentToEdit ||
+            commentToEdit.authorId !== user?.id ||
+            !content ||
+            isSavingComment
+        ) {
+            return;
+        }
+
+        try {
+            setIsSavingComment(true);
+            setEditCommentError("");
+
+            await axios.patch(`/comments/${commentToEdit.id}`, {
+                content
+            });
+
+            const response = await axios.get<{ comments: TaskComment[] }>(
+                `/tasks/${task.id}/comments`
+            );
+
+            setComments(response.data.comments);
+            setEditingCommentId(null);
+            setEditedCommentContent("");
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setEditCommentError(
+                    error.response?.data?.message ||
+                    "Unable to save or refresh comment."
+                );
+            } else {
+                setEditCommentError("Unable to save or refresh comment.");
+            }
+        } finally {
+            setIsSavingComment(false);
+        }
+    };
+
+    const handleDeleteComment = async () => {
+        const commentToDelete = comments.find(
+            (comment) => comment.id === commentToDeleteId
+        );
+
+        if (
+            !task ||
+            !project ||
+            project.id !== task.projectId ||
+            project.status !== "Active" ||
+            !commentToDelete ||
+            !(canEditTask || user?.id === commentToDelete.authorId) ||
+            isDeletingComment
+        ) {
+            return;
+        }
+
+        try {
+            setIsDeletingComment(true);
+            setDeleteCommentError("");
+
+            await axios.delete(`/comments/${commentToDelete.id}`);
+
+            setComments((previousComments) =>
+                previousComments.filter(
+                    (comment) => comment.id !== commentToDelete.id
+                )
+            );
+
+            setCommentToDeleteId(null);
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setDeleteCommentError(
+                    error.response?.data?.message ||
+                    "Unable to delete comment."
+                );
+            } else {
+                setDeleteCommentError("Unable to delete comment.");
+            }
+        } finally {
+            setIsDeletingComment(false);
         }
     };
 
@@ -581,12 +681,115 @@ const TaskDetailsPage = () => {
                                         </small>
                                     </div>
 
-                                    <p
-                                        className="mb-0 text-break"
-                                        style={{ whiteSpace: "pre-wrap" }}
-                                    >
-                                        {comment.content}
-                                    </p>
+                                    {editingCommentId === comment.id ? (
+                                        <div>
+                                            <textarea
+                                                className="form-control"
+                                                rows={3}
+                                                value={editedCommentContent}
+                                                onChange={(event) => setEditedCommentContent(event.target.value)}
+                                            />
+                                            {editCommentError && (
+                                                <div className="alert alert-danger mt-2">
+                                                    {editCommentError}
+                                                </div>
+                                            )}
+
+                                            <button
+                                                type="button"
+                                                className="btn btn-primary btn-sm mt-2 me-2"
+                                                disabled={isSavingComment || !editedCommentContent.trim()}
+                                                onClick={() => void handleSaveComment()}
+                                            >
+                                                {isSavingComment ? "Saving..." : "Save Changes"}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn btn-outline-secondary btn-sm mt-2"
+                                                disabled={isSavingComment}
+                                                onClick={() => {
+                                                    setEditCommentError("");
+                                                    setEditingCommentId(null);
+                                                    setEditedCommentContent("");
+                                                }}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <p
+                                                className="mb-0 text-break"
+                                                style={{ whiteSpace: "pre-wrap" }}
+                                            >
+                                                {comment.content}
+                                            </p>
+
+                                            {project?.id === task.projectId &&
+                                                project.status === "Active" &&
+                                                user?.id === comment.authorId && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-primary btn-sm mt-2"
+                                                        onClick={() => {
+                                                            setEditCommentError("");
+                                                            setEditingCommentId(comment.id);
+                                                            setEditedCommentContent(comment.content);
+                                                        }}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                )
+                                            }
+                                            {project?.id === task.projectId &&
+                                                project.status === "Active" &&
+                                                (canEditTask || user?.id === comment.authorId) && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-danger btn-sm mt-2 ms-2"
+                                                        onClick={() => {
+                                                            setDeleteCommentError("");
+                                                            setCommentToDeleteId(comment.id);
+                                                        }}
+                                                        disabled={isDeletingComment}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                )
+                                            }
+                                            {commentToDeleteId === comment.id && (
+                                                <div className="alert alert-warning mt-2 mb-0">
+                                                    <p className="mb-2">
+                                                        Are you sure you want to permanently delete this comment?
+                                                    </p>
+                                                    {deleteCommentError && (
+                                                        <div className="alert alert-danger">
+                                                            {deleteCommentError}
+                                                        </div>
+                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-secondary btn-sm"
+                                                        onClick={() => {
+                                                            setDeleteCommentError("");
+                                                            setCommentToDeleteId(null);
+                                                        }}
+                                                        disabled={isDeletingComment}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-danger btn-sm ms-2"
+                                                        disabled={isDeletingComment}
+                                                        onClick={() => void handleDeleteComment()}
+                                                    >
+                                                        {isDeletingComment ? "Deleting..." : "Delete Permanently"}
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
                             ))}
                         </div>
