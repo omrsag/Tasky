@@ -622,17 +622,17 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Show Comments for a Task to its authorized Project users.
-- [ ] Allow authorized users to add Comments.
-- [ ] Allow users to edit their own Comments and delete Comments according to role permissions.
-- [ ] Show the Task's existing Attachments.
-- [ ] Provide file uploads only for the assignee, responsible Manager, or Admin.
-- [ ] Send attachments as `multipart/form-data` with the field name `file`.
-- [ ] Support authenticated Attachment downloads through the backend endpoint.
-- [ ] Allow permitted users to delete Attachments.
-- [ ] Display an understandable error when an Attachment exceeds 10 MB or a request is denied.
-- [ ] Keep Task collaboration Read-only for Completed and Archived Projects.
-- [ ] Test Comment and Attachment actions in the browser with different roles.
+- [x] Show Comments for a Task to its authorized Project users.
+- [x] Allow authorized users to add Comments.
+- [x] Allow users to edit their own Comments and delete Comments according to role permissions.
+- [x] Show the Task's existing Attachments.
+- [x] Provide file uploads only for the assignee, responsible Manager, or Admin.
+- [x] Send attachments as `multipart/form-data` with the field name `file`.
+- [x] Support authenticated Attachment downloads through the backend endpoint.
+- [x] Allow permitted users to delete Attachments.
+- [x] Display an understandable error when an Attachment exceeds 10 MB or a request is denied.
+- [x] Keep Task collaboration Read-only for Completed and Archived Projects.
+- [x] Test Comment and Attachment actions in the browser with different roles.
 
 ### Completion Criteria
 
