@@ -87,6 +87,10 @@ const TaskDetailsPage = () => {
     const [isDeletingAttachment, setIsDeletingAttachment] = useState(false);
     const [deleteAttachmentError, setDeleteAttachmentError] = useState("");
 
+    const isAttachmentTooLarge =
+        selectedAttachmentFile !== null &&
+        selectedAttachmentFile.size > 10 * 1024 * 1024;
+
     useEffect(() => {
         const fetchTask = async () => {
             try {
@@ -448,6 +452,7 @@ const TaskDetailsPage = () => {
             !task ||
             !selectedAttachmentFile ||
             !(canEditTask || canChangeOwnTaskStatus) ||
+            isAttachmentTooLarge || 
             isUploadingAttachment
         ) {
             return;
@@ -473,10 +478,22 @@ const TaskDetailsPage = () => {
             setAttachmentsError("");
         } catch (error) {
             if (axios.isAxiosError<{ message: string }>(error)) {
-                setUploadAttachmentError(
-                    error.response?.data?.message ||
-                    "Unable to upload or refresh attachments."
-                );
+                const status = error.response?.status;
+
+                if (status === 413) {
+                    setUploadAttachmentError(
+                        "File size must not exceed 10 MB."
+                    );
+                } else if (status === 403) {
+                    setUploadAttachmentError(
+                        "You do not have permission to upload this attachment."
+                    );
+                } else {
+                    setUploadAttachmentError(
+                        error.response?.data?.message ||
+                        "Unable to upload or refresh attachments."
+                    );
+                }
             } else {
                 setUploadAttachmentError("Unable to upload or refresh attachments.");
             }
@@ -1012,6 +1029,11 @@ const TaskDetailsPage = () => {
                                     Selected file: {selectedAttachmentFile.name}
                                 </p>
                             )}
+                            {isAttachmentTooLarge && (
+                                <div className="text-danger small mt-2" role="alert">
+                                    File size must not exceed 10 MB.
+                                </div>
+                            )}
                             {uploadAttachmentError && (
                                 <div className="alert alert-danger mt-2">
                                     {uploadAttachmentError}
@@ -1021,7 +1043,7 @@ const TaskDetailsPage = () => {
                             <button
                                 type="button"
                                 className="btn btn-primary mt-2"
-                                disabled={isUploadingAttachment || !selectedAttachmentFile}
+                                disabled={isUploadingAttachment || !selectedAttachmentFile || isAttachmentTooLarge}
                                 onClick={() => void handleUploadAttachment()}
                             >
                                 {isUploadingAttachment ? "Uploading..." : "Upload Attachment"}
