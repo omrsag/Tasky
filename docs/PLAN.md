@@ -632,7 +632,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Allow permitted users to delete Attachments.
 - [x] Display an understandable error when an Attachment exceeds 10 MB or a request is denied.
 - [x] Keep Task collaboration Read-only for Completed and Archived Projects.
-- [ ] Test Comment and Attachment actions in the browser with different roles.
+- [x] Test Comment and Attachment actions in the browser with different roles.
 
 ### Completion Criteria
 
