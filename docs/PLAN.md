@@ -630,8 +630,8 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Send attachments as `multipart/form-data` with the field name `file`.
 - [x] Support authenticated Attachment downloads through the backend endpoint.
 - [x] Allow permitted users to delete Attachments.
-- [ ] Display an understandable error when an Attachment exceeds 10 MB or a request is denied.
-- [ ] Keep Task collaboration Read-only for Completed and Archived Projects.
+- [x] Display an understandable error when an Attachment exceeds 10 MB or a request is denied.
+- [x] Keep Task collaboration Read-only for Completed and Archived Projects.
 - [ ] Test Comment and Attachment actions in the browser with different roles.
 
 ### Completion Criteria
