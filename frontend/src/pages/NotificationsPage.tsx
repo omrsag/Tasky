@@ -64,13 +64,23 @@ const NotificationsPage = () => {
                     {notifications.map((notification) => (
                         <div
                             key={notification.id}
-                            className="list-group-item"
+                            className={`list-group-item ${
+                                notification.isRead ? "" : "bg-body-tertiary"
+                            }`}
                         >
-                            <p className="mb-2 text-break">
+                            <p
+                                className={`mb-2 text-break ${
+                                    notification.isRead ? "" : "fw-semibold"
+                                }`}
+                            >
                                 {notification.message}
                             </p>
-
-                            <small className="text-muted">
+                            {!notification.isRead && (
+                                <span className="badge text-bg-primary mb-2">
+                                    Unread
+                                </span>
+                            )}
+                            <small className="d-block text-muted">
                                 {new Date(notification.createdAt).toLocaleString()}
                             </small>
                         </div>
