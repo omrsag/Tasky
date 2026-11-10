@@ -18,6 +18,7 @@ import TasksPage from "./pages/TasksPage";
 import TaskDetailsPage from "./pages/TaskDetailsPage";
 import CreateTaskPage from "./pages/CreateTaskPage";
 import EditTaskPage from "./pages/EditTaskPage";
+import NotificationsPage from "./pages/NotificationsPage";
 
 const App = () => {
   return (
@@ -44,7 +45,7 @@ const App = () => {
                     element={<ProjectMembersPage />}
                   />
                   <Route path="/tasks/:id" element={<div>Task Details</div>} />
-                  <Route path="/notifications" element={<div>Notifications</div>} />
+                  <Route path="/notifications" element={<NotificationsPage />} />
                   <Route path="/profile" element={<div>Profile</div>} />
                 </Route>
             </Route>
