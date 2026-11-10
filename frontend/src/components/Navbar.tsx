@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+
+type UnreadCountResponse = {
+	unreadCount: number;
+};
 
 const Navbar = () => {
     const { user, setUser, setToken } = useAuth();
@@ -9,6 +13,40 @@ const Navbar = () => {
 
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [logoutError, setLogoutError] = useState<string | null>(null);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [unreadCountError, setUnreadCountError] = useState("");
+
+    useEffect(() => {
+        if (!user?.id) {
+            setUnreadCount(0);
+            return;
+        }
+
+        const fetchUnreadCount = async () => {
+            try {
+                setUnreadCountError("");
+
+                const response = await axios.get<UnreadCountResponse>(
+                    "/notifications/unread-count"
+                );
+
+                setUnreadCount(response.data.unreadCount);
+            } catch (error) {
+                setUnreadCount(0);
+
+                if (axios.isAxiosError<{ message: string }>(error)) {
+                    setUnreadCountError(
+                        error.response?.data?.message ||
+                        "Unable to load unread notifications."
+                    );
+                } else {
+                    setUnreadCountError("Unable to load unread notifications.");
+                }
+            }
+        };
+
+        void fetchUnreadCount();
+    }, [user?.id]);
 
     const handleLogout = async () => {
         setIsLoggingOut(true);
@@ -67,8 +105,17 @@ const Navbar = () => {
                         </>
                     )}
 
-                    <NavLink className="nav-link" to="/notifications">
+                    <NavLink
+                        className="nav-link d-inline-flex align-items-center gap-2"
+                        to="/notifications"
+                    >
                         Notifications
+
+                        {unreadCount > 0 && (
+                            <span className="badge rounded-pill text-bg-danger">
+                                {unreadCount}
+                            </span>
+                        )}
                     </NavLink>
 
                     <NavLink className="nav-link" to="/profile">
@@ -91,6 +138,11 @@ const Navbar = () => {
                 {logoutError && (
                     <div className="alert alert-danger w-100 mb-0" role="alert">
                         {logoutError}
+                    </div>
+                )}
+                {unreadCountError && (
+                    <div className="alert alert-warning w-100 mb-0" role="alert">
+                        {unreadCountError}
                     </div>
                 )}
             </div>
