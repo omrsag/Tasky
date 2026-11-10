@@ -46,6 +46,11 @@ const Navbar = () => {
         };
 
         void fetchUnreadCount();
+        const intervalId = setInterval(() => {
+            void fetchUnreadCount();
+        }, 30000);
+
+        return () => clearInterval(intervalId);
     }, [user?.id]);
 
     const handleLogout = async () => {
