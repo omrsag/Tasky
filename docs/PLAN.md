@@ -653,7 +653,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Periodically request `GET /notifications/unread-count` using Axios polling.
 - [x] Build `NotificationsPage.tsx` and load Notifications through `GET /notifications`.
 - [x] Distinguish read and unread Notifications.
-- [ ] Allow marking one Notification or all Notifications as read.
+- [x] Allow marking one Notification or all Notifications as read.
 - [ ] Provide navigation from a Task-related Notification to its Task when accessible.
 - [ ] Keep Notification data scoped to the current user.
 - [ ] Handle polling failures, loading, and empty Notification lists.
