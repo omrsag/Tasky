@@ -649,15 +649,15 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Add an unread Notification count to `Navbar.tsx`.
-- [ ] Periodically request `GET /notifications/unread-count` using Axios polling.
-- [ ] Build `NotificationsPage.tsx` and load Notifications through `GET /notifications`.
-- [ ] Distinguish read and unread Notifications.
-- [ ] Allow marking one Notification or all Notifications as read.
-- [ ] Provide navigation from a Task-related Notification to its Task when accessible.
-- [ ] Keep Notification data scoped to the current user.
-- [ ] Handle polling failures, loading, and empty Notification lists.
-- [ ] Test each of the five Notification events through the UI.
+- [x] Add an unread Notification count to `Navbar.tsx`.
+- [x] Periodically request `GET /notifications/unread-count` using Axios polling.
+- [x] Build `NotificationsPage.tsx` and load Notifications through `GET /notifications`.
+- [x] Distinguish read and unread Notifications.
+- [x] Allow marking one Notification or all Notifications as read.
+- [x] Provide navigation from a Task-related Notification to its Task when accessible.
+- [x] Keep Notification data scoped to the current user.
+- [x] Handle polling failures, loading, and empty Notification lists.
+- [x] Test each of the five Notification events through the UI.
 
 ### Completion Criteria
 
