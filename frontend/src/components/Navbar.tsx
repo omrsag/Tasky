@@ -19,20 +19,27 @@ const Navbar = () => {
     useEffect(() => {
         if (!user?.id) {
             setUnreadCount(0);
+            setUnreadCountError("");
             return;
         }
 
+        let isActive = true;
+
+        setUnreadCount(0);
+        setUnreadCountError("");
+
         const fetchUnreadCount = async () => {
             try {
-                setUnreadCountError("");
-
                 const response = await axios.get<UnreadCountResponse>(
                     "/notifications/unread-count"
                 );
 
+                if (!isActive) return;
+
                 setUnreadCount(response.data.unreadCount);
+                setUnreadCountError("");
             } catch (error) {
-                setUnreadCount(0);
+                if (!isActive) return;
 
                 if (axios.isAxiosError<{ message: string }>(error)) {
                     setUnreadCountError(
@@ -50,7 +57,10 @@ const Navbar = () => {
             void fetchUnreadCount();
         }, 30000);
 
-        return () => clearInterval(intervalId);
+        return () => {
+            isActive = false;
+            clearInterval(intervalId);
+        };
     }, [user?.id]);
 
     const handleLogout = async () => {

@@ -656,7 +656,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Allow marking one Notification or all Notifications as read.
 - [x] Provide navigation from a Task-related Notification to its Task when accessible.
 - [x] Keep Notification data scoped to the current user.
-- [ ] Handle polling failures, loading, and empty Notification lists.
+- [x] Handle polling failures, loading, and empty Notification lists.
 - [ ] Test each of the five Notification events through the UI.
 
 ### Completion Criteria
