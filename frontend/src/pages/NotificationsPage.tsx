@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 type TaskNotification = {
 	id: number;
@@ -16,12 +17,15 @@ type TaskNotification = {
 };
 
 const NotificationsPage = () => {
+    const navigate = useNavigate();
+
 	const [notifications, setNotifications] = useState<TaskNotification[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState("");
     const [markingNotificationId, setMarkingNotificationId] = useState<number | null>(null);
     const [isMarkingAll, setIsMarkingAll] = useState(false);
     const [actionError, setActionError] = useState("");
+    const [openingTaskId, setOpeningTaskId] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -106,6 +110,35 @@ const NotificationsPage = () => {
         }
     };
 
+    const handleViewTask = async (taskId: number) => {
+        setOpeningTaskId(taskId);
+        setActionError("");
+
+        try {
+            await axios.get(`/tasks/${taskId}`);
+
+            navigate(`/tasks/${taskId}`);
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                if (
+                    error.response?.status === 403 ||
+                    error.response?.status === 404
+                ) {
+                    setActionError("This task is no longer accessible.");
+                } else {
+                    setActionError(
+                        error.response?.data?.message ||
+                        "Unable to open task."
+                    );
+                }
+            } else {
+                setActionError("Unable to open task.");
+            }
+        } finally {
+            setOpeningTaskId(null);
+        }
+    };
+
 	return (
 		<div>
 			<div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
@@ -173,6 +206,16 @@ const NotificationsPage = () => {
                             <small className="d-block text-muted">
                                 {new Date(notification.createdAt).toLocaleString()}
                             </small>
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary btn-sm mt-2"
+                                onClick={() => void handleViewTask(notification.taskId)}
+                                disabled={openingTaskId !== null}
+                            >
+                                {openingTaskId === notification.taskId
+                                    ? "Opening..."
+                                    : "View task"}
+                            </button>
                         </div>
                     ))}
                 </div> 

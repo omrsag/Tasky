@@ -654,7 +654,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Build `NotificationsPage.tsx` and load Notifications through `GET /notifications`.
 - [x] Distinguish read and unread Notifications.
 - [x] Allow marking one Notification or all Notifications as read.
-- [ ] Provide navigation from a Task-related Notification to its Task when accessible.
+- [x] Provide navigation from a Task-related Notification to its Task when accessible.
 - [ ] Keep Notification data scoped to the current user.
 - [ ] Handle polling failures, loading, and empty Notification lists.
 - [ ] Test each of the five Notification events through the UI.
