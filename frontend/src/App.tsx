@@ -19,6 +19,7 @@ import TaskDetailsPage from "./pages/TaskDetailsPage";
 import CreateTaskPage from "./pages/CreateTaskPage";
 import EditTaskPage from "./pages/EditTaskPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import ProfilePage from "./pages/ProfilePage";
 
 const App = () => {
   return (
@@ -44,9 +45,8 @@ const App = () => {
                     path="/projects/:id/members"
                     element={<ProjectMembersPage />}
                   />
-                  <Route path="/tasks/:id" element={<div>Task Details</div>} />
                   <Route path="/notifications" element={<NotificationsPage />} />
-                  <Route path="/profile" element={<div>Profile</div>} />
+                  <Route path="/profile" element={<ProfilePage />} />
                 </Route>
             </Route>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
