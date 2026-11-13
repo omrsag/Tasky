@@ -675,7 +675,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 ### Tasks
 
 - [x] Create the Profile page showing the current user's account information.
-- [ ] Let users change their own password through `PATCH /auth/password`.
+- [x] Let users change their own password through `PATCH /auth/password`.
 - [ ] Let users upload or replace their own profile picture.
 - [ ] Let users remove their own profile picture.
 - [ ] Request profile pictures through the protected `/auth/profile-image` endpoint when `hasProfileImage` is true.
