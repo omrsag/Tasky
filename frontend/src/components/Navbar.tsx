@@ -15,6 +15,12 @@ const Navbar = () => {
     const [logoutError, setLogoutError] = useState<string | null>(null);
     const [unreadCount, setUnreadCount] = useState(0);
     const [unreadCountError, setUnreadCountError] = useState("");
+    const [navbarImage, setNavbarImage] = useState<{
+        userId: number;
+        url: string;
+    } | null>(null);
+
+    const [navbarImageError, setNavbarImageError] = useState("");
 
     useEffect(() => {
         if (!user?.id) {
@@ -62,6 +68,61 @@ const Navbar = () => {
             clearInterval(intervalId);
         };
     }, [user?.id]);
+
+    useEffect(() => {
+        if (!user?.hasProfileImage) {
+            setNavbarImage(null);
+            setNavbarImageError("");
+            return;
+        }
+
+        let isActive = true;
+        let objectUrl: string | null = null;
+
+        setNavbarImage(null);
+        setNavbarImageError("");
+
+        const fetchNavbarImage = async () => {
+            try {
+                const response = await axios.get<Blob>(
+                    "/auth/profile-image",
+                    {
+                        responseType: "blob",
+                    }
+                );
+
+                if (!isActive) return;
+
+                objectUrl = URL.createObjectURL(response.data);
+
+                setNavbarImage({
+                    userId: user.id,
+                    url: objectUrl,
+                });
+            } catch (error) {
+                if (!isActive) return;
+
+                if (
+                    axios.isAxiosError(error) &&
+                    error.response?.status === 404
+                ) {
+                    setNavbarImageError("Profile picture not found.");
+                } else {
+                    setNavbarImageError("Unable to load profile picture.");
+                }
+            }
+        };
+
+        void fetchNavbarImage();
+
+        return () => {
+            isActive = false;
+
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+        };
+    }, [user]);
 
     const handleLogout = async () => {
         setIsLoggingOut(true);
@@ -138,9 +199,37 @@ const Navbar = () => {
                     </NavLink>
                 </div>
 
-                <span className="small text-body-secondary ms-auto">
-                    {user?.fullName}
-                </span>
+                <div className="d-flex align-items-center gap-2 ms-auto">
+                    {navbarImage !== null && navbarImage.userId === user?.id ? (
+                        <img
+                            src={navbarImage.url}
+                            alt="Profile picture"
+                            className="rounded-circle border"
+                            style={{
+                                width: 36,
+                                height: 36,
+                                objectFit: "cover",
+                            }}
+                        />
+                    ) : (
+                        <span
+                            className="rounded-circle bg-body-tertiary border text-secondary-emphasis d-flex align-items-center justify-content-center fw-semibold"
+                            style={{
+                                width: 36,
+                                height: 36,
+                            }}
+                            role="img"
+                            aria-label="Default profile avatar"
+                            title={navbarImageError || undefined}
+                        >
+                            {user?.fullName.trim().charAt(0).toUpperCase() || "?"}
+                        </span>
+                    )}
+
+                    <span className="small text-body-secondary">
+                        {user?.fullName}
+                    </span>
+                </div>
                 <button
                     type="button"
                     className="btn btn-outline-danger btn-sm"
