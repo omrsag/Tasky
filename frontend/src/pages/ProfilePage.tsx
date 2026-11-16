@@ -16,6 +16,7 @@ const ProfilePage = () => {
     const [isUploadingImage, setIsUploadingImage] = useState(false);
     const [imageError, setImageError] = useState("");
     const [imageSuccess, setImageSuccess] = useState("");
+    const [isRemovingImage, setIsRemovingImage] = useState(false);
 
     const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -71,7 +72,7 @@ const ProfilePage = () => {
     };
 
     const handleUploadProfileImage = async () => {
-        if (isUploadingImage) return;
+        if (isUploadingImage || isRemovingImage) return;
 
         setImageError("");
         setImageSuccess("");
@@ -130,6 +131,44 @@ const ProfilePage = () => {
             }
         } finally {
             setIsUploadingImage(false);
+        }
+    };
+
+    const handleRemoveProfileImage = async () => {
+        if (isRemovingImage || isUploadingImage || !user?.hasProfileImage) return;
+
+        setImageError("");
+        setImageSuccess("");
+        setIsRemovingImage(true);
+
+        try {
+            const response = await axios.delete<{
+                message: string;
+                hasProfileImage: boolean;
+            }>("/auth/profile-image");
+
+            setUser({
+                ...user,
+                hasProfileImage: response.data.hasProfileImage,
+            });
+
+            setImageSuccess(response.data.message);
+            setSelectedImage(null);
+
+            if (imageInputRef.current) {
+                imageInputRef.current.value = "";
+            }
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setImageError(
+                    error.response?.data?.message ||
+                    "Unable to remove profile image."
+                );
+            } else {
+                setImageError("Unable to remove profile image.");
+            }
+        } finally {
+            setIsRemovingImage(false);
         }
     };
 
@@ -275,7 +314,7 @@ const ProfilePage = () => {
                                     setImageError("");
                                     setImageSuccess("");
                                 }}
-                                disabled={isUploadingImage}
+                                disabled={isUploadingImage || isRemovingImage}
                             />
 
                             <div className="form-text">
@@ -298,7 +337,7 @@ const ProfilePage = () => {
                         <button
                             type="submit"
                             className="btn btn-outline-primary"
-                            disabled={isUploadingImage || !selectedImage}
+                            disabled={isUploadingImage || isRemovingImage || !selectedImage}
                         >
                             {isUploadingImage
                                 ? "Uploading..."
@@ -307,6 +346,16 @@ const ProfilePage = () => {
                                     : "Upload Picture"}
                         </button>
                     </form>
+                    {user.hasProfileImage && (
+                        <button
+                            type="button"
+                            className="btn btn-outline-danger btn-sm mt-3"
+                            onClick={() => void handleRemoveProfileImage()}
+                            disabled={isRemovingImage || isUploadingImage}
+                        >
+                            {isRemovingImage ? "Removing..." : "Remove Picture"}
+                        </button>
+                    )}
                 </div>
             </div>
 		</div>
