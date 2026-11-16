@@ -678,7 +678,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Let users change their own password through `PATCH /auth/password`.
 - [x] Let users upload or replace their own profile picture.
 - [x] Let users remove their own profile picture.
-- [ ] Request profile pictures through the protected `/auth/profile-image` endpoint when `hasProfileImage` is true.
+- [x] Request profile pictures through the protected `/auth/profile-image` endpoint when `hasProfileImage` is true.
 - [ ] Display a default avatar when no profile picture exists.
 - [ ] Keep other profile fields non-editable by the user, as specified in the PRD.
 - [ ] Show clear feedback for successful and failed profile actions.

@@ -1,9 +1,10 @@
 import { useAuth } from "../context/AuthContext";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 const ProfilePage = () => {
 	const { user, setUser } = useAuth();
+    const imageInputRef = useRef<HTMLInputElement>(null);
 
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -17,8 +18,14 @@ const ProfilePage = () => {
     const [imageError, setImageError] = useState("");
     const [imageSuccess, setImageSuccess] = useState("");
     const [isRemovingImage, setIsRemovingImage] = useState(false);
+    const [profileImage, setProfileImage] = useState<{
+        userId: number;
+        url: string;
+    } | null>(null);
 
-    const imageInputRef = useRef<HTMLInputElement>(null);
+    const [isImageLoading, setIsImageLoading] = useState(false);
+    const [profileImageError, setProfileImageError] = useState("");
+    const [imageRefreshKey, setImageRefreshKey] = useState(0);
 
     const handleChangePassword = async () => {
         if (isChangingPassword) return;
@@ -114,6 +121,7 @@ const ProfilePage = () => {
                 });
             }
 
+            setImageRefreshKey((current) => current + 1);
             setImageSuccess(response.data.message);
             setSelectedImage(null);
 
@@ -171,6 +179,67 @@ const ProfilePage = () => {
             setIsRemovingImage(false);
         }
     };
+
+    useEffect(() => {
+        if (!user?.hasProfileImage) {
+            setProfileImage(null);
+            setIsImageLoading(false);
+            setProfileImageError("");
+            return;
+        }
+
+        let isActive = true;
+        let objectUrl: string | null = null;
+
+        const fetchProfileImage = async () => {
+            setIsImageLoading(true);
+            setProfileImageError("");
+            setProfileImage(null);
+
+            try {
+                const response = await axios.get<Blob>(
+                    "/auth/profile-image",
+                    {
+                        responseType: "blob",
+                    }
+                );
+
+                if (!isActive) return;
+
+                objectUrl = URL.createObjectURL(response.data);
+
+                setProfileImage({
+                    userId: user.id,
+                    url: objectUrl,
+                });
+            } catch (error) {
+                if (!isActive) return;
+
+                if (
+                    axios.isAxiosError(error) &&
+                    error.response?.status === 404
+                ) {
+                    setProfileImageError("Profile picture not found.");
+                } else {
+                    setProfileImageError("Unable to load profile picture.");
+                }
+            } finally {
+                if (isActive) {
+                    setIsImageLoading(false);
+                }
+            }
+        };
+
+        void fetchProfileImage();
+
+        return () => {
+            isActive = false;
+
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+        };
+    }, [user?.id, user?.hasProfileImage, imageRefreshKey]);
 
 	if (!user) {
 		return (
@@ -285,7 +354,30 @@ const ProfilePage = () => {
             <div className="card mt-4">
                 <div className="card-body">
                     <h5 className="card-title mb-3">Profile Picture</h5>
-
+                    {user.hasProfileImage && (
+                        <div className="mb-3">
+                            {isImageLoading ? (
+                                <p className="text-body-secondary">
+                                    Loading profile picture...
+                                </p>
+                            ) : profileImageError ? (
+                                <div className="alert alert-warning" role="alert">
+                                    {profileImageError}
+                                </div>
+                            ) : profileImage?.userId === user.id ? (
+                                <img
+                                    src={profileImage.url}
+                                    alt="Profile picture"
+                                    className="rounded-circle border"
+                                    style={{
+                                        width: 120,
+                                        height: 120,
+                                        objectFit: "cover",
+                                    }}
+                                />
+                            ) : null}
+                        </div>
+                    )}
                     <p className="text-body-secondary">
                         {user.hasProfileImage
                             ? "You already have a profile picture. Upload a new image to replace it."
