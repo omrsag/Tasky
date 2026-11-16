@@ -354,6 +354,21 @@ const ProfilePage = () => {
             <div className="card mt-4">
                 <div className="card-body">
                     <h5 className="card-title mb-3">Profile Picture</h5>
+
+                    {!user.hasProfileImage && (
+                        <div
+                            className="rounded-circle bg-body-tertiary border text-secondary-emphasis d-flex align-items-center justify-content-center fw-semibold mb-3"
+                            style={{
+                                width: 120,
+                                height: 120,
+                                fontSize: 48,
+                            }}
+                            role="img"
+                            aria-label="Default profile avatar"
+                        >
+                            {user.fullName.trim().charAt(0).toUpperCase() || "?"}
+                        </div>
+                    )}
                     {user.hasProfileImage && (
                         <div className="mb-3">
                             {isImageLoading ? (
