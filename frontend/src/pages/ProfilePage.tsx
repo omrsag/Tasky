@@ -1,9 +1,9 @@
 import { useAuth } from "../context/AuthContext";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import axios from "axios";
 
 const ProfilePage = () => {
-	const { user } = useAuth();
+	const { user, setUser } = useAuth();
 
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -12,6 +12,12 @@ const ProfilePage = () => {
     const [isChangingPassword, setIsChangingPassword] = useState(false);
     const [passwordError, setPasswordError] = useState("");
     const [passwordSuccess, setPasswordSuccess] = useState("");
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [imageError, setImageError] = useState("");
+    const [imageSuccess, setImageSuccess] = useState("");
+
+    const imageInputRef = useRef<HTMLInputElement>(null);
 
     const handleChangePassword = async () => {
         if (isChangingPassword) return;
@@ -61,6 +67,69 @@ const ProfilePage = () => {
             }
         } finally {
             setIsChangingPassword(false);
+        }
+    };
+
+    const handleUploadProfileImage = async () => {
+        if (isUploadingImage) return;
+
+        setImageError("");
+        setImageSuccess("");
+
+        if (!selectedImage) {
+            setImageError("Please select an image.");
+            return;
+        }
+
+        const allowedFormats: Record<string, string[]> = {
+            "image/jpeg": [".jpg", ".jpeg"],
+            "image/png": [".png"],
+            "image/webp": [".webp"],
+            "image/gif": [".gif"],
+        };
+
+        const extension = selectedImage.name.match(/\.[^.]+$/)?.[0]?.toLowerCase();
+
+        if (!extension || !allowedFormats[selectedImage.type]?.includes(extension)) {
+            setImageError("Please select a JPEG, PNG, WebP, or GIF image.");
+            return;
+        }
+
+        setIsUploadingImage(true);
+
+        const formData = new FormData();
+        formData.append("file", selectedImage);
+
+        try {
+            const response = await axios.post<{
+                message: string;
+                hasProfileImage: boolean;
+            }>("/auth/profile-image", formData);
+
+            if (user) {
+                setUser({
+                    ...user,
+                    hasProfileImage: response.data.hasProfileImage,
+                });
+            }
+
+            setImageSuccess(response.data.message);
+            setSelectedImage(null);
+
+            if (imageInputRef.current) {
+                imageInputRef.current.value = "";
+            }
+        } catch (error) {
+            if (axios.isAxiosError<{ message: string }>(error)) {
+                setImageError(
+                    error.response?.data?.message ||
+                    "Unable to upload profile image."
+                );
+            } else {
+                setImageError("Unable to upload profile image.");
+            }
+        } finally {
+            setIsUploadingImage(false);
         }
     };
 
@@ -170,6 +239,72 @@ const ProfilePage = () => {
                             disabled={isChangingPassword}
                         >
                             {isChangingPassword ? "Changing..." : "Change Password"}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div className="card mt-4">
+                <div className="card-body">
+                    <h5 className="card-title mb-3">Profile Picture</h5>
+
+                    <p className="text-body-secondary">
+                        {user.hasProfileImage
+                            ? "You already have a profile picture. Upload a new image to replace it."
+                            : "You have not uploaded a profile picture yet."}
+                    </p>
+
+                    <form
+                        onSubmit={(event) => {
+                            event.preventDefault();
+                            void handleUploadProfileImage();
+                        }}
+                    >
+                        <div className="mb-3">
+                            <label htmlFor="profileImage" className="form-label">
+                                Choose Image
+                            </label>
+
+                            <input
+                                ref={imageInputRef}
+                                id="profileImage"
+                                type="file"
+                                className="form-control"
+                                accept="image/jpeg,image/png,image/webp,image/gif"
+                                onChange={(event) => {
+                                    setSelectedImage(event.target.files?.[0] ?? null);
+                                    setImageError("");
+                                    setImageSuccess("");
+                                }}
+                                disabled={isUploadingImage}
+                            />
+
+                            <div className="form-text">
+                                Supported formats: JPEG, PNG, WebP, GIF.
+                            </div>
+                        </div>
+
+                        {imageError && (
+                            <div className="alert alert-danger" role="alert">
+                                {imageError}
+                            </div>
+                        )}
+
+                        {imageSuccess && (
+                            <div className="alert alert-success" role="status">
+                                {imageSuccess}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="btn btn-outline-primary"
+                            disabled={isUploadingImage || !selectedImage}
+                        >
+                            {isUploadingImage
+                                ? "Uploading..."
+                                : user.hasProfileImage
+                                    ? "Replace Picture"
+                                    : "Upload Picture"}
                         </button>
                     </form>
                 </div>
