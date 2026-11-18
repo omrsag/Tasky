@@ -682,7 +682,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Display a default avatar when no profile picture exists.
 - [x] Keep other profile fields non-editable by the user, as specified in the PRD.
 - [x] Show clear feedback for successful and failed profile actions.
-- [ ] Verify the Profile page using Admin, Manager, and Member accounts.
+- [x] Verify the Profile page using Admin, Manager, and Member accounts.
 
 ### Completion Criteria
 
