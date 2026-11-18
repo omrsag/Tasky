@@ -680,7 +680,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Let users remove their own profile picture.
 - [x] Request profile pictures through the protected `/auth/profile-image` endpoint when `hasProfileImage` is true.
 - [x] Display a default avatar when no profile picture exists.
-- [ ] Keep other profile fields non-editable by the user, as specified in the PRD.
+- [x] Keep other profile fields non-editable by the user, as specified in the PRD.
 - [ ] Show clear feedback for successful and failed profile actions.
 - [ ] Verify the Profile page using Admin, Manager, and Member accounts.
 
