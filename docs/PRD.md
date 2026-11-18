@@ -20,7 +20,7 @@ Tasky is designed for small teams that currently manage work in a manual and dec
 
 The MVP will support one workspace per user, one Admin per workspace, multiple Managers, and multiple Members. The Admin controls the workspace and accounts, creates projects, assigns Managers, and has full visibility. Managers operate the projects assigned to them. Members work on assigned tasks while still being able to see all tasks within the projects they belong to.
 
-The MVP will include project management, task assignment and workflow, comments, file attachments, simple search and filters, in-app notifications, user account management, and a simple responsive dashboard. The product will be English-only, responsive on desktop and mobile, and intended for daily use by small teams.
+The MVP will include project management, task assignment and workflow, comments, file attachments, simple search and filters, in-app notifications, user account management, and a simple dashboard. The product will be English-only, designed primarily for desktop browsers, and intended for daily use by small teams.
 
 ---
 
@@ -163,7 +163,7 @@ Not applicable for the MVP.
 - Simple dashboard.
 - Simple search for Tasks and Projects.
 - Simple task filters.
-- Responsive desktop and mobile experience.
+- Simple, functional web interface for desktop browsers.
 - Public live demo.
 - GitHub repository and README.
 
@@ -186,6 +186,7 @@ Not applicable for the MVP.
 - Automated tests.
 - Offline mode.
 - Mobile applications.
+- Dedicated mobile-responsive layouts and mobile-specific UI optimization.
 - Advanced accessibility requirements.
 - Advanced content moderation or reporting.
 - User support or contact ticketing.
@@ -202,7 +203,7 @@ Any functionality listed as out of scope may be considered later, but it is not 
 ### Platform, geography, language, and customer scope
 
 - Platform: Web application only.
-- Devices: Desktop and mobile browsers.
+- Devices: Desktop browsers. Mobile browser optimization is outside the MVP scope.
 - Language: English only.
 - Geographic restrictions: None.
 - Data residency restrictions: None.
@@ -729,11 +730,11 @@ Explicit confirmation is required before permanently deleting:
 - Task
 - Workspace
 
-### Responsive behavior
+### Desktop UI
 
-The MVP must be usable on desktop and mobile screen sizes.
+The MVP must provide a simple and usable interface on desktop browsers.
 
-The UI is expected to be simple and functional rather than visually polished.
+The UI is expected to be functional rather than visually polished. Dedicated mobile-responsive layouts are outside the MVP scope.
 
 ### Language
 
@@ -864,7 +865,7 @@ Activity logging is also out of scope.
 | NFR-007 | Data integrity | A Project must always have exactly one responsible Manager while Active. |
 | NFR-008 | Data integrity | Permanent deletions must also remove dependent records and associated uploaded files as defined. |
 | NFR-009 | Compatibility | The MVP must support the latest versions of Chrome, Edge, Firefox, Safari, and Brave. |
-| NFR-010 | Responsive design | The application must remain usable on desktop and mobile screen sizes. |
+| NFR-010 | Basic desktop usability | Core application screens must be usable on desktop browsers without advanced visual design requirements. |
 | NFR-011 | Connectivity | The application requires an internet connection; offline usage is not supported. |
 | NFR-012 | Language | The MVP must present its interface in English only. |
 | NFR-013 | Scale | The MVP is intended for small teams and has no fixed numeric limits for users, Projects, or Tasks. |
@@ -1073,7 +1074,7 @@ No external product integrations are required for the MVP.
 | AC-025 | FR-038, FR-039 | Task deletion requires confirmation and removes related Comments, Attachments, and uploaded files. |
 | AC-026 | FR-070, FR-071 | Workspace deletion requires confirmation and permanently removes Workspace data and uploaded files. |
 | AC-027 | FR-072 | A failed request shows a clear error and keeps the user on the same page so they can retry. |
-| AC-028 | NFR-009, NFR-010 | Core MVP flows are usable on current Chrome, Edge, Firefox, Safari, and Brave on desktop and mobile screen sizes. |
+| AC-028 | NFR-009, NFR-010 | Core MVP flows are usable on current desktop versions of Chrome, Edge, Firefox, Safari, and Brave. |
 
 ### Critical end-to-end scenarios
 
@@ -1119,7 +1120,7 @@ The MVP is Done when:
 - All confirmed core flows are implemented and usable without critical errors.
 - Permission rules behave as defined.
 - Required edge cases are handled.
-- The application is responsive on desktop and mobile.
+- The core interface is usable on desktop browsers.
 - The project is available on GitHub.
 - A public live demo is available.
 - A clear README explains the product, how to run it locally, and how to access the live demo.
@@ -1202,7 +1203,7 @@ The following areas are deliberately deferred beyond the MVP:
 ### Product constraints confirmed for this MVP
 
 - The product is designed primarily to strengthen Omar Saghir's CV and portfolio.
-- The UI should be functional and responsive but does not need advanced visual polish.
+- The UI should be simple and functional for desktop browsers; advanced visual polish and mobile-specific responsive design are outside the MVP scope.
 - The MVP will be published on GitHub and as a public live demo.
 - Any visitor may create a new Admin account and Workspace.
 - No formal development deadline exists.
