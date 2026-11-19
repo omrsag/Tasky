@@ -699,7 +699,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Add Project search to the Projects list through the existing `search` query parameter.
+- [x] Add Project search to the Projects list through the existing `search` query parameter.
 - [ ] Add Task search within the relevant Project Task list.
 - [ ] Add Task filters for Status, Priority, and Assigned Member.
 - [ ] Support combining the available Task filters and search.
