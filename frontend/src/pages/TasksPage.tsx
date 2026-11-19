@@ -36,6 +36,9 @@ const TasksPage = () => {
     const [membersError, setMembersError] = useState<string | null>(null);
     const [searchInput, setSearchInput] = useState("");
     const [appliedSearch, setAppliedSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [priorityFilter, setPriorityFilter] = useState("");
+    const [assigneeFilter, setAssigneeFilter] = useState("");
 
     useEffect(() => {
         let active = true;
@@ -49,9 +52,20 @@ const TasksPage = () => {
                 const response = await axios.get<{ tasks: Task[] }>(
                     `/projects/${id}/tasks`,
                     {
-                        params: appliedSearch
-                            ? { search: appliedSearch }
-                            : {},
+                        params: {
+                            ...(appliedSearch
+                                ? { search: appliedSearch }
+                                : {}),
+                            ...(statusFilter
+                                ? { status: statusFilter }
+                                : {}),
+                            ...(priorityFilter
+                                ? { priority: priorityFilter }
+                                : {}),
+                            ...(assigneeFilter
+                                ? { assigneeId: Number(assigneeFilter) }
+                                : {}),
+                        },
                     }
                 );
 
@@ -81,7 +95,7 @@ const TasksPage = () => {
         return () => {
             active = false;
         };
-    }, [id, appliedSearch]);
+    }, [id, appliedSearch, statusFilter, priorityFilter, assigneeFilter]);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -197,11 +211,74 @@ const TasksPage = () => {
                     onClick={() => {
                         setSearchInput("");
                         setAppliedSearch("");
+                        setStatusFilter("");
+                        setPriorityFilter("");
+                        setAssigneeFilter("");
                     }}
                 >
-                    Clear
+                    Clear All
                 </button>
             </form>
+            <div className="d-flex flex-wrap gap-3 mb-3">
+                <div>
+                    <label htmlFor="statusFilter" className="form-label">
+                        Status
+                    </label>
+
+                    <select
+                        id="statusFilter"
+                        className="form-select"
+                        value={statusFilter}
+                        onChange={(event) => setStatusFilter(event.target.value)}
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="Todo">Todo</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Review">Review</option>
+                        <option value="Done">Done</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label htmlFor="priorityFilter" className="form-label">
+                        Priority
+                    </label>
+
+                    <select
+                        id="priorityFilter"
+                        className="form-select"
+                        value={priorityFilter}
+                        onChange={(event) => setPriorityFilter(event.target.value)}
+                    >
+                        <option value="">All Priorities</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label htmlFor="assigneeFilter" className="form-label">
+                        Assigned Member
+                    </label>
+
+                    <select
+                        id="assigneeFilter"
+                        className="form-select"
+                        value={assigneeFilter}
+                        onChange={(event) => setAssigneeFilter(event.target.value)}
+                        disabled={isLoadingMembers || !!membersError}
+                    >
+                        <option value="">All Members</option>
+
+                        {members.map((member) => (
+                            <option key={member.id} value={member.id}>
+                                {member.fullName}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
             {membersError && (
                 <div className="alert alert-danger">
                     {membersError}
@@ -213,8 +290,8 @@ const TasksPage = () => {
                 <div className="alert alert-danger">{error}</div>
             ) : tasks.length === 0 ? (
                 <div className="alert alert-info">
-                    {appliedSearch
-                        ? "No tasks found matching your search."
+                    {appliedSearch || statusFilter || priorityFilter || assigneeFilter
+                        ? "No tasks match the selected search and filters."
                         : "No tasks found for this project."}
                 </div>
             ) : (
