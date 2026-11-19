@@ -34,27 +34,54 @@ const TasksPage = () => {
     const [members, setMembers] = useState<ProjectMember[]>([]);
     const [isLoadingMembers, setIsLoadingMembers] = useState(true);
     const [membersError, setMembersError] = useState<string | null>(null);
+    const [searchInput, setSearchInput] = useState("");
+    const [appliedSearch, setAppliedSearch] = useState("");
 
     useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
+        let active = true;
 
+        const fetchTasks = async () => {
+            setIsLoading(true);
+            setError(null);
+            setTasks([]);
+
+            try {
                 const response = await axios.get<{ tasks: Task[] }>(
-                    `/projects/${id}/tasks`
+                    `/projects/${id}/tasks`,
+                    {
+                        params: appliedSearch
+                            ? { search: appliedSearch }
+                            : {},
+                    }
                 );
 
-                setTasks(response.data.tasks);
-            } catch {
-                setError("Unable to load project tasks.");
+                if (active) {
+                    setTasks(response.data.tasks);
+                }
+            } catch (error) {
+                if (!active) return;
+
+                if (axios.isAxiosError<{ message: string }>(error)) {
+                    setError(
+                        error.response?.data?.message ||
+                        "Unable to load project tasks."
+                    );
+                } else {
+                    setError("Unable to load project tasks.");
+                }
             } finally {
-                setIsLoading(false);
+                if (active) {
+                    setIsLoading(false);
+                }
             }
         };
 
         void fetchTasks();
-    }, [id]);
+
+        return () => {
+            active = false;
+        };
+    }, [id, appliedSearch]);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -140,6 +167,41 @@ const TasksPage = () => {
                     </Link>
                 </div>
             </div>
+            <form
+                className="d-flex flex-wrap align-items-center gap-2 mb-3"
+                onSubmit={(event) => {
+                    event.preventDefault();
+                    setAppliedSearch(searchInput.trim());
+                }}
+            >
+                <input
+                    type="search"
+                    className="form-control"
+                    placeholder="Search tasks..."
+                    aria-label="Search tasks"
+                    style={{ maxWidth: 350 }}
+                    value={searchInput}
+                    onChange={(event) => setSearchInput(event.target.value)}
+                />
+
+                <button
+                    type="submit"
+                    className="btn btn-primary"
+                >
+                    Search
+                </button>
+
+                <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => {
+                        setSearchInput("");
+                        setAppliedSearch("");
+                    }}
+                >
+                    Clear
+                </button>
+            </form>
             {membersError && (
                 <div className="alert alert-danger">
                     {membersError}
@@ -151,7 +213,9 @@ const TasksPage = () => {
                 <div className="alert alert-danger">{error}</div>
             ) : tasks.length === 0 ? (
                 <div className="alert alert-info">
-                    No tasks found for this project.
+                    {appliedSearch
+                        ? "No tasks found matching your search."
+                        : "No tasks found for this project."}
                 </div>
             ) : (
                 <div className="table-responsive">
