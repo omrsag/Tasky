@@ -39,6 +39,7 @@ const TasksPage = () => {
     const [statusFilter, setStatusFilter] = useState("");
     const [priorityFilter, setPriorityFilter] = useState("");
     const [assigneeFilter, setAssigneeFilter] = useState("");
+    const [retryCount, setRetryCount] = useState(0);
 
     useEffect(() => {
         let active = true;
@@ -95,7 +96,7 @@ const TasksPage = () => {
         return () => {
             active = false;
         };
-    }, [id, appliedSearch, statusFilter, priorityFilter, assigneeFilter]);
+    }, [id, appliedSearch, statusFilter, priorityFilter, assigneeFilter, retryCount]);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -287,7 +288,17 @@ const TasksPage = () => {
             {isLoading ? (
                 <p>Loading tasks...</p>
             ) : error ? (
-                <div className="alert alert-danger">{error}</div>
+                <div className="alert alert-danger" role="alert">
+                    <p className="mb-2">{error}</p>
+
+                    <button
+                        type="button"
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => setRetryCount((count) => count + 1)}
+                    >
+                        Retry
+                    </button>
+                </div>
             ) : tasks.length === 0 ? (
                 <div className="alert alert-info">
                     {appliedSearch || statusFilter || priorityFilter || assigneeFilter
