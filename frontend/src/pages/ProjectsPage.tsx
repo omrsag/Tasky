@@ -17,6 +17,8 @@ const ProjectsPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [retryCount, setRetryCount] = useState(0);
     const [showArchived, setShowArchived] = useState(false);
+    const [searchInput, setSearchInput] = useState("");
+    const [appliedSearch, setAppliedSearch] = useState("");
 
     useEffect(() => {
         setIsLoading(true);
@@ -26,7 +28,12 @@ const ProjectsPage = () => {
         const loadProjects = async () => {
             try {
                 const response = await axios.get<{ projects: Project[] }>(
-                    "/projects"
+                    "/projects",
+                    {
+                        params: appliedSearch
+                            ? { search: appliedSearch }
+                            : {},
+                    }
                 );
 
                 if (active) {
@@ -48,7 +55,7 @@ const ProjectsPage = () => {
         return () => {
             active = false;
         };
-    }, [retryCount]);
+    }, [retryCount, appliedSearch]);
 
     const visibleProjects = projects.filter((project) =>
         showArchived
@@ -70,6 +77,41 @@ const ProjectsPage = () => {
                     </Link>
                 )}
             </div>
+            <form
+                className="d-flex flex-wrap align-items-center gap-2 mb-3"
+                onSubmit={(event) => {
+                    event.preventDefault();
+                    setAppliedSearch(searchInput.trim());
+                }}
+            >
+                <input
+                    type="search"
+                    className="form-control"
+                    placeholder="Search projects..."
+                    aria-label="Search projects"
+                    style={{ maxWidth: 350 }}
+                    value={searchInput}
+                    onChange={(event) => setSearchInput(event.target.value)}
+                />
+
+                <button
+                    type="submit"
+                    className="btn btn-primary"
+                >
+                    Search
+                </button>
+
+                <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => {
+                        setSearchInput("");
+                        setAppliedSearch("");
+                    }}
+                >
+                    Clear
+                </button>
+            </form>
             <button
                 type="button"
                 className="btn btn-outline-secondary mb-3"
@@ -97,9 +139,13 @@ const ProjectsPage = () => {
                 </div>
             ) : visibleProjects.length === 0 ? (
                 <p className="text-body-secondary">
-                    {showArchived
-                        ? "No archived projects found."
-                        : "No current projects found."}
+                    {appliedSearch
+                        ? showArchived
+                            ? "No archived projects match your search."
+                            : "No current projects match your search."
+                        : showArchived
+                            ? "No archived projects found."
+                            : "No current projects found."}
                 </p>
             ) : (
                 <div className="table-responsive">

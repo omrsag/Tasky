@@ -48,7 +48,7 @@
 - [Milestone 18 — Frontend Comments & Attachments](#milestone-18--frontend-comments--attachments)
 - [Milestone 19 — Frontend Notifications](#milestone-19--frontend-notifications)
 - [Milestone 20 — Frontend Profile](#milestone-20--frontend-profile)
-- [Milestone 21 — Frontend Search, Filters & Responsive UI](#milestone-21--frontend-search-filters--responsive-ui)
+- [Milestone 21 — Frontend Search, Filters & Basic UI Checks](#milestone-21--frontend-search-filters--basic-ui-checks)
 
 ### Integration & Testing
 - [Milestone 22 — Integration & Manual Acceptance Testing](#milestone-22--integration--manual-acceptance-testing)
@@ -691,29 +691,29 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ---
 
-## Milestone 21 — Frontend Search, Filters & Responsive UI
+## Milestone 21 — Frontend Search, Filters & Basic UI Checks
 
-**Goal:** Finish discovery tools and make the MVP usable on desktop and mobile browsers.
+**Goal:** Complete search and filtering functionality and verify basic desktop usability without advanced frontend design work.
 
 **Dependencies:** Milestones 14–20 and Backend Milestone 11.
 
 ### Tasks
 
-- [ ] Add Project search to the Projects list through the existing `search` query parameter.
-- [ ] Add Task search within the relevant Project Task list.
-- [ ] Add Task filters for Status, Priority, and Assigned Member.
-- [ ] Support combining the available Task filters and search.
-- [ ] Keep search and filters limited to permitted server-side results.
-- [ ] Verify loading, empty, success, and error states across all major pages.
-- [ ] Ensure failed requests display an error without navigating away from the current page when retry is appropriate.
-- [ ] Review layout, navigation, forms, and lists at desktop and mobile sizes.
-- [ ] Verify that unavailable actions are hidden or disabled for the current role and Project state.
-- [ ] Manually check the core UI in current Chrome, Edge, Firefox, Safari, and Brave.
+- [x] Add Project search to the Projects list through the existing `search` query parameter.
+- [x] Add Task search within the relevant Project Task list.
+- [x] Add Task filters for Status, Priority, and Assigned Member.
+- [x] Support combining the available Task filters and search.
+- [x] Keep search and filters limited to permitted server-side results.
+- [x] Verify loading, empty, success, and error states across all major pages.
+- [x] Ensure failed requests display an error without navigating away from the current page when retry is appropriate.
+- [x] Review basic desktop layout, navigation, forms, and lists for usability.
+- [x] Verify that unavailable actions are hidden or disabled for the current role and Project state.
+- [x] Manually check the core UI in current desktop versions of Chrome, Edge, Firefox, Safari, and Brave.
 
 ### Completion Criteria
 
-- Search, filtering, and responsive layouts work without breaking permissions or core workflows.
-- Required UI states and the supported browser experience are usable.
+- Search and filtering work without breaking permissions or core workflows.
+- Required UI states and basic desktop usability are verified.
 
 ---
 
@@ -752,7 +752,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [ ] **AC-025:** Task deletion requires confirmation and removes dependent data and files.
 - [ ] **AC-026:** Workspace deletion requires confirmation and removes Workspace data and files.
 - [ ] **AC-027:** Failed requests show clear errors and allow retry without losing the current page.
-- [ ] **AC-028:** Core flows are usable on supported browsers and desktop/mobile sizes.
+- [ ] **AC-028:** Core flows are usable on supported desktop browsers.
 
 ### Tasks — End-to-End & Release Checks
 

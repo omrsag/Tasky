@@ -34,27 +34,69 @@ const TasksPage = () => {
     const [members, setMembers] = useState<ProjectMember[]>([]);
     const [isLoadingMembers, setIsLoadingMembers] = useState(true);
     const [membersError, setMembersError] = useState<string | null>(null);
+    const [searchInput, setSearchInput] = useState("");
+    const [appliedSearch, setAppliedSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [priorityFilter, setPriorityFilter] = useState("");
+    const [assigneeFilter, setAssigneeFilter] = useState("");
+    const [retryCount, setRetryCount] = useState(0);
 
     useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
+        let active = true;
 
+        const fetchTasks = async () => {
+            setIsLoading(true);
+            setError(null);
+            setTasks([]);
+
+            try {
                 const response = await axios.get<{ tasks: Task[] }>(
-                    `/projects/${id}/tasks`
+                    `/projects/${id}/tasks`,
+                    {
+                        params: {
+                            ...(appliedSearch
+                                ? { search: appliedSearch }
+                                : {}),
+                            ...(statusFilter
+                                ? { status: statusFilter }
+                                : {}),
+                            ...(priorityFilter
+                                ? { priority: priorityFilter }
+                                : {}),
+                            ...(assigneeFilter
+                                ? { assigneeId: Number(assigneeFilter) }
+                                : {}),
+                        },
+                    }
                 );
 
-                setTasks(response.data.tasks);
-            } catch {
-                setError("Unable to load project tasks.");
+                if (active) {
+                    setTasks(response.data.tasks);
+                }
+            } catch (error) {
+                if (!active) return;
+
+                if (axios.isAxiosError<{ message: string }>(error)) {
+                    setError(
+                        error.response?.data?.message ||
+                        "Unable to load project tasks."
+                    );
+                } else {
+                    setError("Unable to load project tasks.");
+                }
             } finally {
-                setIsLoading(false);
+                if (active) {
+                    setIsLoading(false);
+                }
             }
         };
 
         void fetchTasks();
-    }, [id]);
+
+        return () => {
+            active = false;
+        };
+    }, [id, appliedSearch, statusFilter, priorityFilter, assigneeFilter, retryCount]);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -140,6 +182,104 @@ const TasksPage = () => {
                     </Link>
                 </div>
             </div>
+            <form
+                className="d-flex flex-wrap align-items-center gap-2 mb-3"
+                onSubmit={(event) => {
+                    event.preventDefault();
+                    setAppliedSearch(searchInput.trim());
+                }}
+            >
+                <input
+                    type="search"
+                    className="form-control"
+                    placeholder="Search tasks..."
+                    aria-label="Search tasks"
+                    style={{ maxWidth: 350 }}
+                    value={searchInput}
+                    onChange={(event) => setSearchInput(event.target.value)}
+                />
+
+                <button
+                    type="submit"
+                    className="btn btn-primary"
+                >
+                    Search
+                </button>
+
+                <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => {
+                        setSearchInput("");
+                        setAppliedSearch("");
+                        setStatusFilter("");
+                        setPriorityFilter("");
+                        setAssigneeFilter("");
+                    }}
+                >
+                    Clear All
+                </button>
+            </form>
+            <div className="d-flex flex-wrap gap-3 mb-3">
+                <div>
+                    <label htmlFor="statusFilter" className="form-label">
+                        Status
+                    </label>
+
+                    <select
+                        id="statusFilter"
+                        className="form-select"
+                        value={statusFilter}
+                        onChange={(event) => setStatusFilter(event.target.value)}
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="Todo">Todo</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Review">Review</option>
+                        <option value="Done">Done</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label htmlFor="priorityFilter" className="form-label">
+                        Priority
+                    </label>
+
+                    <select
+                        id="priorityFilter"
+                        className="form-select"
+                        value={priorityFilter}
+                        onChange={(event) => setPriorityFilter(event.target.value)}
+                    >
+                        <option value="">All Priorities</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label htmlFor="assigneeFilter" className="form-label">
+                        Assigned Member
+                    </label>
+
+                    <select
+                        id="assigneeFilter"
+                        className="form-select"
+                        value={assigneeFilter}
+                        onChange={(event) => setAssigneeFilter(event.target.value)}
+                        disabled={isLoadingMembers || !!membersError}
+                    >
+                        <option value="">All Members</option>
+
+                        {members.map((member) => (
+                            <option key={member.id} value={member.id}>
+                                {member.fullName}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
             {membersError && (
                 <div className="alert alert-danger">
                     {membersError}
@@ -148,10 +288,22 @@ const TasksPage = () => {
             {isLoading ? (
                 <p>Loading tasks...</p>
             ) : error ? (
-                <div className="alert alert-danger">{error}</div>
+                <div className="alert alert-danger" role="alert">
+                    <p className="mb-2">{error}</p>
+
+                    <button
+                        type="button"
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => setRetryCount((count) => count + 1)}
+                    >
+                        Retry
+                    </button>
+                </div>
             ) : tasks.length === 0 ? (
                 <div className="alert alert-info">
-                    No tasks found for this project.
+                    {appliedSearch || statusFilter || priorityFilter || assigneeFilter
+                        ? "No tasks match the selected search and filters."
+                        : "No tasks found for this project."}
                 </div>
             ) : (
                 <div className="table-responsive">
