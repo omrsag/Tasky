@@ -702,13 +702,13 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [x] Add Project search to the Projects list through the existing `search` query parameter.
 - [x] Add Task search within the relevant Project Task list.
 - [x] Add Task filters for Status, Priority, and Assigned Member.
-- [ ] Support combining the available Task filters and search.
-- [ ] Keep search and filters limited to permitted server-side results.
-- [ ] Verify loading, empty, success, and error states across all major pages.
-- [ ] Ensure failed requests display an error without navigating away from the current page when retry is appropriate.
-- [ ] Review basic desktop layout, navigation, forms, and lists for usability.
-- [ ] Verify that unavailable actions are hidden or disabled for the current role and Project state.
-- [ ] Manually check the core UI in current desktop versions of Chrome, Edge, Firefox, Safari, and Brave.
+- [x] Support combining the available Task filters and search.
+- [x] Keep search and filters limited to permitted server-side results.
+- [x] Verify loading, empty, success, and error states across all major pages.
+- [x] Ensure failed requests display an error without navigating away from the current page when retry is appropriate.
+- [x] Review basic desktop layout, navigation, forms, and lists for usability.
+- [x] Verify that unavailable actions are hidden or disabled for the current role and Project state.
+- [x] Manually check the core UI in current desktop versions of Chrome, Edge, Firefox, Safari, and Brave.
 
 ### Completion Criteria
 
