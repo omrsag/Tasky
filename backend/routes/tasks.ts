@@ -111,29 +111,37 @@ export function registerTaskRoutes(app: express.Express): void {
 
                 db.query<mysql.RowDataPacket[]>(
                     `SELECT
-                        id,
-                        project_id,
-                        assignee_id,
-                        title,
-                        description,
-                        priority,
-                        status,
-                        DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date,
+                        t.id,
+                        t.project_id,
+                        t.assignee_id,
+                        u.full_name AS assignee_name,
+                        t.title,
+                        t.description,
+                        t.priority,
+                        t.status,
+                        DATE_FORMAT(t.due_date, '%Y-%m-%d') AS due_date,
                         (
-                            due_date IS NOT NULL
-                            AND due_date < UTC_DATE()
-                            AND status <> 'Done'
+                            t.due_date IS NOT NULL
+                            AND t.due_date < UTC_DATE()
+                            AND t.status <> 'Done'
                         ) AS is_overdue,
-                        created_at
-                        FROM tasks
-                    WHERE project_id = ?
-                        AND (? IS NULL OR title LIKE ? OR description LIKE ?)
-                        AND (? IS NULL OR status = ?)
-                        AND (? IS NULL OR priority = ?)
-                        AND (? IS NULL OR assignee_id = ?)
-                    ORDER BY created_at DESC, id DESC`,
+                        t.created_at
+                    FROM tasks t
+                    INNER JOIN projects p
+                        ON p.id = t.project_id
+                    LEFT JOIN users u
+                        ON u.id = t.assignee_id
+                        AND u.workspace_id = p.workspace_id
+                    WHERE t.project_id = ?
+                        AND p.workspace_id = ?
+                        AND (? IS NULL OR t.title LIKE ? OR t.description LIKE ?)
+                        AND (? IS NULL OR t.status = ?)
+                        AND (? IS NULL OR t.priority = ?)
+                        AND (? IS NULL OR t.assignee_id = ?)
+                    ORDER BY t.created_at DESC, t.id DESC`,
                     [
                         projectId,
+                        res.locals.workspaceId,
                         searchPattern,
                         searchPattern,
                         searchPattern,
@@ -155,6 +163,7 @@ export function registerTaskRoutes(app: express.Express): void {
                             id: task.id,
                             projectId: task.project_id,
                             assigneeId: task.assignee_id,
+                            assigneeName: task.assignee_name,
                             title: task.title,
                             description: task.description,
                             priority: task.priority,
@@ -376,6 +385,7 @@ export function registerTaskRoutes(app: express.Express): void {
                 t.id,
                 t.project_id,
                 t.assignee_id,
+                u.full_name AS assignee_name,
                 t.title,
                 t.description,
                 t.priority,
@@ -389,6 +399,9 @@ export function registerTaskRoutes(app: express.Express): void {
                 t.created_at
             FROM tasks t
             JOIN projects p ON p.id = t.project_id
+            LEFT JOIN users u
+                ON u.id = t.assignee_id
+                AND u.workspace_id = p.workspace_id
             WHERE t.id = ? AND p.workspace_id = ?
         `;
 
@@ -443,6 +456,7 @@ export function registerTaskRoutes(app: express.Express): void {
                         id: task.id,
                         projectId: task.project_id,
                         assigneeId: task.assignee_id,
+                        assigneeName: task.assignee_name,
                         title: task.title,
                         description: task.description,
                         priority: task.priority,

@@ -746,7 +746,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 - [ ] **AC-019:** A Project with unfinished Tasks can become `Archived`.
 - [ ] **AC-020:** Only Admin can reactivate a Completed or Archived Project.
 - [ ] **AC-021:** Members with unfinished assigned Tasks cannot be removed before reassignment.
-- [ ] **AC-022:** Done Tasks retain historical assignee identity after membership removal.
+- [x] **AC-022:** Done Tasks retain historical assignee identity after membership removal.
 - [ ] **AC-023:** Managers responsible for Projects cannot be disabled before transferring them.
 - [ ] **AC-024:** Project deletion requires confirmation and removes dependent data and files.
 - [ ] **AC-025:** Task deletion requires confirmation and removes dependent data and files.
