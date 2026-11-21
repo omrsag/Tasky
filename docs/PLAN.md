@@ -725,46 +725,46 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks — Acceptance Criteria
 
-- [ ] **AC-001:** A visitor registers an Admin account and its Workspace.
-- [ ] **AC-002:** Duplicate account emails are rejected.
-- [ ] **AC-003:** Login survives refresh/restart and ends at logout or invalidation.
-- [ ] **AC-004:** Admin creates Manager and Member accounts that can log in.
-- [ ] **AC-005:** Disabled users lose protected access on their next request.
-- [ ] **AC-006:** Only Admin creates Projects, each with exactly one Manager.
-- [ ] **AC-007:** Admin/Manager manage Project Members while respecting removal rules.
-- [ ] **AC-008:** Admin/Manager create valid Tasks assigned to one Project Member, initially `Todo`.
-- [ ] **AC-009:** A Member submits work for Review but cannot mark it Done; Manager/Admin completes the review.
-- [ ] **AC-010:** Reassignment returns the Task to `Todo`.
-- [ ] **AC-011:** Task due dates outside Project date boundaries are rejected.
-- [ ] **AC-012:** Overdue appears for past-due, non-Done Tasks without changing Task status.
-- [ ] **AC-013:** Every Project Member can see all Tasks in that Project.
-- [ ] **AC-014:** Comment author, Manager, and Admin edit/delete rights follow their defined rules.
-- [ ] **AC-015:** Attachment upload/download/delete respects permissions and the 10 MB limit.
-- [ ] **AC-016:** All required Notification events appear with working Read/Unread states.
-- [ ] **AC-017:** Project/Task search and Task filters return only permitted data.
-- [ ] **AC-018:** A Project with unfinished Tasks cannot become `Completed`.
-- [ ] **AC-019:** A Project with unfinished Tasks can become `Archived`.
-- [ ] **AC-020:** Only Admin can reactivate a Completed or Archived Project.
-- [ ] **AC-021:** Members with unfinished assigned Tasks cannot be removed before reassignment.
-- [ ] **AC-022:** Done Tasks retain historical assignee identity after membership removal.
-- [ ] **AC-023:** Managers responsible for Projects cannot be disabled before transferring them.
-- [ ] **AC-024:** Project deletion requires confirmation and removes dependent data and files.
-- [ ] **AC-025:** Task deletion requires confirmation and removes dependent data and files.
-- [ ] **AC-026:** Workspace deletion requires confirmation and removes Workspace data and files.
-- [ ] **AC-027:** Failed requests show clear errors and allow retry without losing the current page.
-- [ ] **AC-028:** Core flows are usable on supported desktop browsers.
+- [x] **AC-001:** A visitor registers an Admin account and its Workspace.
+- [x] **AC-002:** Duplicate account emails are rejected.
+- [x] **AC-003:** Login survives refresh/restart and ends at logout or invalidation.
+- [x] **AC-004:** Admin creates Manager and Member accounts that can log in.
+- [x] **AC-005:** Disabled users lose protected access on their next request.
+- [x] **AC-006:** Only Admin creates Projects, each with exactly one Manager.
+- [x] **AC-007:** Admin/Manager manage Project Members while respecting removal rules.
+- [x] **AC-008:** Admin/Manager create valid Tasks assigned to one Project Member, initially `Todo`.
+- [x] **AC-009:** A Member submits work for Review but cannot mark it Done; Manager/Admin completes the review.
+- [x] **AC-010:** Reassignment returns the Task to `Todo`.
+- [x] **AC-011:** Task due dates outside Project date boundaries are rejected.
+- [x] **AC-012:** Overdue appears for past-due, non-Done Tasks without changing Task status.
+- [x] **AC-013:** Every Project Member can see all Tasks in that Project.
+- [x] **AC-014:** Comment author, Manager, and Admin edit/delete rights follow their defined rules.
+- [x] **AC-015:** Attachment upload/download/delete respects permissions and the 10 MB limit.
+- [x] **AC-016:** All required Notification events appear with working Read/Unread states.
+- [x] **AC-017:** Project/Task search and Task filters return only permitted data.
+- [x] **AC-018:** A Project with unfinished Tasks cannot become `Completed`.
+- [x] **AC-019:** A Project with unfinished Tasks can become `Archived`.
+- [x] **AC-020:** Only Admin can reactivate a Completed or Archived Project.
+- [x] **AC-021:** Members with unfinished assigned Tasks cannot be removed before reassignment.
+- [x] **AC-022:** Done Tasks retain historical assignee identity after membership removal.
+- [x] **AC-023:** Managers responsible for Projects cannot be disabled before transferring them.
+- [x] **AC-024:** Project deletion requires confirmation and removes dependent data and files.
+- [x] **AC-025:** Task deletion requires confirmation and removes dependent data and files.
+- [x] **AC-026:** Workspace deletion requires confirmation and removes Workspace data and files.
+- [x] **AC-027:** Failed requests show clear errors and allow retry without losing the current page.
+- [x] **AC-028:** Core flows are usable on supported desktop browsers.
 
 ### Tasks — End-to-End & Release Checks
 
-- [ ] Execute the full core journey: registration → team accounts → Project → members → Tasks → Review → Done → Project completion.
-- [ ] Verify Project archival, Read-only behavior, and Admin reactivation.
-- [ ] Verify comments, attachments, Notifications, search, and filters in realistic Task workflows.
-- [ ] Verify that a user cannot access another Workspace's records or a Project outside their allowed scope.
-- [ ] Verify authorization by sending forbidden requests directly through Postman, not only by checking hidden UI controls.
-- [ ] Verify that uploaded files cannot be downloaded without appropriate authentication and authorization.
-- [ ] Verify that deleting Tasks, Projects, and Workspaces cleans up related database records and uploaded files.
-- [ ] Verify required validation, status codes, error messages, empty states, and request-failure behavior.
-- [ ] Fix any critical issues found and repeat the affected manual checks.
+- [x] Execute the full core journey: registration → team accounts → Project → members → Tasks → Review → Done → Project completion.
+- [x] Verify Project archival, Read-only behavior, and Admin reactivation.
+- [x] Verify comments, attachments, Notifications, search, and filters in realistic Task workflows.
+- [x] Verify that a user cannot access another Workspace's records or a Project outside their allowed scope.
+- [x] Verify authorization by sending forbidden requests directly through Postman, not only by checking hidden UI controls.
+- [x] Verify that uploaded files cannot be downloaded without appropriate authentication and authorization.
+- [x] Verify that deleting Tasks, Projects, and Workspaces cleans up related database records and uploaded files.
+- [x] Verify required validation, status codes, error messages, empty states, and request-failure behavior.
+- [x] Fix any critical issues found and repeat the affected manual checks.
 
 ### Completion Criteria
 

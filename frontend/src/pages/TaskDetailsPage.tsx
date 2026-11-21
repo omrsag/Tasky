@@ -9,6 +9,7 @@ type Task = {
     title: string;
     description: string | null;
     assigneeId: number;
+    assigneeName: string | null;
     priority: "Low" | "Medium" | "High";
     status: "Todo" | "In Progress" | "Review" | "Done";
     dueDate: string | null;
@@ -27,11 +28,6 @@ type Project = {
 	id: number;
 	managerId: number;
 	status: "Active" | "Completed" | "Archived";
-};
-
-type ProjectMember = {
-	id: number;
-	fullName: string;
 };
 
 type TaskAttachment = {
@@ -56,9 +52,6 @@ const TaskDetailsPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
-    const [assigneeName, setAssigneeName] = useState<string | null>(null);
-    const [isLoadingAssignee, setIsLoadingAssignee] = useState(false);
-    const [assigneeError, setAssigneeError] = useState<string | null>(null);
     const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
     const [statusError, setStatusError] = useState<string | null>(null);
     const [comments, setComments] = useState<TaskComment[]>([]);
@@ -596,47 +589,6 @@ const TaskDetailsPage = () => {
         }
     };
 
-    const assigneeId = task?.assigneeId;
-
-    useEffect(() => {
-        if (!projectId || !assigneeId) {
-            setAssigneeName(null);
-            setIsLoadingAssignee(false);
-            return;
-        }
-
-        const fetchAssignee = async () => {
-            try {
-                setIsLoadingAssignee(true);
-                setAssigneeError(null);
-                setAssigneeName(null);
-
-                const response = await axios.get<{ members: ProjectMember[] }>(
-                    `/projects/${projectId}/members`
-                );
-
-                const assignee = response.data.members.find(
-                    (member) => member.id === assigneeId
-                );
-
-                setAssigneeName(assignee?.fullName || null);
-            } catch (error) {
-                if (axios.isAxiosError<{ message: string }>(error)) {
-                    setAssigneeError(
-                        error.response?.data?.message ||
-                        "Unable to load task assignee."
-                    );
-                } else {
-                    setAssigneeError("Unable to load task assignee.");
-                }
-            } finally {
-                setIsLoadingAssignee(false);
-            }
-        };
-
-        void fetchAssignee();
-    }, [projectId, assigneeId]);
-
     const today = new Date();
 
     const todayDate = [
@@ -776,16 +728,8 @@ const TaskDetailsPage = () => {
                     
                     <p>
                         <strong>Assignee:</strong>{" "}
-                        {isLoadingAssignee
-                            ? "Loading..."
-                            : assigneeName || `User #${task.assigneeId}`}
+                        {task.assigneeName ?? `User #${task.assigneeId}`}
                     </p>
-
-                    {assigneeError && (
-                        <div className="alert alert-danger">
-                            {assigneeError}
-                        </div>
-                    )}
 
                     <p>
                         <strong>Due Date:</strong>{" "}

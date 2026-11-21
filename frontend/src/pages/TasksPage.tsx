@@ -10,6 +10,7 @@ type Task = {
     priority: "Low" | "Medium" | "High";
     dueDate: string | null;
     assigneeId: number;
+    assigneeName: string | null;
 };
 
 type Project = {
@@ -343,10 +344,7 @@ const TasksPage = () => {
                                         }
                                     </td>
                                     <td>
-                                        {isLoadingMembers
-                                            ? "Loading..."
-                                            : members.find((member) => member.id === task.assigneeId)?.fullName ||
-                                                `User #${task.assigneeId}`}
+                                        {task.assigneeName ?? `User #${task.assigneeId}`}
                                     </td>
                                 </tr>
                             ))}
