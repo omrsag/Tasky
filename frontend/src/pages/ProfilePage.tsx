@@ -382,7 +382,7 @@ const ProfilePage = () => {
                             ) : profileImage?.userId === user.id ? (
                                 <img
                                     src={profileImage.url}
-                                    alt="Profile picture"
+                                    alt="Your profile"
                                     className="rounded-circle border"
                                     style={{
                                         width: 120,

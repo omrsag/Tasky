@@ -203,7 +203,7 @@ const Navbar = () => {
                     {navbarImage !== null && navbarImage.userId === user?.id ? (
                         <img
                             src={navbarImage.url}
-                            alt="Profile picture"
+                            alt="Your profile"
                             className="rounded-circle border"
                             style={{
                                 width: 36,
