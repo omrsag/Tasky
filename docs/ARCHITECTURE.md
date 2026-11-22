@@ -4,7 +4,9 @@
 
 Tasky uses a separated frontend and backend architecture.
 
-The React + TypeScript frontend is hosted on Vercel and communicates with an Express REST API hosted on an Oracle Cloud VM. The backend is the only layer that communicates with MySQL and local uploaded files.
+The React + TypeScript frontend is hosted on Vercel and communicates
+with an Express REST API hosted on alwaysdata. The backend communicates
+with MariaDB hosted on alwaysdata and manages locally stored uploaded files.
 
 The architecture is intentionally simple and focused on the MVP.
 
@@ -22,7 +24,7 @@ flowchart LR
         Axios[Axios]
     end
 
-    subgraph Backend["Backend — Express + TypeScript / Oracle Cloud VM"]
+    subgraph Backend["Backend — Express + TypeScript / alwaysdata"]
         API[REST Endpoints]
         AuthMW[Authentication]
         Permissions[Authorization & Permissions]
@@ -174,11 +176,13 @@ No separate controllers, services, repositories, or models layers are required f
 
 ## 7. Database Access
 
-The backend uses `mysql2`, a MySQL connection pool, and callback-based `db.query()` calls.
+The backend uses `mysql2` to connect to MariaDB and execute
+callback-based `db.query()` calls.
 
-SQL queries are written directly inside the relevant route modules. No ORM or MySQL Transactions are used in the MVP.
+SQL queries are written directly inside the relevant route modules.
+No ORM or database transactions are used in the MVP.
 
-The frontend never connects directly to MySQL.
+The frontend never connects directly to MariaDB.
 
 ## 8. Authentication & Authorization
 
@@ -200,7 +204,7 @@ Frontend validation improves usability, while the backend revalidates input and 
 
 ## 10. File Architecture
 
-Profile images and Task attachments are stored locally on the backend VM.
+Profile images and Task attachments are stored locally on the alwaysdata filesystem.
 
 MySQL stores file references rather than file contents.
 
@@ -232,7 +236,7 @@ Vercel
    │ HTTPS / Axios
    ▼
 Express Backend
-Oracle Cloud VM
+alwaysdata
    │
    ├── MySQL
    └── Local Upload Storage

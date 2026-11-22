@@ -782,13 +782,13 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Prepare the Oracle Cloud Always Free VM for the Express backend, MySQL, and local uploaded-file storage.
-- [ ] Set up MySQL on the VM and create its schema using `database/schema.sql`.
+- [ ] Prepare alwaysdata Free hosting for the Express backend, MariaDB, and local uploaded-file storage.
+- [ ] Set up MariaDB on alwaysdata and create its schema using `database/schema.sql`.
 - [ ] Provide the backend's required configuration and secrets through environment variables.
 - [ ] Ensure the backend's upload directories are writable and persist independently of a backend restart.
-- [ ] Ensure MySQL and uploaded files are not publicly accessible from the internet.
-- [ ] Compile the backend with `npx tsc` and run `node dist/server.js` on the VM.
-- [ ] Ensure the Backend keeps running after SSH disconnection and automatically restarts after a VM reboot.
+- [ ] Ensure MariaDB and uploaded files are not publicly accessible from the internet.
+- [ ] Compile the backend with `npx tsc` and run `node dist/server.js` on alwaysdata.
+- [ ] Ensure the backend keeps running after SSH disconnection and automatically recovers from a service restart or process crash on alwaysdata.
 - [ ] Make the backend reachable securely over HTTPS.
 - [ ] Configure the frontend's production API URL and deploy the React application to Vercel.
 - [ ] Configure backend CORS for the deployed Vercel frontend origin.
@@ -801,7 +801,7 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 ### Completion Criteria
 
 - A public Tasky live demo is available and the frontend communicates securely with the deployed backend.
-- MySQL and uploaded files work on the VM.
+- MariaDB and uploaded files work on alwaysdata.
 - Critical MVP flows work on the deployed application without critical errors.
 
 ---

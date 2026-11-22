@@ -4,7 +4,7 @@
 
 Tasky will use a separated frontend and backend architecture:
 
-**React + TypeScript Frontend → Axios → Express + TypeScript REST API → MySQL**
+**React + TypeScript Frontend → Axios → Express + TypeScript REST API → MariaDB**
 
 The stack is intentionally simple and focused on the MVP.
 
@@ -39,9 +39,9 @@ No additional framework, ORM, or separate controllers, services, repositories, o
 
 ## 4. Database
 
-- **MySQL** — Main relational database.
-- **mysql2** — Connects Express to MySQL and executes SQL queries directly with `db.query()`.
-- **phpMyAdmin** — Database management during development.
+- **MariaDB** — Main production relational database, hosted on alwaysdata.
+- **mysql2** — Connects Express to MariaDB and executes SQL queries directly with `db.query()`.
+- **phpMyAdmin** — Database administration during development and on alwaysdata.
 
 No ORM will be used. SQL queries will be written directly.
 
@@ -100,12 +100,21 @@ No `nodemon` will be used.
 
 ## 9. Hosting
 
-- **Frontend:** Vercel.
-- **Backend:** Oracle Cloud Always Free VM.
-- **Database:** MySQL on the Oracle Cloud VM.
-- **Uploaded Files:** Local persistent storage on the Oracle Cloud VM.
+- **Frontend:** Vercel (Hobby Free).
+- **Backend:** alwaysdata Free hosting (Node.js application).
+- **Database:** MariaDB on alwaysdata.
+- **Uploaded Files:** Local persistent storage on alwaysdata.
 
-Deployment secrets and database credentials will be provided through hosting environment variables and read in Node.js through `process.env`.
+The Express backend runs as a Node.js website on alwaysdata.
+TypeScript is compiled using `npx tsc`, and the application starts
+using `node dist/server.js`.
+
+The frontend uses `REACT_APP_API_URL` to communicate with the backend.
+The backend uses `FRONTEND_URL` to restrict CORS to the deployed
+frontend origin.
+
+Backend configuration and database credentials are currently provided
+through alwaysdata environment variables and read using `process.env`.
 
 ## 10. Not Used
 
