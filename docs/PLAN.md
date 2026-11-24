@@ -814,21 +814,21 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Create the root `README.md` after the live demo is verified.
-- [ ] Introduce Tasky as a portfolio project and briefly explain its purpose and core functionality.
-- [ ] Highlight the software engineering and backend engineering skills demonstrated by the project.
-- [ ] Present the technology stack and high-level system architecture.
-- [ ] Explain the backend architecture and REST API design.
-- [ ] Describe authentication, session management, role-based authorization, and Workspace isolation.
-- [ ] Explain the MySQL database design, relationships, constraints, and data integrity rules.
-- [ ] Highlight important business logic, including Task workflows, Project lifecycle rules, and permission enforcement.
-- [ ] Explain secure file handling and the in-app notification mechanism.
-- [ ] Describe important technical decisions, trade-offs, and intentional MVP limitations.
-- [ ] Summarize the manual API and end-to-end verification approach.
-- [ ] Provide the project structure and links to the technical documentation.
-- [ ] Document local setup instructions, database initialization, and required environment variables without exposing secrets.
-- [ ] Include the public live demo link.
-- [ ] Verify that all technical explanations accurately reflect the final implementation.
+- [x] Create the root `README.md` after the live demo is verified.
+- [x] Introduce Tasky as a portfolio project and briefly explain its purpose and core functionality.
+- [x] Highlight the software engineering and backend engineering skills demonstrated by the project.
+- [x] Present the technology stack and high-level system architecture.
+- [x] Explain the backend architecture and REST API design.
+- [x] Describe authentication, session management, role-based authorization, and Workspace isolation.
+- [x] Explain the MySQL database design, relationships, constraints, and data integrity rules.
+- [x] Highlight important business logic, including Task workflows, Project lifecycle rules, and permission enforcement.
+- [x] Explain secure file handling and the in-app notification mechanism.
+- [x] Describe important technical decisions, trade-offs, and intentional MVP limitations.
+- [x] Summarize the manual API and end-to-end verification approach.
+- [x] Provide the project structure and links to the technical documentation.
+- [x] Document local setup instructions, database initialization, and required environment variables without exposing secrets.
+- [x] Include the public live demo link.
+- [x] Verify that all technical explanations accurately reflect the final implementation.
 
 ### Completion Criteria
 
@@ -840,8 +840,8 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ## Final Completion Checklist
 
-- [ ] All 24 milestones meet their completion criteria.
-- [ ] The API, database, and frontend implement the confirmed MVP scope without extra features.
-- [ ] All 28 PRD acceptance criteria pass manual verification.
-- [ ] The production live demo works without critical issues.
-- [ ] The final `README.md` is accurate and complete.
+- [x] All 24 milestones meet their completion criteria.
+- [x] The API, database, and frontend implement the confirmed MVP scope without extra features.
+- [x] All 28 PRD acceptance criteria pass manual verification.
+- [x] The production live demo works without critical issues.
+- [x] The final `README.md` is accurate and complete.
