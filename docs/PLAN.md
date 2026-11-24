@@ -782,21 +782,21 @@ This document is the step-by-step implementation plan for the Tasky MVP. It tran
 
 ### Tasks
 
-- [ ] Prepare alwaysdata Free hosting for the Express backend, MariaDB, and local uploaded-file storage.
-- [ ] Set up MariaDB on alwaysdata and create its schema using `database/schema.sql`.
-- [ ] Provide the backend's required configuration and secrets through environment variables.
-- [ ] Ensure the backend's upload directories are writable and persist independently of a backend restart.
-- [ ] Ensure MariaDB and uploaded files are not publicly accessible from the internet.
-- [ ] Compile the backend with `npx tsc` and run `node dist/server.js` on alwaysdata.
-- [ ] Ensure the backend keeps running after SSH disconnection and automatically recovers from a service restart or process crash on alwaysdata.
-- [ ] Make the backend reachable securely over HTTPS.
-- [ ] Configure the frontend's production API URL and deploy the React application to Vercel.
-- [ ] Configure backend CORS for the deployed Vercel frontend origin.
-- [ ] Verify that direct navigation and page refresh work correctly for all React Router routes on Vercel.
-- [ ] Confirm that uploaded files are served only through authenticated backend endpoints.
-- [ ] Test registration, login, protected navigation, role permissions, Projects, Tasks, review, and Notifications on the live application.
-- [ ] Test uploaded file delivery, Project/Task state changes, and destructive cleanup on the deployed environment.
-- [ ] Fix deployment-specific failures and repeat the affected production checks.
+- [x] Prepare alwaysdata Free hosting for the Express backend, MariaDB, and local uploaded-file storage.
+- [x] Set up MariaDB on alwaysdata and create its schema using `database/schema.sql`.
+- [x] Provide the backend's required configuration and secrets through environment variables.
+- [x] Ensure the backend's upload directories are writable and persist independently of a backend restart.
+- [x] Ensure MariaDB and uploaded files are not publicly accessible from the internet.
+- [x] Compile the backend with `npx tsc` and run `node dist/server.js` on alwaysdata.
+- [x] Ensure the backend keeps running after SSH disconnection and automatically recovers from a service restart or process crash on alwaysdata.
+- [x] Make the backend reachable securely over HTTPS.
+- [x] Configure the frontend's production API URL and deploy the React application to Vercel.
+- [x] Configure backend CORS for the deployed Vercel frontend origin.
+- [x] Verify that direct navigation and page refresh work correctly for all React Router routes on Vercel.
+- [x] Confirm that uploaded files are served only through authenticated backend endpoints.
+- [x] Test registration, login, protected navigation, role permissions, Projects, Tasks, review, and Notifications on the live application.
+- [x] Test uploaded file delivery, Project/Task state changes, and destructive cleanup on the deployed environment.
+- [x] Fix deployment-specific failures and repeat the affected production checks.
 
 ### Completion Criteria
 
